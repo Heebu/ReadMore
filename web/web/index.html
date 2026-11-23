@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="ReadMore — Modern Intelligent News Aggregation Platform. Real-time updates, personalized feeds, full coverage, and market intelligence.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#0F172A">
+  <title>ReadMore — Next-Gen News & Intelligence</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans (Modern UI) & Playfair Display (Editorial Headlines) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Round|Material+Icons+Outlined" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #090D16;
+      --bg-surface: #111827;
+      --bg-card: #182234;
+      --bg-glass: rgba(17, 24, 39, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-focus: #3B82F6;
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --accent-blue: #3B82F6;
+      --accent-cyan: #06B6D4;
+      --accent-red: #EF4444;
+      --accent-emerald: #10B981;
+      --accent-amber: #F59E0B;
+      --gradient-brand: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 20px 35px -5px rgba(0, 0, 0, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #253348;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3B82F6;
+    }
+
+    /* Editorial Headline font */
+    .headline-font {
+      font-family: 'Playfair Display', Georgia, serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Modern Monospace / Number Font */
+    .mono-font {
+      font-family: 'Space Grotesk', monospace;
+    }
+
+    /* Glassmorphism Classes */
+    .glass-header {
+      background: var(--bg-glass) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Card Hover Animations */
+    .news-card-hover {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
+    }
+    .news-card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(59, 130, 246, 0.3) !important;
+      border-color: rgba(59, 130, 246, 0.4) !important;
+    }
+
+    /* Pulsing Breaking News Dot */
+    @keyframes pulse-red {
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+      }
+    }
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-red);
+      border-radius: 50%;
+      animation: pulse-red 1.8s infinite;
+      margin-right: 6px;
+    }
+
+    /* Shimmer Skeleton Animation */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, #182234 25%, #253348 50%, #182234 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* Image zoom on card hover */
+    .image-zoom-container {
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .image-zoom-container img {
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .news-card-hover:hover .image-zoom-container img {
+      transform: scale(1.05);
+    }
+
+    /* Modal Backdrop Blur */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+
+  <script defer src="main.dart.js"></script>
+</head>
+<body>
+</body>
+</html>
