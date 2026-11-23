@@ -104,6 +104,7 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
 
     return FDMaterialApp(
       title: 'ReadMore — Global News & Intelligence',
+      debugShowCheckedModeBanner: false,
       home: FDScaffold(
         cssStyle: {
           'background': _isDarkMode ? '#090D16' : '#F8FAFC',
@@ -116,10 +117,10 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 1. MSN-Style Utility Ribbon
-                  _buildUtilityRibbon(isMobile),
+                  _buildUtilityRibbon(isMobile, isTablet),
 
                   // 2. Main Brand Header & Navigation
-                  _buildMainHeader(isMobile),
+                  _buildMainHeader(isMobile, isTablet),
 
                   // 3. Primary Screen Flow Navigation Tabs
                   _buildPrimaryNavRibbon(isMobile),
@@ -128,13 +129,18 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
                   if (_activeScreen == 'headlines' || _activeScreen == 'for_you')
                     _buildBreakingNewsTicker(isMobile),
 
-                  // 5. Active Screen Content Body
-                  FDContainer(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 12 : (isTablet ? 24 : 48),
-                      vertical: 24,
+                  // 5. Active Screen Content Body (Centered Max-Width Container)
+                  FDCenter(
+                    child: FDConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1400),
+                      child: FDContainer(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 12 : (isTablet ? 20 : 28),
+                          vertical: 24,
+                        ),
+                        child: _buildCurrentScreenContent(isMobile, isTablet),
+                      ),
                     ),
-                    child: _buildCurrentScreenContent(isMobile, isTablet),
                   ),
 
                   // 6. Footer (Completely unbranded of internal technologies)
@@ -178,7 +184,7 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
   // ==========================================
   // 1. UTILITY RIBBON
   // ==========================================
-  Widget _buildUtilityRibbon(bool isMobile) {
+  Widget _buildUtilityRibbon(bool isMobile, bool isTablet) {
     final weather = WebMockData.cityWeatherMap[_selectedCity] ?? WebMockData.currentWeather;
 
     return FDContainer(
@@ -186,79 +192,86 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
         color: _isDarkMode ? const FlartColor('#05080F') : const FlartColor('#EDE9FE'),
         border: const Border(bottom: BorderSide(color: FlartColor('rgba(255, 255, 255, 0.08)'), width: 1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 32, vertical: 8),
-      child: FDRow(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Left: Date & Weather Clickable Pill
-          FDGestureDetector(
-            onTap: () {
-              setState(() {
-                _activeScreen = 'local';
-              });
-            },
+      child: FDCenter(
+        child: FDConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: FDContainer(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
             child: FDRow(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                FDRawHTML('''
-                  <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: ${_isDarkMode ? '#94A3B8' : '#475569'};">
-                    <span>📅 <b>Monday, Nov 23, 2026</b></span>
-                    <span style="opacity: 0.4;">|</span>
-                    <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(59, 130, 246, 0.12); padding: 2px 8px; border-radius: 12px; color: #60A5FA; font-weight: 600; cursor: pointer;">
-                      📍 ${_selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})
-                    </span>
-                  </div>
-                '''),
+                // Left: Date & Weather Clickable Pill
+                FDGestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _activeScreen = 'local';
+                    });
+                  },
+                  child: FDRow(
+                    children: [
+                      FDRawHTML('''
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: ${_isDarkMode ? '#94A3B8' : '#475569'};">
+                          <span>📅 <b>Monday, Nov 23, 2026</b></span>
+                          <span style="opacity: 0.4;">|</span>
+                          <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(59, 130, 246, 0.12); padding: 2px 8px; border-radius: 12px; color: #60A5FA; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                            📍 ${_selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})
+                          </span>
+                        </div>
+                      '''),
+                    ],
+                  ),
+                ),
+
+                // Right: Real-time Mini Stock Ticker (Desktop only) & Edition Badge
+                if (!isMobile)
+                  FDRow(
+                    children: [
+                      if (!isTablet)
+                        FDGestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _activeScreen = 'markets';
+                            });
+                          },
+                          child: FDRawHTML('''
+                            <div style="display: flex; align-items: center; gap: 14px; font-size: 11px; font-family: monospace; cursor: pointer; margin-right: 14px;">
+                              <span style="color: #10B981; font-weight: bold;">▲ S&P 5,984 (+0.72%)</span>
+                              <span style="color: #10B981; font-weight: bold;">▲ BTC \$98,650 (+3.65%)</span>
+                              <span style="color: #10B981; font-weight: bold;">▲ NVDA \$148.90 (+2.45%)</span>
+                              <span style="color: #EF4444; font-weight: bold;">▼ BRENT \$74.20 (-1.15%)</span>
+                            </div>
+                          '''),
+                        ),
+                      FDGestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showEditionModal = true;
+                          });
+                        },
+                        child: FDContainer(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const FlartColor('rgba(59, 130, 246, 0.15)'),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const FlartColor('rgba(59, 130, 246, 0.3)'), width: 1),
+                          ),
+                          child: FDRow(
+                            children: [
+                              const FDText('🌐 ', style: TextStyle(fontSize: 10)),
+                              FDText(
+                                _selectedEdition,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlartColor('#60A5FA')),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
-
-          // Right: Real-time Mini Stock Ticker & Edition Badge
-          if (!isMobile)
-            FDRow(
-              children: [
-                FDGestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _activeScreen = 'markets';
-                    });
-                  },
-                  child: FDRawHTML('''
-                    <div style="display: flex; align-items: center; gap: 14px; font-size: 11px; font-family: monospace; cursor: pointer;">
-                      <span style="color: #10B981; font-weight: bold;">▲ S&P 5,984 (+0.72%)</span>
-                      <span style="color: #10B981; font-weight: bold;">▲ BTC \$98,650 (+3.65%)</span>
-                      <span style="color: #10B981; font-weight: bold;">▲ NVDA \$148.90 (+2.45%)</span>
-                      <span style="color: #EF4444; font-weight: bold;">▼ BRENT \$74.20 (-1.15%)</span>
-                    </div>
-                  '''),
-                ),
-                const FDSizedBox(width: 14),
-                FDGestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showEditionModal = true;
-                    });
-                  },
-                  child: FDContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const FlartColor('rgba(59, 130, 246, 0.15)'),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const FlartColor('rgba(59, 130, 246, 0.3)'), width: 1),
-                    ),
-                    child: FDRow(
-                      children: [
-                        const FDText('🌐 ', style: TextStyle(fontSize: 10)),
-                        FDText(
-                          _selectedEdition,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlartColor('#60A5FA')),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -266,157 +279,171 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
   // ==========================================
   // 2. MAIN BRAND HEADER
   // ==========================================
-  Widget _buildMainHeader(bool isMobile) {
+  Widget _buildMainHeader(bool isMobile, bool isTablet) {
     return FDContainer(
       decoration: BoxDecoration(
         color: _isDarkMode ? const FlartColor('#111827') : const FlartColor('#FFFFFF'),
         border: const Border(bottom: BorderSide(color: FlartColor('rgba(255, 255, 255, 0.1)'), width: 1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 32, vertical: 14),
-      child: FDRow(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Brand Logo & Tagline
-          FDGestureDetector(
-            onTap: () {
-              setState(() {
-                _activeScreen = 'headlines';
-                _selectedCategory = 'top';
-                _searchQuery = '';
-              });
-            },
+      child: FDCenter(
+        child: FDConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: FDContainer(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 12),
             child: FDRow(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                FDRawHTML('''
-                  <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <div style="width: 38px; height: 38px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #FFF; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
-                      R
-                    </div>
-                    <div>
-                      <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: ${_isDarkMode ? '#F8FAFC' : '#0F172A'};">
-                        Read<span style="color: #3B82F6;">More</span>
+                // Brand Logo & Tagline
+                FDGestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _activeScreen = 'headlines';
+                      _selectedCategory = 'top';
+                      _searchQuery = '';
+                    });
+                  },
+                  child: FDRow(
+                    children: [
+                      FDRawHTML('''
+                        <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; white-space: nowrap;">
+                          <div style="width: 38px; height: 38px; min-width: 38px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #FFF; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
+                            R
+                          </div>
+                          <div>
+                            <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: ${_isDarkMode ? '#F8FAFC' : '#0F172A'}; line-height: 1.1;">
+                              Read<span style="color: #3B82F6;">More</span>
+                            </div>
+                            <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;">
+                              Global News & Intelligence
+                            </div>
+                          </div>
+                        </div>
+                      '''),
+                    ],
+                  ),
+                ),
+
+                // Fluid Responsive Search Bar (Desktop / Tablet)
+                if (!isMobile)
+                  Expanded(
+                    child: FDContainer(
+                      margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 24),
+                      child: FDCenter(
+                        child: FDConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: isTablet ? 280 : 380),
+                          child: FDTextField(
+                            placeholder: isTablet ? 'Search stories...' : 'Search breaking stories, topics, sources...',
+                            backgroundColor: _isDarkMode ? const FlartColor('#1E293B') : const FlartColor('#F1F5F9'),
+                            borderColor: const FlartColor('rgba(255, 255, 255, 0.1)'),
+                            borderRadius: 24,
+                            prefixIcon: const FDIcon(icon: FDIcons.search, size: 16, color: FlartColors.grey),
+                            onChanged: (val) {
+                              setState(() {
+                                _searchQuery = val;
+                                if (val.trim().isNotEmpty && _activeScreen != 'explore') {
+                                  _activeScreen = 'explore';
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Header Quick Controls
+                FDRow(
+                  children: [
+                    // Notification Bell with Unread Badge
+                    FDGestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showNotificationsModal = !_showNotificationsModal;
+                          _hasUnreadNotifications = false;
+                        });
+                      },
+                      child: FDContainer(
+                        decoration: BoxDecoration(
+                          color: const FlartColor('rgba(255, 255, 255, 0.08)'),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: FDStack(
+                          children: [
+                            FDIcon(
+                              icon: FDIcons.notifications,
+                              size: 18,
+                              color: _hasUnreadNotifications ? FlartColors.amber : FlartColors.grey,
+                            ),
+                            if (_hasUnreadNotifications)
+                              FDRawHTML('''
+                                <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%; border: 1.5px solid #111827;"></div>
+                              '''),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const FDSizedBox(width: 8),
+
+                    // Interests Tuning Button
+                    FDGestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showInterestsModal = true;
+                        });
+                      },
+                      child: FDContainer(
+                        decoration: BoxDecoration(
+                          color: const FlartColor('rgba(255, 255, 255, 0.08)'),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const FlartColor('rgba(255, 255, 255, 0.1)'), width: 1),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        child: FDRow(
+                          children: const [
+                            FDText('⚡', style: TextStyle(fontSize: 12)),
+                            FDSizedBox(width: 4),
+                            FDText('Interests', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const FDSizedBox(width: 8),
+
+                    // Theme Switcher
+                    FDGestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isDarkMode = !_isDarkMode;
+                        });
+                      },
+                      child: FDContainer(
+                        decoration: BoxDecoration(
+                          color: const FlartColor('rgba(255, 255, 255, 0.08)'),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: FDIcon(
+                          icon: _isDarkMode ? 'wb_sunny' : 'nightlight',
+                          size: 16,
+                          color: FlartColors.amber,
+                        ),
+                      ),
+                    ),
+                    const FDSizedBox(width: 8),
+
+                    // Reading Streak / User Avatar
+                    FDRawHTML('''
+                      <div style="display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: 18px; font-size: 12px; font-weight: 800; color: #F59E0B;" title="5-day reading streak!">
+                        🔥 5d
                       </div>
-                      <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;">
-                        Global News & Intelligence
-                      </div>
-                    </div>
-                  </div>
-                '''),
+                    '''),
+                  ],
+                ),
               ],
             ),
           ),
-
-          // Search Bar (Desktop / Tablet)
-          if (!isMobile)
-            FDContainer(
-              width: 360,
-              child: FDTextField(
-                placeholder: 'Search breaking stories, topics, sources...',
-                backgroundColor: _isDarkMode ? const FlartColor('#1E293B') : const FlartColor('#F1F5F9'),
-                borderColor: const FlartColor('rgba(255, 255, 255, 0.1)'),
-                borderRadius: 24,
-                prefixIcon: const FDIcon(icon: FDIcons.search, size: 16, color: FlartColors.grey),
-                onChanged: (val) {
-                  setState(() {
-                    _searchQuery = val;
-                    if (val.trim().isNotEmpty && _activeScreen != 'explore') {
-                      _activeScreen = 'explore';
-                    }
-                  });
-                },
-              ),
-            ),
-
-          // Header Quick Controls
-          FDRow(
-            children: [
-              // Notification Bell with Unread Badge
-              FDGestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showNotificationsModal = !_showNotificationsModal;
-                    _hasUnreadNotifications = false;
-                  });
-                },
-                child: FDContainer(
-                  decoration: BoxDecoration(
-                    color: const FlartColor('rgba(255, 255, 255, 0.08)'),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: FDStack(
-                    children: [
-                      FDIcon(
-                        icon: FDIcons.notifications,
-                        size: 18,
-                        color: _hasUnreadNotifications ? FlartColors.amber : FlartColors.grey,
-                      ),
-                      if (_hasUnreadNotifications)
-                        FDRawHTML('''
-                          <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%; border: 1.5px solid #111827;"></div>
-                        '''),
-                    ],
-                  ),
-                ),
-              ),
-              const FDSizedBox(width: 8),
-
-              // Interests Tuning Button
-              FDGestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showInterestsModal = true;
-                  });
-                },
-                child: FDContainer(
-                  decoration: BoxDecoration(
-                    color: const FlartColor('rgba(255, 255, 255, 0.08)'),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: const FlartColor('rgba(255, 255, 255, 0.1)'), width: 1),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: FDRow(
-                    children: const [
-                      FDText('⚡', style: TextStyle(fontSize: 12)),
-                      FDSizedBox(width: 4),
-                      FDText('Interests', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-              ),
-              const FDSizedBox(width: 8),
-
-              // Theme Switcher
-              FDGestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isDarkMode = !_isDarkMode;
-                  });
-                },
-                child: FDContainer(
-                  decoration: BoxDecoration(
-                    color: const FlartColor('rgba(255, 255, 255, 0.08)'),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: FDIcon(
-                    icon: _isDarkMode ? 'wb_sunny' : 'nightlight',
-                    size: 16,
-                    color: FlartColors.amber,
-                  ),
-                ),
-              ),
-              const FDSizedBox(width: 8),
-
-              // Reading Streak / User Avatar
-              FDRawHTML('''
-                <div style="display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: 18px; font-size: 12px; font-weight: 800; color: #F59E0B;" title="5-day reading streak!">
-                  🔥 5d
-                </div>
-              '''),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -439,71 +466,78 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
         color: _isDarkMode ? const FlartColor('#0D1424') : const FlartColor('#F1F5F9'),
         border: const Border(bottom: BorderSide(color: FlartColor('rgba(255, 255, 255, 0.08)'), width: 1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 32, vertical: 8),
-      child: FDSingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: FDRow(
-          children: navItems.map((item) {
-            final isSelected = _activeScreen == item['id'];
-            final badge = item['badge'];
+      child: FDCenter(
+        child: FDConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: FDContainer(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
+            child: FDSingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: FDRow(
+                children: navItems.map((item) {
+                  final isSelected = _activeScreen == item['id'];
+                  final badge = item['badge'];
 
-            return FDGestureDetector(
-              onTap: () {
-                setState(() {
-                  _activeScreen = item['id']!;
-                  if (_activeScreen == 'headlines') {
-                    _selectedCategory = 'top';
-                  }
-                });
-              },
-              child: FDContainer(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const FlartColor('#3B82F6')
-                      : (_isDarkMode ? const FlartColor('rgba(255, 255, 255, 0.06)') : const FlartColor('#FFFFFF')),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? const FlartColor('#3B82F6') : const FlartColor('rgba(255, 255, 255, 0.1)'),
-                    width: 1,
-                  ),
-                ),
-                child: FDRow(
-                  children: [
-                    FDText(item['icon']!, style: const TextStyle(fontSize: 14)),
-                    const FDSizedBox(width: 6),
-                    FDText(
-                      item['name']!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: isSelected ? FlartColors.white : (_isDarkMode ? FlartColors.white : FlartColors.black),
+                  return FDGestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _activeScreen = item['id']!;
+                        if (_activeScreen == 'headlines') {
+                          _selectedCategory = 'top';
+                        }
+                      });
+                    },
+                    child: FDContainer(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const FlartColor('#3B82F6')
+                            : (_isDarkMode ? const FlartColor('rgba(255, 255, 255, 0.06)') : const FlartColor('#FFFFFF')),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isSelected ? const FlartColor('#3B82F6') : const FlartColor('rgba(255, 255, 255, 0.1)'),
+                          width: 1,
+                        ),
+                      ),
+                      child: FDRow(
+                        children: [
+                          FDText(item['icon']!, style: const TextStyle(fontSize: 14)),
+                          const FDSizedBox(width: 6),
+                          FDText(
+                            item['name']!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? FlartColors.white : (_isDarkMode ? FlartColors.white : FlartColors.black),
+                            ),
+                          ),
+                          if (badge != null && badge != '0') ...[
+                            const FDSizedBox(width: 6),
+                            FDContainer(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: isSelected ? const FlartColor('#1D4ED8') : const FlartColor('rgba(59, 130, 246, 0.2)'),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: FDText(
+                                badge,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? FlartColors.white : const FlartColor('#60A5FA'),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    if (badge != null && badge != '0') ...[
-                      const FDSizedBox(width: 6),
-                      FDContainer(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const FlartColor('#1D4ED8') : const FlartColor('rgba(59, 130, 246, 0.2)'),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: FDText(
-                          badge,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected ? FlartColors.white : const FlartColor('#60A5FA'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                  );
+                }).toList(),
               ),
-            );
-          }).toList(),
+            ),
+          ),
         ),
       ),
     );
@@ -520,50 +554,57 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
         color: FlartColor('#1E1B4B'),
         border: Border(bottom: BorderSide(color: FlartColor('rgba(239, 68, 68, 0.3)'), width: 1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 32, vertical: 8),
-      child: FDRow(
-        children: [
-          FDRawHTML('''
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="live-dot"></span>
-              <span style="background: #EF4444; color: #FFF; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                BREAKING
-              </span>
-            </div>
-          '''),
-          const FDSizedBox(width: 12),
-          Expanded(
-            child: FDGestureDetector(
-              onTap: () => _openArticleReader(breakingArticle),
-              child: FDText(
-                breakingArticle.title,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: FlartColor('#E0E7FF'),
+      child: FDCenter(
+        child: FDConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: FDContainer(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
+            child: FDRow(
+              children: [
+                FDRawHTML('''
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="live-dot"></span>
+                    <span style="background: #EF4444; color: #FFF; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
+                      BREAKING
+                    </span>
+                  </div>
+                '''),
+                const FDSizedBox(width: 12),
+                Expanded(
+                  child: FDGestureDetector(
+                    onTap: () => _openArticleReader(breakingArticle),
+                    child: FDText(
+                      breakingArticle.title,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: FlartColor('#E0E7FF'),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                if (!isMobile)
+                  FDGestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showFullCoverageModal = true;
+                      });
+                    },
+                    child: FDRow(
+                      children: const [
+                        FDText(
+                          'Full Coverage',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColor('#818CF8')),
+                        ),
+                        FDSizedBox(width: 4),
+                        FDIcon(icon: FDIcons.arrow_forward, size: 14, color: FlartColor('#818CF8')),
+                      ],
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (!isMobile)
-            FDGestureDetector(
-              onTap: () {
-                setState(() {
-                  _showFullCoverageModal = true;
-                });
-              },
-              child: FDRow(
-                children: const [
-                  FDText(
-                    'Full Coverage',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColor('#818CF8')),
-                  ),
-                  FDSizedBox(width: 4),
-                  FDIcon(icon: FDIcons.arrow_forward, size: 14, color: FlartColor('#818CF8')),
-                ],
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -1469,7 +1510,7 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
           children: [
             if (article.imageUrl != null)
               FDRawHTML('''
-                <div style="position: relative; width: 100%; height: 340px; border-radius: 16px 16px 0 0; overflow: hidden;">
+                <div style="position: relative; width: 100%; height: clamp(260px, 28vw, 400px); border-radius: 16px 16px 0 0; overflow: hidden;">
                   <img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'"/>
                   <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, rgba(9, 13, 22, 0.95), transparent);"></div>
                   <div style="position: absolute; top: 16px; left: 16px; display: flex; gap: 8px;">
@@ -3096,47 +3137,54 @@ class _ReadMoreWebAppState extends State<ReadMoreWebApp> {
         color: _isDarkMode ? const FlartColor('#05080F') : const FlartColor('#F1F5F9'),
         border: const Border(top: BorderSide(color: FlartColor('rgba(255, 255, 255, 0.08)'), width: 1)),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 48, vertical: 36),
-      child: FDColumn(
-        children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FDColumn(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FDText(
-                    'ReadMore',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: _isDarkMode ? FlartColors.white : FlartColors.black,
+      child: FDCenter(
+        child: FDConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1400),
+          child: FDContainer(
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 28, vertical: 36),
+            child: FDColumn(
+              children: [
+                FDRow(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FDText(
+                          'ReadMore',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: _isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
+                        ),
+                        const FDSizedBox(height: 4),
+                        const FDText(
+                          'Global News & Real-Time Intelligence Syndication',
+                          style: TextStyle(fontSize: 12, color: FlartColors.grey),
+                        ),
+                      ],
                     ),
-                  ),
-                  const FDSizedBox(height: 4),
-                  const FDText(
-                    'Global News & Real-Time Intelligence Syndication',
-                    style: TextStyle(fontSize: 12, color: FlartColors.grey),
-                  ),
-                ],
-              ),
-              FDRawHTML('''
-                <div style="display: flex; gap: 16px; font-size: 13px; color: #94A3B8;">
-                  <a href="/sitemap.xml" style="color: inherit; text-decoration: none;">Sitemap</a>
-                  <a href="/sitemap_news.xml" style="color: inherit; text-decoration: none;">Google News XML</a>
-                  <a href="/rss.xml" style="color: inherit; text-decoration: none;">RSS 2.0</a>
-                </div>
-              '''),
-            ],
+                    FDRawHTML('''
+                      <div style="display: flex; gap: 16px; font-size: 13px; color: #94A3B8;">
+                        <a href="/sitemap.xml" style="color: inherit; text-decoration: none;">Sitemap</a>
+                        <a href="/sitemap_news.xml" style="color: inherit; text-decoration: none;">Google News XML</a>
+                        <a href="/rss.xml" style="color: inherit; text-decoration: none;">RSS 2.0</a>
+                      </div>
+                    '''),
+                  ],
+                ),
+                const FDSizedBox(height: 24),
+                const FDDivider(color: FlartColor('rgba(255, 255, 255, 0.08)')),
+                const FDSizedBox(height: 16),
+                const FDText(
+                  '© 2026 ReadMore News Platform. Real-time multi-source aggregation conforming to fair-use and Google News syndication standards.',
+                  style: TextStyle(fontSize: 11, color: FlartColor('#64748B')),
+                ),
+              ],
+            ),
           ),
-          const FDSizedBox(height: 24),
-          const FDDivider(color: FlartColor('rgba(255, 255, 255, 0.08)')),
-          const FDSizedBox(height: 16),
-          const FDText(
-            '© 2026 ReadMore News Platform. Real-time multi-source aggregation conforming to fair-use and Google News syndication standards.',
-            style: TextStyle(fontSize: 11, color: FlartColor('#64748B')),
-          ),
-        ],
+        ),
       ),
     );
   }
