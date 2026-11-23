@@ -1,5 +1,55 @@
 import 'package:news_models/news_models.dart';
 
+class ArticleComment {
+  final String id;
+  final String author;
+  final String avatarUrl;
+  final String text;
+  final String timeAgo;
+  int likes;
+  bool isLiked;
+
+  ArticleComment({
+    required this.id,
+    required this.author,
+    required this.avatarUrl,
+    required this.text,
+    required this.timeAgo,
+    this.likes = 0,
+    this.isLiked = false,
+  });
+}
+
+class TimelineEvent {
+  final String time;
+  final String title;
+  final String summary;
+  final String sourceName;
+
+  const TimelineEvent({
+    required this.time,
+    required this.title,
+    required this.summary,
+    required this.sourceName,
+  });
+}
+
+class AppNotification {
+  final String id;
+  final String title;
+  final String timeAgo;
+  final bool isBreaking;
+  final String articleId;
+
+  const AppNotification({
+    required this.id,
+    required this.title,
+    required this.timeAgo,
+    this.isBreaking = false,
+    required this.articleId,
+  });
+}
+
 class WebMockData {
   static final Map<String, NewsSource> sources = {
     'bbc': const NewsSource(
@@ -267,25 +317,130 @@ class WebMockData {
       likeCount: 14200,
     ),
 
-    // Local News
+    // Local News: New York
     Article(
-      id: 'art-local-1',
+      id: 'art-local-ny',
       title: 'Metro High-Speed Transit Expansion Completes Phase 1 Six Months Ahead of Schedule',
       slug: 'metro-transit-expansion-phase-1-complete',
       summary: 'Zero-emission electric express lines now seamlessly connect the downtown cultural district with western suburban medical corridors.',
       content: 'City planners and local transit authorities celebrated the ribbon-cutting of the transformative express loop today. Featuring silent magnetic levitation tracks and universal contactless smart tap access, the line will reduce regional roadway congestion by 22%.',
-      originalUrl: 'https://readmore.news/local/transit-expansion',
+      originalUrl: 'https://readmore.news/local/ny-transit-expansion',
       imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=1200&q=80',
       source: sources['reuters']!,
       category: 'local',
       subcategory: 'City Infrastructure',
       city: 'New York',
       country: 'US',
-      tags: ['Local', 'Transit', 'Urban Planning', 'Community'],
+      tags: ['New York', 'Transit', 'Urban Planning', 'Community'],
       publishedAt: DateTime.now().subtract(const Duration(hours: 9)),
       readTimeMinutes: 3,
       viewCount: 8900,
       likeCount: 2300,
+    ),
+
+    // Local News: London
+    Article(
+      id: 'art-local-london',
+      title: 'Thames Clean Energy Corridor Initiates First Hydro-Turbine Array Beneath Tower Bridge',
+      slug: 'thames-clean-energy-hydro-turbine-tower-bridge',
+      summary: 'Sub-surface tidal power generators begin feeding clean electrical power directly into the historic London Underground network.',
+      content: 'In a fusion of centuries-old maritime heritage and modern zero-emission technology, underwater turbines anchored deep in the tidal Thames now generate steady baseload electricity for hundreds of thousands of daily commuters.',
+      originalUrl: 'https://readmore.news/local/london-thames-hydro',
+      imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80',
+      source: sources['bbc']!,
+      category: 'local',
+      subcategory: 'Clean Energy',
+      city: 'London',
+      country: 'UK',
+      tags: ['London', 'Clean Energy', 'Thames', 'Local Tech'],
+      publishedAt: DateTime.now().subtract(const Duration(hours: 3)),
+      readTimeMinutes: 3,
+      viewCount: 11400,
+      likeCount: 3100,
+    ),
+
+    // Local News: Tokyo
+    Article(
+      id: 'art-local-tokyo',
+      title: 'Tokyo Unveils Massive Multi-Level Vertical Forest District in Shibuya',
+      slug: 'tokyo-vertical-forest-district-shibuya',
+      summary: 'Towering biophilic towers incorporate over 250,000 indigenous trees, dropping local neighborhood summer temperatures by 4 degrees.',
+      content: 'Shibuya’s newest skyline district blends hyper-dense urban living with lush mountainous biodiversity. Automated misting arrays and bird sanctuary sky-bridges provide an awe-inspiring template for future climate-resilient megacities.',
+      originalUrl: 'https://readmore.news/local/tokyo-shibuya-forest',
+      imageUrl: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80',
+      source: sources['reuters']!,
+      category: 'local',
+      subcategory: 'Urban Ecology',
+      city: 'Tokyo',
+      country: 'Japan',
+      tags: ['Tokyo', 'Architecture', 'Urban Green', 'Japan'],
+      publishedAt: DateTime.now().subtract(const Duration(hours: 4)),
+      readTimeMinutes: 4,
+      viewCount: 14800,
+      likeCount: 4200,
+    ),
+
+    // Local News: Lagos
+    Article(
+      id: 'art-local-lagos',
+      title: 'Lagos Tech Ecosystem Celebrates Launch of Africa’s Largest Undersea Fiber Landing Hub',
+      slug: 'lagos-undersea-fiber-landing-hub-launched',
+      summary: 'New high-capacity subsea terminal in Lekki multiplies West African cloud bandwidth by 10x, accelerating regional fintech innovation.',
+      content: 'Founders, cloud architects, and state officials gathered at the Lekki Free Trade Zone for the official commission of the next-generation trans-Atlantic fiber terminus, establishing Lagos as the premier digital infrastructure crossroads of the continent.',
+      originalUrl: 'https://readmore.news/local/lagos-fiber-hub',
+      imageUrl: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?auto=format&fit=crop&w=1200&q=80',
+      source: sources['techcrunch']!,
+      category: 'local',
+      subcategory: 'Tech Hub',
+      city: 'Lagos',
+      country: 'Nigeria',
+      tags: ['Lagos', 'Nigeria', 'Fintech', 'Infrastructure'],
+      publishedAt: DateTime.now().subtract(const Duration(hours: 2)),
+      readTimeMinutes: 3,
+      viewCount: 19500,
+      likeCount: 5700,
+    ),
+
+    // Local News: Paris
+    Article(
+      id: 'art-local-paris',
+      title: 'Seine Swimming Program Expands to Permanent Public Waterways Along Latin Quarter',
+      slug: 'paris-seine-swimming-latin-quarter',
+      summary: 'Following Olympic ecological restoration, the City of Light opens four historic riverside swimming basins for public recreation.',
+      content: 'Generations of Parisians celebrated today as the clear waters of the Seine officially reopened for swimming, flanked by floating sun decks, botanical filtration gardens, and open-air riverside cafes.',
+      originalUrl: 'https://readmore.news/local/paris-seine-basins',
+      imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
+      source: sources['vogue']!,
+      category: 'local',
+      subcategory: 'Culture & Environment',
+      city: 'Paris',
+      country: 'France',
+      tags: ['Paris', 'Seine', 'Lifestyle', 'Ecology'],
+      publishedAt: DateTime.now().subtract(const Duration(hours: 5)),
+      readTimeMinutes: 2,
+      viewCount: 13200,
+      likeCount: 3800,
+    ),
+
+    // Local News: San Francisco
+    Article(
+      id: 'art-local-sf',
+      title: 'San Francisco Waterfront Greenway Connects Presidio with Mission Bay in 10-Mile Park',
+      slug: 'sf-waterfront-greenway-presidio-mission-bay',
+      summary: 'Continuous waterfront promenade features dedicated protected bicycle corridors, public art installations, and restored wetland habitats.',
+      content: 'The completion of the Embarcadero green corridor unites the northern and southern edges of San Francisco into one unbroken recreation sanctuary, providing panoramic views of the Golden Gate and bay tides.',
+      originalUrl: 'https://readmore.news/local/sf-waterfront-greenway',
+      imageUrl: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80',
+      source: sources['reuters']!,
+      category: 'local',
+      subcategory: 'Civic Parks',
+      city: 'San Francisco',
+      country: 'US',
+      tags: ['San Francisco', 'Parks', 'Bicycle', 'Bay Area'],
+      publishedAt: DateTime.now().subtract(const Duration(hours: 6)),
+      readTimeMinutes: 3,
+      viewCount: 9600,
+      likeCount: 2700,
     ),
   ];
 
@@ -335,24 +490,104 @@ class WebMockData {
     updatedAt: DateTime.now(),
   );
 
-  static const WeatherSnapshot currentWeather = WeatherSnapshot(
-    city: 'New York',
-    country: 'US',
-    temperatureC: 22.0,
-    condition: 'Partly Cloudy',
-    iconCode: 'partly-cloudy-day',
-    humidity: 56,
-    windSpeedKmh: 14.5,
-  );
+  static const List<TimelineEvent> clusterTimeline = [
+    TimelineEvent(
+      time: '08:30 AM',
+      title: 'Plenary Session Opens with Draft Supergrid Protocol',
+      summary: 'Chief negotiators present the consolidated text reconciling disputes on cross-border transmission tariff structures.',
+      sourceName: 'Reuters',
+    ),
+    TimelineEvent(
+      time: '11:15 AM',
+      title: 'European Union and Alliance Nations Pledge \$120B Initial Tranche',
+      summary: 'Ministerial announcement secures matching guarantees from sovereign wealth funds in Norway, UK, and Germany.',
+      sourceName: 'BBC News',
+    ),
+    TimelineEvent(
+      time: '02:45 PM',
+      title: 'Tech & Grid Consortium Unveils Real-Time Interconnect Standards',
+      summary: 'Global energy software coalition publishes universal protocols for automated DC grid frequency balancing.',
+      sourceName: 'TechCrunch',
+    ),
+    TimelineEvent(
+      time: '05:00 PM',
+      title: 'Unanimous 195-Nation Ratification Achieved',
+      summary: 'Final treaty text accepted by standing ovation at the international convention center.',
+      sourceName: 'Bloomberg',
+    ),
+  ];
+
+  static WeatherSnapshot get currentWeather => cityWeatherMap['New York']!;
+
+  static final Map<String, WeatherSnapshot> cityWeatherMap = {
+    'New York': const WeatherSnapshot(
+      city: 'New York',
+      country: 'US',
+      temperatureC: 22.0,
+      condition: 'Partly Cloudy',
+      iconCode: 'partly-cloudy-day',
+      humidity: 56,
+      windSpeedKmh: 14.5,
+    ),
+    'London': const WeatherSnapshot(
+      city: 'London',
+      country: 'UK',
+      temperatureC: 17.5,
+      condition: 'Light Showers',
+      iconCode: 'rainy',
+      humidity: 78,
+      windSpeedKmh: 18.2,
+    ),
+    'Tokyo': const WeatherSnapshot(
+      city: 'Tokyo',
+      country: 'Japan',
+      temperatureC: 21.0,
+      condition: 'Clear & Sunny',
+      iconCode: 'sunny',
+      humidity: 48,
+      windSpeedKmh: 10.0,
+    ),
+    'Lagos': const WeatherSnapshot(
+      city: 'Lagos',
+      country: 'Nigeria',
+      temperatureC: 31.0,
+      condition: 'Tropical Warmth',
+      iconCode: 'sunny',
+      humidity: 82,
+      windSpeedKmh: 12.0,
+    ),
+    'Paris': const WeatherSnapshot(
+      city: 'Paris',
+      country: 'France',
+      temperatureC: 19.0,
+      condition: 'Mild Breeze',
+      iconCode: 'partly-cloudy-day',
+      humidity: 62,
+      windSpeedKmh: 11.5,
+    ),
+    'San Francisco': const WeatherSnapshot(
+      city: 'San Francisco',
+      country: 'US',
+      temperatureC: 18.0,
+      condition: 'Coastal Fog / Mild',
+      iconCode: 'cloudy',
+      humidity: 72,
+      windSpeedKmh: 20.0,
+    ),
+  };
 
   static const List<MarketTickerItem> marketTicker = [
     MarketTickerItem(symbol: 'S&P 500', name: 'S&P 500', price: 5984.10, changePercent: 0.72, isPositive: true),
     MarketTickerItem(symbol: 'NASDAQ', name: 'Nasdaq Composite', price: 19245.80, changePercent: 1.18, isPositive: true),
+    MarketTickerItem(symbol: 'DOW', name: 'Dow Jones Industrial', price: 43810.20, changePercent: 0.45, isPositive: true),
     MarketTickerItem(symbol: 'BTC/USD', name: 'Bitcoin', price: 98650.00, changePercent: 3.65, isPositive: true),
     MarketTickerItem(symbol: 'ETH/USD', name: 'Ethereum', price: 3640.20, changePercent: -0.35, isPositive: false),
+    MarketTickerItem(symbol: 'SOL/USD', name: 'Solana', price: 212.80, changePercent: 5.12, isPositive: true),
     MarketTickerItem(symbol: 'NVDA', name: 'Nvidia Corp', price: 148.90, changePercent: 2.45, isPositive: true),
     MarketTickerItem(symbol: 'AAPL', name: 'Apple Inc', price: 232.50, changePercent: 0.85, isPositive: true),
+    MarketTickerItem(symbol: 'MSFT', name: 'Microsoft Corp', price: 445.60, changePercent: 1.25, isPositive: true),
     MarketTickerItem(symbol: 'BRENT', name: 'Crude Oil', price: 74.20, changePercent: -1.15, isPositive: false),
+    MarketTickerItem(symbol: 'GOLD', name: 'Gold Troy Ounce', price: 2714.50, changePercent: 0.38, isPositive: true),
   ];
 
   static const List<String> trendingTags = [
@@ -364,5 +599,74 @@ class WebMockData {
     '#BiophilicLiving',
     '#DeepSpaceWater',
     '#CleanEnergySupergrid',
+    '#LagosFiberHub',
+    '#TokyoUrbanForest',
+  ];
+
+  static final List<ArticleComment> initialComments = [
+    ArticleComment(
+      id: 'c-1',
+      author: 'Marcus Vance',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&q=80',
+      text: 'The HVDC supergrid transmission guarantees are what will actually turn this diplomatic accord into concrete reality. Connecting surplus solar with distant wind belts is the true engineering solution.',
+      timeAgo: '42m ago',
+      likes: 24,
+    ),
+    ArticleComment(
+      id: 'c-2',
+      author: 'Dr. Elena Rostova',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=128&q=80',
+      text: 'Crucially, the treaty includes open protocol standards for automated sub-second frequency regulation. Without AI grid orchestration, balancing continental DC loads would be immensely complex.',
+      timeAgo: '1h ago',
+      likes: 18,
+    ),
+    ArticleComment(
+      id: 'c-3',
+      author: 'Kofi Mensah',
+      avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=128&q=80',
+      text: 'Great to see sovereign wealth funds backing the public guarantees. This gives private infrastructure funds the risk appetite they needed.',
+      timeAgo: '2h ago',
+      likes: 11,
+    ),
+  ];
+
+  static const List<AppNotification> notifications = [
+    AppNotification(
+      id: 'notif-1',
+      title: 'BREAKING: Global Climate Summit concludes with historic clean energy treaty.',
+      timeAgo: '25m ago',
+      isBreaking: true,
+      articleId: 'art-hero-1',
+    ),
+    AppNotification(
+      id: 'notif-2',
+      title: 'MARKET ALERT: Bitcoin surges past \$98,600 as tech stocks lead broad rally.',
+      timeAgo: '1h ago',
+      articleId: 'art-bus-1',
+    ),
+    AppNotification(
+      id: 'notif-3',
+      title: 'DISCOVERY: Space telescope array confirms atmospheric water vapor on exoplanet.',
+      timeAgo: '5h ago',
+      articleId: 'art-sci-1',
+    ),
+  ];
+
+  static const List<String> allAvailableInterests = [
+    'Artificial Intelligence',
+    'Clean Energy',
+    'Autonomous Agents',
+    'Wall Street',
+    'Cryptocurrency',
+    'European Football',
+    'Space Exploration',
+    'Quantum Computing',
+    'Biophilic Design',
+    'Fine Dining & Culinary',
+    'Cybersecurity',
+    'Electric Vehicles',
+    'Global Diplomacy',
+    'Biomedical Breakthroughs',
+    'Cinema & Box Office',
   ];
 }
