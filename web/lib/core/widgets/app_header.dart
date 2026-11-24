@@ -33,75 +33,78 @@ class AppHeader extends StatelessWidget {
             // Brand Logo & Tagline
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('headlines'),
-              child: FDRow(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  FDContainer(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+              child: FDContainer(
+                cssStyle: const {'flex-shrink': '0'},
+                child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FDContainer(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primaryBlue, AppColors.accentPurple],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: FlartColor('rgba(59, 130, 246, 0.4)'),
+                            blurRadius: 14,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: FlartColor('rgba(59, 130, 246, 0.4)'),
-                          blurRadius: 14,
-                          offset: Offset(0, 4),
+                      child: const FDCenter(
+                        child: FDText(
+                          'R',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: FlartColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const FDSizedBox(width: 10),
+                    FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FDRichText(
+                          text: TextSpan(
+                            text: 'Read',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.04,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: 'More',
+                                style: TextStyle(
+                                  color: AppColors.primaryBlue,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const FDText(
+                          'GLOBAL NEWS & INTELLIGENCE',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textMuted,
+                            letterSpacing: 0.12,
+                          ),
                         ),
                       ],
                     ),
-                    child: const FDCenter(
-                      child: FDText(
-                        'R',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: FlartColors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const FDSizedBox(width: 10),
-                  FDColumn(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FDRichText(
-                        text: TextSpan(
-                          text: 'Read',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.04,
-                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                          ),
-                          children: const [
-                            TextSpan(
-                              text: 'More',
-                              style: TextStyle(
-                                color: AppColors.primaryBlue,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const FDText(
-                        'GLOBAL NEWS & INTELLIGENCE',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textMuted,
-                          letterSpacing: 0.12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -109,13 +112,20 @@ class AppHeader extends StatelessWidget {
             if (!isMobile)
               Expanded(
                 child: FDContainer(
-                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 8 : 24),
-                  alignment: Alignment.center,
+                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 10 : 24),
+                  cssStyle: const {
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'width': '100%',
+                    'min-width': '0',
+                  },
                   child: FDContainer(
-                    width: double.infinity,
-                    constraints: BoxConstraints(maxWidth: isTablet ? 260 : 460),
+                    cssStyle: const {
+                      'width': '100%',
+                      'max-width': '460px',
+                    },
                     child: FDTextField(
-                      placeholder: isTablet ? 'Search...' : 'Search stories, topics, sources...',
+                      placeholder: isTablet ? 'Search news...' : 'Search stories, topics, sources...',
                       backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                       borderColor: AppColors.borderRegular,
                       borderRadius: 24,
@@ -127,10 +137,12 @@ class AppHeader extends StatelessWidget {
               ),
 
             // Header Quick Controls
-            FDRow(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+            FDContainer(
+              cssStyle: const {'flex-shrink': '0'},
+              child: FDRow(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
                 // Notification Bell with Unread Badge
                 FDGestureDetector(
                   onTap: () => vm.toggleNotificationsModal(),
@@ -240,9 +252,10 @@ class AppHeader extends StatelessWidget {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ),
+  );
   }
 }

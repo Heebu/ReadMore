@@ -39,7 +39,7 @@ class HeroSpotlightCard extends StatelessWidget {
               FDStack(
                 children: [
                   FDContainer(
-                    height: 320,
+                    height: 340,
                     width: double.infinity,
                     clipBehavior: Clip.antiAlias,
                     decoration: const BoxDecoration(
@@ -47,9 +47,14 @@ class HeroSpotlightCard extends StatelessWidget {
                     ),
                     child: FDImage.network(
                       article.imageUrl!,
-                      width: double.infinity,
-                      height: 320,
+                      height: 340,
                       fit: BoxFit.cover,
+                      cssStyle: const {
+                        'width': '100%',
+                        'height': '340px',
+                        'object-fit': 'cover',
+                        'display': 'block',
+                      },
                     ),
                   ),
                   FDPositioned(

@@ -3,7 +3,7 @@ import '../../viewmodels/news_app_viewmodel.dart';
 import '../constants/app_colors.dart';
 import 'centered_shell.dart';
 
-/// Animated live breaking news ticker ribbon.
+/// Animated live breaking news ticker ribbon with robust single-line scaling across all zoom levels.
 class BreakingTicker extends StatelessWidget {
   final NewsAppViewModel vm;
   final bool isMobile;
@@ -27,13 +27,15 @@ class BreakingTicker extends StatelessWidget {
         border: Border(bottom: BorderSide(color: FlartColor('rgba(239, 68, 68, 0.3)'), width: 1)),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 9),
         child: FDRow(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Live dot + BREAKING tag
             FDRow(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
+              cssStyle: const {'flex-shrink': '0'},
               children: [
                 FDContainer(
                   width: 8,
@@ -61,14 +63,21 @@ class BreakingTicker extends StatelessWidget {
                 ),
               ],
             ),
-            const FDSizedBox(width: 14),
+            const FDSizedBox(width: 12),
+
+            // Ticker Headline Text - Pure single line with text-overflow ellipsis
             Expanded(
-              child: FDGestureDetector(
-                onTap: () => vm.openArticleReader(breakingArticle),
+              child: FDContainer(
+                onClick: () => vm.openArticleReader(breakingArticle),
+                cssStyle: const {
+                  'width': '100%',
+                  'overflow': 'hidden',
+                  'white-space': 'nowrap',
+                  'text-overflow': 'ellipsis',
+                  'cursor': 'pointer',
+                },
                 child: FDText(
                   breakingArticle.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -77,10 +86,17 @@ class BreakingTicker extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Full Coverage Link
             if (!isMobile) ...[
               const FDSizedBox(width: 16),
-              FDGestureDetector(
-                onTap: () => vm.openFullCoverage(),
+              FDContainer(
+                onClick: () => vm.openFullCoverage(),
+                cssStyle: const {
+                  'flex-shrink': '0',
+                  'cursor': 'pointer',
+                  'white-space': 'nowrap',
+                },
                 child: FDRow(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,

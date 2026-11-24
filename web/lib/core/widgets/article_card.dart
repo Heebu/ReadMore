@@ -55,9 +55,14 @@ class ArticleCard extends StatelessWidget {
                     ),
                     child: FDImage.network(
                       article.imageUrl!,
-                      width: double.infinity,
                       height: imageHeight,
                       fit: BoxFit.cover,
+                      cssStyle: {
+                        'width': '100%',
+                        'height': '${imageHeight}px',
+                        'object-fit': 'cover',
+                        'display': 'block',
+                      },
                     ),
                   ),
                   FDPositioned(

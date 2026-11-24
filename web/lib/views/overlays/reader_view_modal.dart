@@ -148,9 +148,14 @@ class ReaderViewModal extends StatelessWidget {
                         ),
                         child: FDImage.network(
                           article.imageUrl!,
-                          width: double.infinity,
                           height: 380,
                           fit: BoxFit.cover,
+                          cssStyle: const {
+                            'width': '100%',
+                            'height': '380px',
+                            'object-fit': 'cover',
+                            'display': 'block',
+                          },
                         ),
                       ),
 

@@ -33,53 +33,58 @@ class UtilityRibbon extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Left: Date & Weather Clickable Pill
-            FDGestureDetector(
-              onTap: () => vm.setActiveScreen('local'),
-              child: FDRow(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  FDText(
-                    '📅 Monday, Nov 23, 2026',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: vm.isDarkMode ? AppColors.textSecondary : const FlartColor('#475569'),
+            FDContainer(
+              cssStyle: const {'flex-shrink': '0'},
+              child: FDGestureDetector(
+                onTap: () => vm.setActiveScreen('local'),
+                child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FDText(
+                      '📅 Monday, Nov 23, 2026',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: vm.isDarkMode ? AppColors.textSecondary : const FlartColor('#475569'),
+                      ),
                     ),
-                  ),
-                  const FDSizedBox(width: 8),
-                  const FDText('|', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
-                  const FDSizedBox(width: 8),
-                  FDContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBlueSubtle,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: FDRow(
-                      children: [
-                        const FDText('📍 ', style: TextStyle(fontSize: 11)),
-                        FDText(
-                          '${vm.selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBlueLight,
+                    const FDSizedBox(width: 8),
+                    const FDText('|', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
+                    const FDSizedBox(width: 8),
+                    FDContainer(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlueSubtle,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: FDRow(
+                        children: [
+                          const FDText('📍 ', style: TextStyle(fontSize: 11)),
+                          FDText(
+                            '${vm.selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryBlueLight,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             // Right: Real-time Mini Stock Ticker (Desktop only) & Edition Badge
             if (!isMobile)
-              FDRow(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+              FDContainer(
+                cssStyle: const {'flex-shrink': '0'},
+                child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                   if (!isTablet)
                     FDGestureDetector(
                       onTap: () => vm.setActiveScreen('markets'),
@@ -130,6 +135,7 @@ class UtilityRibbon extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
           ],
         ),
       ),
