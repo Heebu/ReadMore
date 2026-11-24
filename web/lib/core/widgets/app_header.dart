@@ -22,10 +22,12 @@ class AppHeader extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-        border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
+        border: const Border(
+            bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 12),
+        padding:
+            EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 12),
         child: FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,7 +46,10 @@ class AppHeader extends StatelessWidget {
                       height: 38,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [AppColors.primaryBlue, AppColors.accentPurple],
+                          colors: [
+                            AppColors.primaryBlue,
+                            AppColors.accentPurple
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -79,7 +84,9 @@ class AppHeader extends StatelessWidget {
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.04,
-                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              color: vm.isDarkMode
+                                  ? FlartColors.white
+                                  : FlartColors.black,
                             ),
                             children: const [
                               TextSpan(
@@ -108,30 +115,33 @@ class AppHeader extends StatelessWidget {
               ),
             ),
 
-            // Fluid Responsive Search Bar (Desktop / Tablet)
+            // Stretched Full-Width Search Bar (Desktop / Tablet)
             if (!isMobile)
               Expanded(
                 child: FDContainer(
-                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 10 : 24),
+                  id: 'header-search-container',
+                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 24),
                   cssStyle: const {
-                    'display': 'flex',
-                    'justify-content': 'center',
                     'width': '100%',
                     'min-width': '0',
+                    'flex': '1 1 0px',
                   },
-                  child: FDContainer(
-                    cssStyle: const {
-                      'width': '100%',
-                      'max-width': '460px',
-                    },
-                    child: FDTextField(
-                      placeholder: isTablet ? 'Search news...' : 'Search stories, topics, sources...',
-                      backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
-                      borderColor: AppColors.borderRegular,
-                      borderRadius: 24,
-                      prefixIcon: const FDIcon(icon: FDIcons.search, size: 16, color: FlartColors.grey),
-                      onChanged: (val) => vm.setSearchQuery(val),
-                    ),
+                  child: FDTextField(
+                    placeholder: isTablet
+                        ? 'Search news...'
+                        : 'Search stories, topics, sources, locations...',
+                    backgroundColor: vm.isDarkMode
+                        ? AppColors.darkInput
+                        : AppColors.lightInput,
+                    borderColor: vm.isDarkMode
+                        ? AppColors.borderRegular
+                        : const FlartColor('#E2E8F0'),
+                    borderRadius: 24,
+                    prefixIcon: const FDIcon(
+                        icon: FDIcons.search,
+                        size: 16,
+                        color: FlartColors.grey),
+                    onChanged: (val) => vm.setSearchQuery(val),
                   ),
                 ),
               ),
@@ -143,119 +153,128 @@ class AppHeader extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                // Notification Bell with Unread Badge
-                FDGestureDetector(
-                  onTap: () => vm.toggleNotificationsModal(),
-                  child: FDContainer(
-                    decoration: BoxDecoration(
-                      color: AppColors.borderSubtle,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: FDStack(
-                      children: [
-                        FDIcon(
-                          icon: FDIcons.notifications,
-                          size: 18,
-                          color: vm.hasUnreadNotifications ? FlartColors.amber : FlartColors.grey,
-                        ),
-                        if (vm.hasUnreadNotifications)
-                          FDPositioned(
-                            top: -2,
-                            right: -2,
-                            child: FDContainer(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: AppColors.bearRed,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-                                  width: 1.5,
+                  // Notification Bell with Unread Badge
+                  FDGestureDetector(
+                    onTap: () => vm.toggleNotificationsModal(),
+                    child: FDContainer(
+                      decoration: BoxDecoration(
+                        color: AppColors.borderSubtle,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: FDStack(
+                        children: [
+                          FDIcon(
+                            icon: FDIcons.notifications,
+                            size: 18,
+                            color: vm.hasUnreadNotifications
+                                ? FlartColors.amber
+                                : FlartColors.grey,
+                          ),
+                          if (vm.hasUnreadNotifications)
+                            FDPositioned(
+                              top: -2,
+                              right: -2,
+                              child: FDContainer(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: AppColors.bearRed,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: vm.isDarkMode
+                                        ? AppColors.darkSurface
+                                        : AppColors.lightSurface,
+                                    width: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const FDSizedBox(width: 8),
+                  const FDSizedBox(width: 8),
 
-                // Interests Tuning Button
-                FDGestureDetector(
-                  onTap: () => vm.openInterestsModal(),
-                  child: FDContainer(
-                    decoration: BoxDecoration(
-                      color: AppColors.borderSubtle,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.borderRegular, width: 1),
+                  // Interests Tuning Button
+                  FDGestureDetector(
+                    onTap: () => vm.openInterestsModal(),
+                    child: FDContainer(
+                      decoration: BoxDecoration(
+                        color: AppColors.borderSubtle,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                            color: AppColors.borderRegular, width: 1),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 8 : 10, vertical: 6),
+                      child: FDRow(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const FDText('⚡', style: TextStyle(fontSize: 12)),
+                          if (!isTablet) ...[
+                            const FDSizedBox(width: 4),
+                            const FDText('Interests',
+                                style: TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold)),
+                          ],
+                        ],
+                      ),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 8 : 10, vertical: 6),
-                    child: FDRow(
+                  ),
+                  const FDSizedBox(width: 8),
+
+                  // Theme Switcher
+                  FDGestureDetector(
+                    onTap: () => vm.toggleDarkMode(),
+                    child: FDContainer(
+                      decoration: BoxDecoration(
+                        color: AppColors.borderSubtle,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: FDIcon(
+                        icon: vm.isDarkMode ? 'wb_sunny' : 'nightlight',
+                        size: 16,
+                        color: FlartColors.amber,
+                      ),
+                    ),
+                  ),
+                  const FDSizedBox(width: 8),
+
+                  // Reading Streak
+                  FDContainer(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const FlartColor('rgba(245, 158, 11, 0.15)'),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: const FlartColor('rgba(245, 158, 11, 0.3)'),
+                        width: 1,
+                      ),
+                    ),
+                    child: const FDRow(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FDText('⚡', style: TextStyle(fontSize: 12)),
-                        if (!isTablet) ...[
-                          const FDSizedBox(width: 4),
-                          const FDText('Interests', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        ],
+                        FDText('🔥 ', style: TextStyle(fontSize: 12)),
+                        FDText(
+                          '5d',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.accentAmber,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-                const FDSizedBox(width: 8),
-
-                // Theme Switcher
-                FDGestureDetector(
-                  onTap: () => vm.toggleDarkMode(),
-                  child: FDContainer(
-                    decoration: BoxDecoration(
-                      color: AppColors.borderSubtle,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: FDIcon(
-                      icon: vm.isDarkMode ? 'wb_sunny' : 'nightlight',
-                      size: 16,
-                      color: FlartColors.amber,
-                    ),
-                  ),
-                ),
-                const FDSizedBox(width: 8),
-
-                // Reading Streak
-                FDContainer(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const FlartColor('rgba(245, 158, 11, 0.15)'),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: const FlartColor('rgba(245, 158, 11, 0.3)'),
-                      width: 1,
-                    ),
-                  ),
-                  child: const FDRow(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FDText('🔥 ', style: TextStyle(fontSize: 12)),
-                      FDText(
-                        '5d',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.accentAmber,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }
