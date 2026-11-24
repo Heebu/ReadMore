@@ -1,55 +1,5 @@
 import 'package:news_models/news_models.dart';
 
-class ArticleComment {
-  final String id;
-  final String author;
-  final String avatarUrl;
-  final String text;
-  final String timeAgo;
-  int likes;
-  bool isLiked;
-
-  ArticleComment({
-    required this.id,
-    required this.author,
-    required this.avatarUrl,
-    required this.text,
-    required this.timeAgo,
-    this.likes = 0,
-    this.isLiked = false,
-  });
-}
-
-class TimelineEvent {
-  final String time;
-  final String title;
-  final String summary;
-  final String sourceName;
-
-  const TimelineEvent({
-    required this.time,
-    required this.title,
-    required this.summary,
-    required this.sourceName,
-  });
-}
-
-class AppNotification {
-  final String id;
-  final String title;
-  final String timeAgo;
-  final bool isBreaking;
-  final String articleId;
-
-  const AppNotification({
-    required this.id,
-    required this.title,
-    required this.timeAgo,
-    this.isBreaking = false,
-    required this.articleId,
-  });
-}
-
 class WebMockData {
   static final Map<String, NewsSource> sources = {
     'bbc': const NewsSource(
@@ -630,7 +580,7 @@ class WebMockData {
     ),
   ];
 
-  static const List<AppNotification> notifications = [
+  static final List<AppNotification> notifications = [
     AppNotification(
       id: 'notif-1',
       title: 'BREAKING: Global Climate Summit concludes with historic clean energy treaty.',

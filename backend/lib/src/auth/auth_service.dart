@@ -115,6 +115,31 @@ class AuthService {
     return updatedUser;
   }
 
+  /// Upgrade user's subscription tier to 'pro' and enable ad-free mode
+  User upgradeSubscription(String userId, {String plan = 'annual', String paymentMethod = 'stripe'}) {
+    final user = getUserById(userId);
+    if (user == null) {
+      throw Exception('User not found.');
+    }
+    final updated = user.copyWith(
+      subscriptionTier: 'pro',
+      adFreeEnabled: true,
+    );
+    return updateUser(updated);
+  }
+
+  /// Toggle ad-free viewing preference for Pro subscribers
+  User toggleAdFree(String userId) {
+    final user = getUserById(userId);
+    if (user == null) {
+      throw Exception('User not found.');
+    }
+    final updated = user.copyWith(
+      adFreeEnabled: !user.adFreeEnabled,
+    );
+    return updateUser(updated);
+  }
+
   /// Generate an RFC 7519 compliant HMAC-SHA256 JWT
   String generateToken(User user) {
     final header = {

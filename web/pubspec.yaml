@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   flartdart: ^2.2.0
+  http: ^1.6.0
   news_models:
     path: ../packages/news_models
 

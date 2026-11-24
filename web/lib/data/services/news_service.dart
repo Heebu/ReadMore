@@ -1,5 +1,6 @@
 import 'package:news_models/news_models.dart';
 import '../mock_data.dart';
+export 'api_news_service.dart';
 
 /// Contract for the News data service layer.
 abstract class NewsService {
@@ -7,12 +8,12 @@ abstract class NewsService {
   StoryCluster getFullCoverageCluster();
   List<TimelineEvent> getClusterTimeline();
   WeatherSnapshot getWeather(String city);
-  List<MarketTickerItem> getMarketTickers();
+  List<MarketTickerItem> getMarketTickers({String? sector});
   List<String> getTrendingTags();
   List<AppNotification> getNotifications();
   List<ArticleComment> getComments(String articleId);
   List<String> getAvailableInterests();
-  List<SponsoredAd> getSponsoredAds();
+  List<SponsoredAd> getSponsoredAds({String? placement, String? category});
 }
 
 /// In-memory / Mock implementation for end-to-end self-contained testing.
@@ -59,7 +60,11 @@ class MockNewsService implements NewsService {
   }
 
   @override
-  List<MarketTickerItem> getMarketTickers() => WebMockData.marketTicker;
+  List<MarketTickerItem> getMarketTickers({String? sector}) {
+    if (sector == null || sector == 'All') return WebMockData.marketTicker;
+    final filtered = WebMockData.marketTicker.where((m) => m.sector == sector).toList();
+    return filtered.isNotEmpty ? filtered : WebMockData.marketTicker;
+  }
 
   @override
   List<String> getTrendingTags() => WebMockData.trendingTags;
@@ -76,5 +81,14 @@ class MockNewsService implements NewsService {
   List<String> getAvailableInterests() => WebMockData.allAvailableInterests;
 
   @override
-  List<SponsoredAd> getSponsoredAds() => List.from(WebMockData.initialAds);
+  List<SponsoredAd> getSponsoredAds({String? placement, String? category}) {
+    var list = List<SponsoredAd>.from(WebMockData.initialAds);
+    if (placement != null) {
+      list = list.where((a) => a.placement.toString().contains(placement)).toList();
+    }
+    if (category != null && category != 'all') {
+      list = list.where((a) => a.targetCategory == 'all' || a.targetCategory == category).toList();
+    }
+    return list;
+  }
 }

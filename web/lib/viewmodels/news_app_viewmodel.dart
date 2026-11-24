@@ -9,10 +9,22 @@ class NewsAppViewModel extends ChangeNotifier {
   final NewsService _service;
 
   NewsAppViewModel({NewsService? service})
-      : _service = service ?? MockNewsService() {
+      : _service = service ?? ApiNewsService() {
     _comments = _service.getComments('default');
     _currentUser = WebMockData.mockUser;
     _ads = _service.getSponsoredAds();
+    _initApiSync();
+  }
+
+  void _initApiSync() {
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api.syncAllAsync().then((_) {
+        _ads = _service.getSponsoredAds();
+        _comments = _service.getComments('default');
+        notifyListeners();
+      });
+    }
   }
 
   // ==========================================
@@ -46,18 +58,37 @@ class NewsAppViewModel extends ChangeNotifier {
   void setCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).fetchArticlesAsync(category: category).then((_) {
+        notifyListeners();
+      });
+    }
   }
   void setSelectedCategory(String category) => setCategory(category);
 
   void setCity(String city) {
     _selectedCity = city;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      Future.wait([
+        api.fetchWeatherAsync(city),
+        api.fetchArticlesAsync(city: city),
+      ]).then((_) {
+        notifyListeners();
+      });
+    }
   }
   void setSelectedCity(String city) => setCity(city);
 
   void setMarketSector(String sector) {
     _selectedMarketSector = sector;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).fetchMarketTickersAsync(sector: sector).then((_) {
+        notifyListeners();
+      });
+    }
   }
   void setSelectedMarketSector(String sector) => setMarketSector(sector);
 
@@ -84,11 +115,25 @@ class NewsAppViewModel extends ChangeNotifier {
       _activeScreen = 'explore';
     }
     notifyListeners();
+    if (_service is ApiNewsService && query.trim().isNotEmpty) {
+      (_service as ApiNewsService).fetchArticlesAsync(query: query, sortBy: _sortBy).then((_) {
+        notifyListeners();
+      });
+    }
   }
 
   void setSortBy(String sort) {
     _sortBy = sort;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).fetchArticlesAsync(
+        category: _selectedCategory,
+        query: _searchQuery.isNotEmpty ? _searchQuery : null,
+        sortBy: sort,
+      ).then((_) {
+        notifyListeners();
+      });
+    }
   }
 
   void setSourceFilter(String source) {
@@ -132,6 +177,16 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).loginAsync(email, password).then((res) {
+        if (res != null && res['user'] != null) {
+          try {
+            _currentUser = User.fromJson(res['user'] as Map<String, dynamic>);
+            notifyListeners();
+          } catch (_) {}
+        }
+      });
+    }
   }
 
   void signUp(String name, String email, String password) {
@@ -149,6 +204,16 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).registerAsync(email, password, name).then((res) {
+        if (res != null && res['user'] != null) {
+          try {
+            _currentUser = User.fromJson(res['user'] as Map<String, dynamic>);
+            notifyListeners();
+          } catch (_) {}
+        }
+      });
+    }
   }
 
   void signOut() {
@@ -190,6 +255,12 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showSubscriptionModal = false;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).upgradeSubscriptionAsync(
+        plan: plan,
+        paymentMethod: paymentMethod,
+      );
+    }
   }
 
   void cancelSubscription() {
@@ -206,6 +277,9 @@ class NewsAppViewModel extends ChangeNotifier {
         adFreeEnabled: !currentUser.adFreeEnabled,
       );
       notifyListeners();
+      if (_service is ApiNewsService) {
+        (_service as ApiNewsService).toggleAdFreeAsync();
+      }
     }
   }
 
@@ -254,12 +328,18 @@ class NewsAppViewModel extends ChangeNotifier {
       _ads[idx] = old.copyWith(clicks: old.clicks + 1);
       notifyListeners();
     }
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).recordAdClickAsync(adId);
+    }
   }
 
   void publishNewAdCampaign(SponsoredAd ad) {
     _ads.insert(0, ad);
     _showAdPublisherModal = false;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).createAdCampaignAsync(ad);
+    }
   }
 
   // ==========================================
@@ -488,18 +568,29 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void addComment(String text) {
     if (text.trim().isEmpty) return;
-    _comments.insert(
-      0,
-      ArticleComment(
-        id: 'c-${DateTime.now().millisecondsSinceEpoch}',
-        author: 'You (Verified Reader)',
-        avatarUrl:
-            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=128&q=80',
-        text: text.trim(),
-        timeAgo: 'Just now',
-      ),
+    final articleId = _activeReadingArticle?.id ?? 'default';
+    final authorName = _currentUser?.displayName ?? 'You (Verified Reader)';
+    final avatar = _currentUser?.avatarUrl ??
+        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=128&q=80';
+
+    final localComment = ArticleComment(
+      id: 'c-${DateTime.now().millisecondsSinceEpoch}',
+      author: authorName,
+      avatarUrl: avatar,
+      text: text.trim(),
+      timeAgo: 'Just now',
     );
+    _comments.insert(0, localComment);
     notifyListeners();
+
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).postCommentAsync(
+        articleId,
+        author: authorName,
+        avatarUrl: avatar,
+        text: text.trim(),
+      );
+    }
   }
 
   void toggleCommentLike(String commentId) {
@@ -509,6 +600,9 @@ class NewsAppViewModel extends ChangeNotifier {
       c.isLiked = !c.isLiked;
       c.likes += c.isLiked ? 1 : -1;
       notifyListeners();
+    }
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).toggleCommentLikeAsync(commentId);
     }
   }
 
@@ -559,6 +653,12 @@ class NewsAppViewModel extends ChangeNotifier {
     _showNotificationsModal = !_showNotificationsModal;
     if (_showNotificationsModal) {
       _hasUnreadNotifications = false;
+      if (_service is ApiNewsService) {
+        final api = _service as ApiNewsService;
+        for (final n in api.getNotifications().where((n) => !n.isRead)) {
+          api.markNotificationReadAsync(n.id);
+        }
+      }
     }
     notifyListeners();
   }
@@ -634,7 +734,7 @@ class NewsAppViewModel extends ChangeNotifier {
   // COMPUTED / FILTERED DOMAIN GETTERS
   // ==========================================
   WeatherSnapshot get currentWeather => _service.getWeather(_selectedCity);
-  List<MarketTickerItem> get marketTickers => _service.getMarketTickers();
+  List<MarketTickerItem> get marketTickers => _service.getMarketTickers(sector: _selectedMarketSector);
   List<String> get trendingTags => _service.getTrendingTags();
   List<AppNotification> get notifications => _service.getNotifications();
   StoryCluster get fullCoverageCluster => _service.getFullCoverageCluster();
