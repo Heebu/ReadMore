@@ -27,6 +27,7 @@ class CompactArticleTile extends StatelessWidget {
     return FDGestureDetector(
       onTap: () => vm.openArticleReader(article),
       child: FDContainer(
+        id: 'compact-card-${article.id}',
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -37,6 +38,10 @@ class CompactArticleTile extends StatelessWidget {
             BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.15)'), blurRadius: 6, offset: Offset(0, 2)),
           ],
         ),
+        cssStyle: const {
+          'transition': 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease',
+          'cursor': 'pointer',
+        },
         child: FDRow(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

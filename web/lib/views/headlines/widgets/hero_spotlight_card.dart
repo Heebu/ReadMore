@@ -24,6 +24,7 @@ class HeroSpotlightCard extends StatelessWidget {
     return FDGestureDetector(
       onTap: () => vm.openArticleReader(article),
       child: FDContainer(
+        id: 'hero-card-${article.id}',
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(16),
@@ -32,6 +33,10 @@ class HeroSpotlightCard extends StatelessWidget {
             BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.3)'), blurRadius: 20, offset: Offset(0, 8)),
           ],
         ),
+        cssStyle: const {
+          'transition': 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease',
+          'cursor': 'pointer',
+        },
         child: FDColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

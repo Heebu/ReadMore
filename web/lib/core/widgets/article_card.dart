@@ -30,6 +30,7 @@ class ArticleCard extends StatelessWidget {
     return FDGestureDetector(
       onTap: () => vm.openArticleReader(article),
       child: FDContainer(
+        id: 'card-${article.id}',
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
@@ -39,6 +40,10 @@ class ArticleCard extends StatelessWidget {
             BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.2)'), blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
+        cssStyle: const {
+          'transition': 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease',
+          'cursor': 'pointer',
+        },
         child: FDColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -120,12 +120,7 @@ class AppHeader extends StatelessWidget {
               Expanded(
                 child: FDContainer(
                   id: 'header-search-container',
-                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 24),
-                  cssStyle: const {
-                    'width': '100%',
-                    'min-width': '0',
-                    'flex': '1 1 0px',
-                  },
+                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 30),
                   child: FDTextField(
                     placeholder: isTablet
                         ? 'Search news...'
@@ -145,6 +140,8 @@ class AppHeader extends StatelessWidget {
                   ),
                 ),
               ),
+
+           const SizedBox(width: 100),
 
             // Header Quick Controls
             FDContainer(
@@ -244,6 +241,7 @@ class AppHeader extends StatelessWidget {
 
                   // Reading Streak
                   FDContainer(
+                    id: 'reading-streak-badge',
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -254,6 +252,10 @@ class AppHeader extends StatelessWidget {
                         width: 1,
                       ),
                     ),
+                    cssStyle: const {
+                      'transition': 'transform 0.2s ease',
+                      'cursor': 'default',
+                    },
                     child: const FDRow(
                       mainAxisSize: MainAxisSize.min,
                       children: [

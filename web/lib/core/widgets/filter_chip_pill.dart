@@ -32,6 +32,10 @@ class FilterChipPill extends StatelessWidget {
       child: FDContainer(
         margin: const EdgeInsets.only(right: 8),
         padding: padding,
+        cssStyle: const {
+          'transition': 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+          'cursor': 'pointer',
+        },
         decoration: BoxDecoration(
           color: isSelected
               ? activeColor

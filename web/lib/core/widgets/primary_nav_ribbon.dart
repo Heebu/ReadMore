@@ -55,7 +55,20 @@ class PrimaryNavRibbon extends StatelessWidget {
                       color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
                       width: 1,
                     ),
+                    boxShadow: isSelected
+                        ? [
+                            const BoxShadow(
+                              color: FlartColor('rgba(59, 130, 246, 0.4)'),
+                              blurRadius: 10,
+                              offset: Offset(0, 3),
+                            ),
+                          ]
+                        : null,
                   ),
+                  cssStyle: const {
+                    'transition': 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                    'cursor': 'pointer',
+                  },
                   child: FDRow(
                     children: [
                       FDText(item['icon']!, style: const TextStyle(fontSize: 14)),

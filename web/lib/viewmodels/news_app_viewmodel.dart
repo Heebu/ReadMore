@@ -219,6 +219,36 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void nextArticle() {
+    if (_activeReadingArticle == null) return;
+    final allArticles = _service.getArticles();
+    final currentIndex = allArticles.indexWhere((a) => a.id == _activeReadingArticle!.id);
+    if (currentIndex != -1 && currentIndex < allArticles.length - 1) {
+      openArticleReader(allArticles[currentIndex + 1]);
+    } else if (allArticles.isNotEmpty) {
+      openArticleReader(allArticles.first);
+    }
+  }
+
+  void prevArticle() {
+    if (_activeReadingArticle == null) return;
+    final allArticles = _service.getArticles();
+    final currentIndex = allArticles.indexWhere((a) => a.id == _activeReadingArticle!.id);
+    if (currentIndex > 0) {
+      openArticleReader(allArticles[currentIndex - 1]);
+    } else if (allArticles.isNotEmpty) {
+      openArticleReader(allArticles.last);
+    }
+  }
+
+  int get activeArticleIndex {
+    if (_activeReadingArticle == null) return -1;
+    final all = _service.getArticles();
+    return all.indexWhere((a) => a.id == _activeReadingArticle!.id);
+  }
+
+  int get totalArticlesCount => _service.getArticles().length;
+
   void adjustReaderFontSize(double delta) {
     final next = _readerFontSize + delta;
     if (next >= 12.0 && next <= 26.0) {

@@ -28,6 +28,10 @@ class InteractionPill extends StatelessWidget {
           color: isDarkMode ? AppColors.borderSubtle : AppColors.lightNav,
           borderRadius: BorderRadius.circular(16),
         ),
+        cssStyle: const {
+          'transition': 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease',
+          'cursor': 'pointer',
+        },
         child: FDRow(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,

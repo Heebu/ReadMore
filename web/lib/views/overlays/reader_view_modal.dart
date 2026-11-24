@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/audio_waveform_visualizer.dart';
 import '../../core/widgets/interaction_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
@@ -24,48 +25,108 @@ class ReaderViewModal extends StatelessWidget {
     final isReadLater = vm.isReadLater(article.id);
     final isLiked = vm.isLiked(article.id);
 
-    return FDContainer(
-      decoration: const BoxDecoration(color: FlartColor('rgba(0, 0, 0, 0.85)')),
-      child: FDCenter(
-        child: FDContainer(
-          margin: EdgeInsets.all(isMobile ? 8 : 24),
-          decoration: BoxDecoration(
-            color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderRegular, width: 1),
-            boxShadow: const [
-              BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.6)'), blurRadius: 40, offset: Offset(0, 16)),
-            ],
-          ),
-          child: FDConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 860, maxHeight: 880),
-            child: FDSingleChildScrollView(
+    return FDGestureDetector(
+      onSwipeLeft: () => vm.nextArticle(),
+      onSwipeRight: () => vm.prevArticle(),
+      child: FDContainer(
+        decoration: const BoxDecoration(color: FlartColor('rgba(0, 0, 0, 0.85)')),
+        child: FDStack(
+          children: [
+            FDCenter(
               child: FDContainer(
-                padding: EdgeInsets.all(isMobile ? 18 : 36),
-                child: FDColumn(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Top Modal Toolbar: Category, Font Size Controller, Close
-                    FDRow(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        FDRow(
-                          children: [
-                            FDContainer(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryBlueSubtle,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: FDText(
-                                article.category.toUpperCase(),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                id: 'reader-modal-dialog',
+                margin: EdgeInsets.all(isMobile ? 8 : 24),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.borderRegular, width: 1),
+                  boxShadow: const [
+                    BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.6)'), blurRadius: 40, offset: Offset(0, 16)),
+                  ],
+                ),
+                child: FDConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 860, maxHeight: 880),
+                  child: FDSingleChildScrollView(
+                    child: FDContainer(
+                      padding: EdgeInsets.all(isMobile ? 18 : 36),
+                      child: FDColumn(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Top Gradient Reading Progress Bar
+                          FDContainer(
+                            height: 3,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: vm.isDarkMode
+                                  ? const FlartColor('rgba(255, 255, 255, 0.08)')
+                                  : const FlartColor('#E2E8F0'),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: FDAlign(
+                              alignment: Alignment.centerLeft,
+                              child: FDContainer(
+                                height: 3,
+                                cssStyle: const {
+                                  'width': '65%',
+                                  'background': 'linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899)',
+                                  'border-radius': '2px',
+                                  'box-shadow': '0 0 10px rgba(59, 130, 246, 0.6)',
+                                },
                               ),
                             ),
-                            const FDSizedBox(width: 8),
-                            FDText('⚡ ${article.readTimeMinutes} min read', style: const TextStyle(fontSize: 12, color: FlartColors.grey)),
-                          ],
-                        ),
+                          ),
+                          const FDSizedBox(height: 14),
+
+                          // Top Modal Toolbar: Category, Article Flip Counter, Font Size, Close
+                          FDRow(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              FDRow(
+                                children: [
+                                  FDContainer(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryBlueSubtle,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: FDText(
+                                      article.category.toUpperCase(),
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                                    ),
+                                  ),
+                                  const FDSizedBox(width: 8),
+                                  // Article Index Counter with quick arrow flips
+                                  FDContainer(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.borderSubtle,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: FDRow(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        FDGestureDetector(
+                                          onTap: () => vm.prevArticle(),
+                                          child: const FDIcon(icon: FDIcons.arrow_back, size: 12, color: AppColors.primaryBlueLight),
+                                        ),
+                                        const FDSizedBox(width: 6),
+                                        FDText(
+                                          '${vm.activeArticleIndex + 1} of ${vm.totalArticlesCount}',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                        ),
+                                        const FDSizedBox(width: 6),
+                                        FDGestureDetector(
+                                          onTap: () => vm.nextArticle(),
+                                          child: const FDIcon(icon: FDIcons.arrow_forward, size: 12, color: AppColors.primaryBlueLight),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const FDSizedBox(width: 8),
+                                  FDText('⚡ ${article.readTimeMinutes}m read', style: const TextStyle(fontSize: 12, color: FlartColors.grey)),
+                                ],
+                              ),
                         FDRow(
                           children: [
                             // Font Size Controls (A- / A+)
@@ -204,6 +265,8 @@ class ReaderViewModal extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              const FDSizedBox(width: 14),
+                              AudioWaveformVisualizer(isPlaying: vm.isAudioPlaying),
                             ],
                           ),
                           FDGestureDetector(
@@ -323,8 +386,83 @@ class ReaderViewModal extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+
+      // Floating Previous Article Side Pill (Desktop only)
+      if (!isMobile)
+        FDPositioned(
+          left: 20,
+          top: 0,
+          bottom: 0,
+          child: FDCenter(
+            child: FDGestureDetector(
+              onTap: () => vm.prevArticle(),
+              child: FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.borderRegular, width: 1),
+                  boxShadow: const [
+                    BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
+                  ],
+                ),
+                cssStyle: const {
+                  'transition': 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  'cursor': 'pointer',
+                },
+                child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    FDIcon(icon: FDIcons.arrow_back, size: 16, color: AppColors.primaryBlue),
+                    FDSizedBox(width: 6),
+                    FDText('Prev', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+
+      // Floating Next Article Side Pill (Desktop only)
+      if (!isMobile)
+        FDPositioned(
+          right: 20,
+          top: 0,
+          bottom: 0,
+          child: FDCenter(
+            child: FDGestureDetector(
+              onTap: () => vm.nextArticle(),
+              child: FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppColors.borderRegular, width: 1),
+                  boxShadow: const [
+                    BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
+                  ],
+                ),
+                cssStyle: const {
+                  'transition': 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                  'cursor': 'pointer',
+                },
+                child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    FDText('Next', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight)),
+                    FDSizedBox(width: 6),
+                    FDIcon(icon: FDIcons.arrow_forward, size: 16, color: AppColors.primaryBlue),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+    ],
+  ),
+),
+);
+}
 
   Widget _buildCommentsSection() {
     return FDColumn(

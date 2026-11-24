@@ -90,13 +90,96 @@
     }
 
     /* Card Hover Animations */
-    .news-card-hover {
+    .news-card-hover, [id^="card-"], [id^="hero-card-"], [id^="compact-card-"] {
       transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
+      cursor: pointer;
     }
-    .news-card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(59, 130, 246, 0.3) !important;
+    .news-card-hover:hover, [id^="card-"]:hover, [id^="hero-card-"]:hover {
+      transform: translateY(-5px) scale(1.008);
+      box-shadow: 0 20px 35px -6px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(59, 130, 246, 0.4) !important;
+      border-color: rgba(59, 130, 246, 0.45) !important;
+    }
+    [id^="compact-card-"]:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -4px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(59, 130, 246, 0.3) !important;
       border-color: rgba(59, 130, 246, 0.4) !important;
+    }
+
+    /* Image zoom on card hover */
+    .image-zoom-container {
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .image-zoom-container img, [id^="card-"] img, [id^="hero-card-"] img {
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .news-card-hover:hover .image-zoom-container img, [id^="card-"]:hover img, [id^="hero-card-"]:hover img {
+      transform: scale(1.05);
+    }
+
+    /* Pulsing Reading Streak Flame */
+    @keyframes flame-pulse {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.55);
+        transform: scale(1.04);
+      }
+    }
+    #reading-streak-badge {
+      animation: flame-pulse 2.2s infinite ease-in-out;
+    }
+    #reading-streak-badge:hover {
+      transform: scale(1.08);
+    }
+
+    /* Audio Waveform Bounce */
+    @keyframes audio-wave-bounce {
+      0%, 100% {
+        height: 4px;
+        opacity: 0.5;
+      }
+      50% {
+        height: 18px;
+        opacity: 1;
+      }
+    }
+
+    /* Interactive Pill Tap Bounce */
+    .interactive-pill, [id^="pill-"] {
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease !important;
+    }
+    .interactive-pill:hover, [id^="pill-"]:hover {
+      transform: translateY(-2px);
+    }
+    .interactive-pill:active, [id^="pill-"]:active {
+      transform: scale(0.92);
+    }
+
+    /* Modal Spring Entrance */
+    @keyframes spring-modal-in {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .modal-spring-enter, #reader-modal-dialog {
+      animation: spring-modal-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Side Nav Floating Pill Hover */
+    .side-nav-pill {
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .side-nav-pill:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4) !important;
     }
 
     /* Pulsing Breaking News Dot */

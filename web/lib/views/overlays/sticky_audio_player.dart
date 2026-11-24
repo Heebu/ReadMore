@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/audio_waveform_visualizer.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
 /// Persistent bottom sticky player for the daily morning intelligence briefing podcast.
@@ -65,6 +66,8 @@ class StickyAudioPlayer extends StatelessWidget {
                     ),
                   ],
                 ),
+                const FDSizedBox(width: 14),
+                AudioWaveformVisualizer(isPlaying: vm.isBriefingPlaying),
               ],
             ),
             if (!isMobile)
