@@ -16,6 +16,7 @@ class AppFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDContainer(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: isDarkMode ? AppColors.darkRibbon : AppColors.lightNav,
         border: const Border(top: BorderSide(color: AppColors.borderSubtle, width: 1)),
@@ -23,12 +24,15 @@ class AppFooter extends StatelessWidget {
       child: CenteredShell(
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 28, vertical: 36),
         child: FDColumn(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             FDRow(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FDColumn(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     FDText(
                       'ReadMore',
@@ -46,6 +50,7 @@ class AppFooter extends StatelessWidget {
                   ],
                 ),
                 FDRow(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     FDLinkText(
                       text: 'Sitemap',

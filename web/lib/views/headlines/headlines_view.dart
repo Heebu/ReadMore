@@ -60,6 +60,7 @@ class HeadlinesView extends StatelessWidget {
               Expanded(
                 flex: 32,
                 child: FDColumn(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     WeatherSidebarWidget(vm: vm),
                     const FDSizedBox(height: 20),

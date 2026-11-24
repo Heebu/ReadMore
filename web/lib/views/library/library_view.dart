@@ -43,8 +43,10 @@ class LibraryView extends StatelessWidget {
         // Sub-tabs Header
         FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FDRow(
+              mainAxisSize: MainAxisSize.min,
               children: tabs.map((t) {
                 final isSelected = vm.libraryTab == t['id'];
                 return FDGestureDetector(

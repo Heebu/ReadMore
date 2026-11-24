@@ -55,6 +55,7 @@ class ReadMoreApp extends StatelessWidget {
                 FDSingleChildScrollView(
                   child: FDColumn(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
+                    cssStyle: const {'width': '100%'},
                     children: [
                       // 1. MSN-Style Utility Ribbon
                       UtilityRibbon(vm: vm, isMobile: isMobile, isTablet: isTablet),

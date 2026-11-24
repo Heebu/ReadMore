@@ -26,6 +26,7 @@ class PrimaryNavRibbon extends StatelessWidget {
     ];
 
     return FDContainer(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkNav : AppColors.lightNav,
         border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
@@ -35,6 +36,7 @@ class PrimaryNavRibbon extends StatelessWidget {
         child: FDSingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: FDRow(
+            mainAxisSize: MainAxisSize.min,
             children: navItems.map((item) {
               final isSelected = vm.activeScreen == item['id'];
               final badge = item['badge'];

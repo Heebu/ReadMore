@@ -19,6 +19,7 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDContainer(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
         border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
@@ -27,11 +28,13 @@ class AppHeader extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 12),
         child: FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Brand Logo & Tagline
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('headlines'),
               child: FDRow(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   FDContainer(
@@ -106,18 +109,18 @@ class AppHeader extends StatelessWidget {
             if (!isMobile)
               Expanded(
                 child: FDContainer(
-                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 8 : 16),
-                  child: FDCenter(
-                    child: FDConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: isTablet ? 240 : 420),
-                      child: FDTextField(
-                        placeholder: isTablet ? 'Search...' : 'Search stories, topics, sources...',
-                        backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
-                        borderColor: AppColors.borderRegular,
-                        borderRadius: 24,
-                        prefixIcon: const FDIcon(icon: FDIcons.search, size: 16, color: FlartColors.grey),
-                        onChanged: (val) => vm.setSearchQuery(val),
-                      ),
+                  margin: EdgeInsets.symmetric(horizontal: isTablet ? 8 : 24),
+                  alignment: Alignment.center,
+                  child: FDContainer(
+                    width: double.infinity,
+                    constraints: BoxConstraints(maxWidth: isTablet ? 260 : 460),
+                    child: FDTextField(
+                      placeholder: isTablet ? 'Search...' : 'Search stories, topics, sources...',
+                      backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                      borderColor: AppColors.borderRegular,
+                      borderRadius: 24,
+                      prefixIcon: const FDIcon(icon: FDIcons.search, size: 16, color: FlartColors.grey),
+                      onChanged: (val) => vm.setSearchQuery(val),
                     ),
                   ),
                 ),
@@ -125,6 +128,8 @@ class AppHeader extends StatelessWidget {
 
             // Header Quick Controls
             FDRow(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Notification Bell with Unread Badge
                 FDGestureDetector(
@@ -176,6 +181,7 @@ class AppHeader extends StatelessWidget {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: isTablet ? 8 : 10, vertical: 6),
                     child: FDRow(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const FDText('⚡', style: TextStyle(fontSize: 12)),
                         if (!isTablet) ...[
@@ -218,6 +224,7 @@ class AppHeader extends StatelessWidget {
                     ),
                   ),
                   child: const FDRow(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       FDText('🔥 ', style: TextStyle(fontSize: 12)),
                       FDText(

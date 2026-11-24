@@ -1,7 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 
 /// A robust centered responsive container that enforces desktop max-width constraints
-/// and graceful scaling across all zoom levels (50% to 200%+).
+/// and graceful scaling across all zoom levels (25% to 200%+).
 class CenteredShell extends StatelessWidget {
   final Widget child;
   final EdgeInsets? padding;
@@ -17,15 +17,18 @@ class CenteredShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDContainer(
-      alignment: Alignment.topCenter,
       width: double.infinity,
-      child: FDConstrainedBox(
+      alignment: Alignment.topCenter,
+      child: FDContainer(
+        width: double.infinity,
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: FDContainer(
-          width: double.infinity,
-          padding: padding,
-          child: child,
-        ),
+        padding: padding,
+        cssStyle: const {
+          'width': '100%',
+          'flex': '1 1 100%',
+          'box-sizing': 'border-box',
+        },
+        child: child,
       ),
     );
   }

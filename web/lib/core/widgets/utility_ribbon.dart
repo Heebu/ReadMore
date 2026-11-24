@@ -21,6 +21,7 @@ class UtilityRibbon extends StatelessWidget {
     final weather = vm.currentWeather;
 
     return FDContainer(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkRibbon : AppColors.lightRibbon,
         border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
@@ -29,11 +30,13 @@ class UtilityRibbon extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
         child: FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Left: Date & Weather Clickable Pill
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('local'),
               child: FDRow(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   FDText(
@@ -74,6 +77,8 @@ class UtilityRibbon extends StatelessWidget {
             // Right: Real-time Mini Stock Ticker (Desktop only) & Edition Badge
             if (!isMobile)
               FDRow(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (!isTablet)
                     FDGestureDetector(
@@ -81,6 +86,8 @@ class UtilityRibbon extends StatelessWidget {
                       child: FDContainer(
                         margin: const EdgeInsets.only(right: 14),
                         child: FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: const [
                             FDText(
                               '▲ S&P 5,984 (+0.72%)',
@@ -110,6 +117,7 @@ class UtilityRibbon extends StatelessWidget {
                         border: Border.all(color: AppColors.borderHighlighted, width: 1),
                       ),
                       child: FDRow(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           const FDText('🌐 ', style: TextStyle(fontSize: 10)),
                           FDText(

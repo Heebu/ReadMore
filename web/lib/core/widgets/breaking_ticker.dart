@@ -21,15 +21,19 @@ class BreakingTicker extends StatelessWidget {
         : vm.exploreArticles.first;
 
     return FDContainer(
+      width: double.infinity,
       decoration: const BoxDecoration(
         color: AppColors.darkBreaking,
         border: Border(bottom: BorderSide(color: FlartColor('rgba(239, 68, 68, 0.3)'), width: 1)),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 10),
         child: FDRow(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FDRow(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 FDContainer(
                   width: 8,
@@ -57,12 +61,14 @@ class BreakingTicker extends StatelessWidget {
                 ),
               ],
             ),
-            const FDSizedBox(width: 12),
+            const FDSizedBox(width: 14),
             Expanded(
               child: FDGestureDetector(
                 onTap: () => vm.openArticleReader(breakingArticle),
                 child: FDText(
                   breakingArticle.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -71,10 +77,13 @@ class BreakingTicker extends StatelessWidget {
                 ),
               ),
             ),
-            if (!isMobile)
+            if (!isMobile) ...[
+              const FDSizedBox(width: 16),
               FDGestureDetector(
                 onTap: () => vm.openFullCoverage(),
                 child: FDRow(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     FDText(
                       'Full Coverage',
@@ -85,6 +94,7 @@ class BreakingTicker extends StatelessWidget {
                   ],
                 ),
               ),
+            ],
           ],
         ),
       ),

@@ -46,8 +46,11 @@ class ForYouView extends StatelessWidget {
             children: [
               FDRow(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   FDRow(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: const [
                       FDText('✨', style: TextStyle(fontSize: 20)),
                       FDSizedBox(width: 8),
