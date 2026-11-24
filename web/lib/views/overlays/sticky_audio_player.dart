@@ -68,15 +68,33 @@ class StickyAudioPlayer extends StatelessWidget {
               ],
             ),
             if (!isMobile)
-              FDRawHTML('''
-                <div style="display: flex; align-items: center; gap: 10px; width: 340px;">
-                  <span style="font-size: 11px; color: #94A3B8;">01:45</span>
-                  <div style="flex: 1; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; overflow: hidden;">
-                    <div style="width: 35%; height: 100%; background: #3B82F6;"></div>
-                  </div>
-                  <span style="font-size: 11px; color: #94A3B8;">05:00</span>
-                </div>
-              '''),
+              FDRow(
+                children: [
+                  const FDText('01:45', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  const FDSizedBox(width: 8),
+                  FDContainer(
+                    width: 220,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const FlartColor('rgba(255, 255, 255, 0.2)'),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: FDAlign(
+                      alignment: Alignment.centerLeft,
+                      child: FDContainer(
+                        width: 77,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const FDSizedBox(width: 8),
+                  const FDText('05:00', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                ],
+              ),
             FDGestureDetector(
               onTap: () => vm.closeBottomBriefing(),
               child: const FDIcon(icon: FDIcons.close, size: 20, color: FlartColors.grey),

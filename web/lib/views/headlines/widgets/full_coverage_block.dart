@@ -29,17 +29,32 @@ class FullCoverageBlock extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FDRow(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  FDRawHTML('''
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                      <div style="background: #3B82F6; width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #FFF;">
-                        ❖
-                      </div>
-                      <span style="font-size: 14px; font-weight: 800; color: #60A5FA; text-transform: uppercase; letter-spacing: 0.05em;">
-                        Full Coverage
-                      </span>
-                    </div>
-                  '''),
+                  FDContainer(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const FDCenter(
+                      child: FDText(
+                        '❖',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlartColors.white),
+                      ),
+                    ),
+                  ),
+                  const FDSizedBox(width: 8),
+                  const FDText(
+                    'FULL COVERAGE',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primaryBlueLight,
+                      letterSpacing: 0.05,
+                    ),
+                  ),
                 ],
               ),
               FDGestureDetector(
@@ -71,9 +86,13 @@ class FullCoverageBlock extends StatelessWidget {
                   ),
                   child: FDRow(
                     children: [
-                      FDRawHTML('''
-                        <img src="${persp.source.iconUrl}" style="width: 18px; height: 18px; border-radius: 4px;"/>
-                      '''),
+                      FDImage.network(
+                        persp.source.iconUrl,
+                        width: 18,
+                        height: 18,
+                        borderRadius: BorderRadius.circular(4),
+                        fit: BoxFit.cover,
+                      ),
                       const FDSizedBox(width: 10),
                       Expanded(
                         child: FDText(

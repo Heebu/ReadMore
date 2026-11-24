@@ -117,22 +117,42 @@ class ReaderViewModal extends StatelessWidget {
                     // Source & Meta
                     FDRow(
                       children: [
-                        FDRawHTML('''
-                          <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="${article.source.iconUrl}" style="width: 22px; height: 22px; border-radius: 4px;"/>
-                            <span style="font-size: 14px; font-weight: 700; color: #3B82F6;">${article.source.name}</span>
-                            <span style="color: #64748B; font-size: 13px;">• Published today • Author: Syndicated News Desk</span>
-                          </div>
-                        '''),
+                        FDImage.network(
+                          article.source.iconUrl,
+                          width: 22,
+                          height: 22,
+                          borderRadius: BorderRadius.circular(4),
+                          fit: BoxFit.cover,
+                        ),
+                        const FDSizedBox(width: 8),
+                        FDText(
+                          article.source.name,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primaryBlue),
+                        ),
+                        const FDSizedBox(width: 8),
+                        const FDText(
+                          '• Published today • Author: Syndicated News Desk',
+                          style: TextStyle(fontSize: 13, color: AppColors.textMuted),
+                        ),
                       ],
                     ),
                     const FDSizedBox(height: 20),
 
                     // Image
                     if (article.imageUrl != null)
-                      FDRawHTML('''
-                        <img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 14px; margin-bottom: 20px;"/>
-                      '''),
+                      FDContainer(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: FDImage.network(
+                          article.imageUrl!,
+                          width: double.infinity,
+                          height: 380,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
 
                     // TTS Audio Player Bar
                     FDContainer(
@@ -267,11 +287,22 @@ class ReaderViewModal extends StatelessWidget {
                             ),
                           ],
                         ),
-                        FDRawHTML('''
-                          <a href="${article.originalUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; background: #3B82F6; color: #FFF; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700;">
-                            Read on ${article.source.name} ↗
-                          </a>
-                        '''),
+                        FDContainer(
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: FDLinkText(
+                            text: 'Read on ${article.source.name} ↗',
+                            url: article.originalUrl,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: FlartColors.white,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const FDSizedBox(height: 32),
@@ -349,9 +380,13 @@ class ReaderViewModal extends StatelessWidget {
                     children: [
                       FDRow(
                         children: [
-                          FDRawHTML('''
-                            <img src="${c.avatarUrl}" style="width: 24px; height: 24px; border-radius: 50%;"/>
-                          '''),
+                          FDImage.network(
+                            c.avatarUrl,
+                            width: 24,
+                            height: 24,
+                            borderRadius: BorderRadius.circular(12),
+                            fit: BoxFit.cover,
+                          ),
                           const FDSizedBox(width: 8),
                           FDText(c.author, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           const FDSizedBox(width: 8),

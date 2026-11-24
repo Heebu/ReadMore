@@ -36,17 +36,62 @@ class ArticleCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (article.imageUrl != null)
-              FDRawHTML('''
-                <div style="position: relative; width: 100%; height: 180px; border-radius: 14px 14px 0 0; overflow: hidden;">
-                  <img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 100%; object-fit: cover;"/>
-                  <span style="position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); color: #60A5FA; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 8px; text-transform: uppercase;">
-                    ${article.category}
-                  </span>
-                  <span style="position: absolute; top: 10px; right: 10px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); color: #94A3B8; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px;">
-                    ⚡ ${article.readTimeMinutes}m
-                  </span>
-                </div>
-              '''),
+              FDStack(
+                children: [
+                  FDContainer(
+                    height: 180,
+                    width: double.infinity,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(top: 14),
+                    ),
+                    child: FDImage.network(
+                      article.imageUrl!,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  FDPositioned(
+                    top: 10,
+                    left: 10,
+                    child: FDContainer(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: FDText(
+                        article.category.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryBlueLight,
+                        ),
+                      ),
+                    ),
+                  ),
+                  FDPositioned(
+                    top: 10,
+                    right: 10,
+                    child: FDContainer(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.darkSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: FDText(
+                        '⚡ ${article.readTimeMinutes}m',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             FDContainer(
               padding: const EdgeInsets.all(16),
               child: FDColumn(
@@ -54,13 +99,23 @@ class ArticleCard extends StatelessWidget {
                 children: [
                   FDRow(
                     children: [
-                      FDRawHTML('''
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                          <img src="${article.source.iconUrl}" style="width: 14px; height: 14px; border-radius: 3px;"/>
-                          <span style="font-size: 11px; font-weight: 700; color: #3B82F6;">${article.source.name}</span>
-                          <span style="color: #64748B; font-size: 11px;">• 1h ago</span>
-                        </div>
-                      '''),
+                      FDImage.network(
+                        article.source.iconUrl,
+                        width: 14,
+                        height: 14,
+                        borderRadius: BorderRadius.circular(3),
+                        fit: BoxFit.cover,
+                      ),
+                      const FDSizedBox(width: 6),
+                      FDText(
+                        article.source.name,
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryBlue),
+                      ),
+                      const FDSizedBox(width: 6),
+                      const FDText(
+                        '• 1h ago',
+                        style: TextStyle(fontSize: 11, color: AppColors.textMuted),
+                      ),
                     ],
                   ),
                   const FDSizedBox(height: 8),

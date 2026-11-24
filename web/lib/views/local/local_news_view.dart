@@ -114,13 +114,24 @@ class LocalNewsView extends StatelessWidget {
                     style: const TextStyle(fontSize: 16, color: FlartColor('#E0F2FE'), fontWeight: FontWeight.w600),
                   ),
                   const FDSizedBox(height: 12),
-                  FDRawHTML('''
-                    <div style="display: flex; gap: 16px; font-size: 13px; color: #BAE6FD;">
-                      <span>💧 Humidity: <b>${weather.humidity}%</b></span>
-                      <span>💨 Wind: <b>${weather.windSpeedKmh} km/h</b></span>
-                      <span>🌿 Air Quality: <b>Good (AQI 32)</b></span>
-                    </div>
-                  '''),
+                  FDRow(
+                    children: [
+                      FDText(
+                        '💧 Humidity: ${weather.humidity}%',
+                        style: const TextStyle(fontSize: 13, color: FlartColor('#BAE6FD'), fontWeight: FontWeight.bold),
+                      ),
+                      const FDSizedBox(width: 16),
+                      FDText(
+                        '💨 Wind: ${weather.windSpeedKmh} km/h',
+                        style: const TextStyle(fontSize: 13, color: FlartColor('#BAE6FD'), fontWeight: FontWeight.bold),
+                      ),
+                      const FDSizedBox(width: 16),
+                      const FDText(
+                        '🌿 Air Quality: Good (AQI 32)',
+                        style: TextStyle(fontSize: 13, color: FlartColor('#BAE6FD'), fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ],
               ),
               FDText(

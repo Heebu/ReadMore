@@ -29,14 +29,34 @@ class BreakingTicker extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
         child: FDRow(
           children: [
-            FDRawHTML('''
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="live-dot"></span>
-                <span style="background: #EF4444; color: #FFF; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">
-                  BREAKING
-                </span>
-              </div>
-            '''),
+            FDRow(
+              children: [
+                FDContainer(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AppColors.bearRed,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const FDSizedBox(width: 6),
+                FDContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.bearRed,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const FDText(
+                    'BREAKING',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: FlartColors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const FDSizedBox(width: 12),
             Expanded(
               child: FDGestureDetector(

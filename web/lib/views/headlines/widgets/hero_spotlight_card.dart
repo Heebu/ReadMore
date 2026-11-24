@@ -35,20 +35,63 @@ class HeroSpotlightCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (article.imageUrl != null)
-              FDRawHTML('''
-                <div style="position: relative; width: 100%; height: 320px; max-height: 360px; border-radius: 16px 16px 0 0; overflow: hidden;">
-                  <img src="${article.imageUrl}" alt="${article.title}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'"/>
-                  <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(to top, rgba(9, 13, 22, 0.95), transparent);"></div>
-                  <div style="position: absolute; top: 16px; left: 16px; display: flex; gap: 8px;">
-                    <span style="background: rgba(59, 130, 246, 0.9); backdrop-filter: blur(8px); color: #FFF; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase;">
-                      ${article.category}
-                    </span>
-                    <span style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); color: #94A3B8; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;">
-                      ⚡ ${article.readTimeMinutes} min read
-                    </span>
-                  </div>
-                </div>
-              '''),
+              FDStack(
+                children: [
+                  FDContainer(
+                    height: 320,
+                    width: double.infinity,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(top: 16),
+                    ),
+                    child: FDImage.network(
+                      article.imageUrl!,
+                      width: double.infinity,
+                      height: 320,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  FDPositioned(
+                    top: 16,
+                    left: 16,
+                    child: FDRow(
+                      children: [
+                        FDContainer(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: FDText(
+                            article.category.toUpperCase(),
+                            style: const TextStyle(
+                              color: FlartColors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        const FDSizedBox(width: 8),
+                        FDContainer(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkSurface,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: FDText(
+                            '⚡ ${article.readTimeMinutes} min read',
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             FDContainer(
               padding: const EdgeInsets.all(24),
               child: FDColumn(
@@ -56,13 +99,23 @@ class HeroSpotlightCard extends StatelessWidget {
                 children: [
                   FDRow(
                     children: [
-                      FDRawHTML('''
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                          <img src="${article.source.iconUrl}" style="width: 18px; height: 18px; border-radius: 4px;"/>
-                          <span style="font-size: 13px; font-weight: 700; color: #3B82F6;">${article.source.name}</span>
-                          <span style="color: #64748B; font-size: 12px;">• 25m ago</span>
-                        </div>
-                      '''),
+                      FDImage.network(
+                        article.source.iconUrl,
+                        width: 18,
+                        height: 18,
+                        borderRadius: BorderRadius.circular(4),
+                        fit: BoxFit.cover,
+                      ),
+                      const FDSizedBox(width: 8),
+                      FDText(
+                        article.source.name,
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryBlue),
+                      ),
+                      const FDSizedBox(width: 6),
+                      const FDText(
+                        '• 25m ago',
+                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+                      ),
                     ],
                   ),
                   const FDSizedBox(height: 12),

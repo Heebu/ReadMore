@@ -45,13 +45,27 @@ class AppFooter extends StatelessWidget {
                     ),
                   ],
                 ),
-                FDRawHTML('''
-                  <div style="display: flex; gap: 16px; font-size: 13px; color: #94A3B8;">
-                    <a href="/sitemap.xml" style="color: inherit; text-decoration: none;">Sitemap</a>
-                    <a href="/sitemap_news.xml" style="color: inherit; text-decoration: none;">Google News XML</a>
-                    <a href="/rss.xml" style="color: inherit; text-decoration: none;">RSS 2.0</a>
-                  </div>
-                '''),
+                FDRow(
+                  children: [
+                    FDLinkText(
+                      text: 'Sitemap',
+                      url: '/sitemap.xml',
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                    const FDSizedBox(width: 16),
+                    FDLinkText(
+                      text: 'Google News XML',
+                      url: '/sitemap_news.xml',
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                    const FDSizedBox(width: 16),
+                    FDLinkText(
+                      text: 'RSS 2.0',
+                      url: '/rss.xml',
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
               ],
             ),
             const FDSizedBox(height: 24),

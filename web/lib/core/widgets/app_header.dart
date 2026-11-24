@@ -32,22 +32,72 @@ class AppHeader extends StatelessWidget {
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('headlines'),
               child: FDRow(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  FDRawHTML('''
-                    <div style="display: flex; align-items: center; gap: 10px; cursor: pointer; white-space: nowrap;">
-                      <div style="width: 38px; height: 38px; min-width: 38px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #FFF; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);">
-                        R
-                      </div>
-                      <div>
-                        <div style="font-size: 22px; font-weight: 800; letter-spacing: -0.04em; color: ${vm.isDarkMode ? '#F8FAFC' : '#0F172A'}; line-height: 1.1;">
-                          Read<span style="color: #3B82F6;">More</span>
-                        </div>
-                        <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: #64748B;">
-                          Global News & Intelligence
-                        </div>
-                      </div>
-                    </div>
-                  '''),
+                  FDContainer(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primaryBlue, AppColors.accentPurple],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: FlartColor('rgba(59, 130, 246, 0.4)'),
+                          blurRadius: 14,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const FDCenter(
+                      child: FDText(
+                        'R',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: FlartColors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const FDSizedBox(width: 10),
+                  FDColumn(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FDRichText(
+                        text: TextSpan(
+                          text: 'Read',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.04,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
+                          children: const [
+                            TextSpan(
+                              text: 'More',
+                              style: TextStyle(
+                                color: AppColors.primaryBlue,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const FDText(
+                        'GLOBAL NEWS & INTELLIGENCE',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textMuted,
+                          letterSpacing: 0.12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -93,9 +143,22 @@ class AppHeader extends StatelessWidget {
                           color: vm.hasUnreadNotifications ? FlartColors.amber : FlartColors.grey,
                         ),
                         if (vm.hasUnreadNotifications)
-                          FDRawHTML('''
-                            <div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%; border: 1.5px solid #111827;"></div>
-                          '''),
+                          FDPositioned(
+                            top: -2,
+                            right: -2,
+                            child: FDContainer(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.bearRed,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -144,11 +207,30 @@ class AppHeader extends StatelessWidget {
                 const FDSizedBox(width: 8),
 
                 // Reading Streak
-                FDRawHTML('''
-                  <div style="display: flex; align-items: center; gap: 6px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 10px; border-radius: 18px; font-size: 12px; font-weight: 800; color: #F59E0B;" title="5-day reading streak!">
-                    🔥 5d
-                  </div>
-                '''),
+                FDContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const FlartColor('rgba(245, 158, 11, 0.15)'),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: const FlartColor('rgba(245, 158, 11, 0.3)'),
+                      width: 1,
+                    ),
+                  ),
+                  child: const FDRow(
+                    children: [
+                      FDText('🔥 ', style: TextStyle(fontSize: 12)),
+                      FDText(
+                        '5d',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.accentAmber,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],

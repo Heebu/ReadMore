@@ -17,9 +17,16 @@ class CenteredShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FDContainer(
-      padding: padding,
-      rawCss: 'width: 100%; max-width: ${maxWidth.toInt()}px; margin-left: auto; margin-right: auto; box-sizing: border-box;',
-      child: child,
+      alignment: Alignment.topCenter,
+      width: double.infinity,
+      child: FDConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: FDContainer(
+          width: double.infinity,
+          padding: padding,
+          child: child,
+        ),
+      ),
     );
   }
 }

@@ -38,7 +38,7 @@ class WeatherSidebarWidget extends StatelessWidget {
           const FDSizedBox(height: 16),
           FDRow(
             children: [
-              FDRawHTML('''<div style="font-size: 38px; line-height: 1;">🌤️</div>'''),
+              const FDText('🌤️', style: TextStyle(fontSize: 36)),
               const FDSizedBox(width: 14),
               FDColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,13 +53,40 @@ class WeatherSidebarWidget extends StatelessWidget {
             ],
           ),
           const FDSizedBox(height: 14),
-          FDRawHTML('''
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; font-size: 11px; text-align: center;">
-              <div><div style="color: #64748B;">Tue</div><div style="font-size: 16px; margin: 2px 0;">☀️</div><div style="font-weight: bold;">24°C</div></div>
-              <div><div style="color: #64748B;">Wed</div><div style="font-size: 16px; margin: 2px 0;">🌧️</div><div style="font-weight: bold;">19°C</div></div>
-              <div><div style="color: #64748B;">Thu</div><div style="font-size: 16px; margin: 2px 0;">⛅</div><div style="font-weight: bold;">21°C</div></div>
-            </div>
-          '''),
+          const FDDivider(color: AppColors.borderSubtle),
+          const FDSizedBox(height: 12),
+          FDRow(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: const [
+              FDColumn(
+                children: [
+                  FDText('Tue', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                  FDSizedBox(height: 2),
+                  FDText('☀️', style: TextStyle(fontSize: 16)),
+                  FDSizedBox(height: 2),
+                  FDText('24°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              FDColumn(
+                children: [
+                  FDText('Wed', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                  FDSizedBox(height: 2),
+                  FDText('🌧️', style: TextStyle(fontSize: 16)),
+                  FDSizedBox(height: 2),
+                  FDText('19°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              FDColumn(
+                children: [
+                  FDText('Thu', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
+                  FDSizedBox(height: 2),
+                  FDText('⛅', style: TextStyle(fontSize: 16)),
+                  FDSizedBox(height: 2),
+                  FDText('21°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -342,12 +369,31 @@ class NewsletterWidget extends StatelessWidget {
           const FDSizedBox(height: 6),
           const FDText('Get verified global intelligence delivered to your inbox every morning at 06:00.', style: TextStyle(fontSize: 12, color: FlartColor('#C7D2FE'))),
           const FDSizedBox(height: 14),
-          FDRawHTML('''
-            <div style="display: flex; gap: 8px;">
-              <input type="email" placeholder="Enter your email" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px 12px; color: #FFF; font-size: 12px; width: 100%; outline: none;"/>
-              <button style="background: #3B82F6; color: #FFF; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; font-size: 12px; cursor: pointer;" onclick="alert('Thank you for subscribing to ReadMore Executive Digest!');">Join</button>
-            </div>
-          '''),
+          FDRow(
+            children: [
+              Expanded(
+                child: FDTextField(
+                  placeholder: 'Enter your email',
+                  backgroundColor: const FlartColor('rgba(255, 255, 255, 0.1)'),
+                  borderColor: const FlartColor('rgba(255, 255, 255, 0.2)'),
+                  borderRadius: 8,
+                ),
+              ),
+              const FDSizedBox(width: 8),
+              FDElevatedButton(
+                onPressed: () {},
+                style: FDElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryBlue,
+                  shape: BorderRadius.circular(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                ),
+                child: const FDText(
+                  'Join',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColors.white),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

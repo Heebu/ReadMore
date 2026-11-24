@@ -125,13 +125,16 @@ class HeadlinesView extends StatelessWidget {
             ),
           ],
         ),
-        FDRow(
+        const FDRow(
           children: [
-            FDRawHTML('''
-              <span style="font-size: 12px; color: #64748B; font-weight: 600;">
-                ● Live Updates Every 5m
-              </span>
-            '''),
+            FDText(
+              '● Live Updates Every 5m',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.textMuted,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ],

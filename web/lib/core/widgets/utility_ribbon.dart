@@ -34,16 +34,39 @@ class UtilityRibbon extends StatelessWidget {
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('local'),
               child: FDRow(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  FDRawHTML('''
-                    <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: ${vm.isDarkMode ? '#94A3B8' : '#475569'};">
-                      <span>📅 <b>Monday, Nov 23, 2026</b></span>
-                      <span style="opacity: 0.4;">|</span>
-                      <span style="display: inline-flex; align-items: center; gap: 4px; background: rgba(59, 130, 246, 0.12); padding: 2px 8px; border-radius: 12px; color: #60A5FA; font-weight: 600; cursor: pointer; white-space: nowrap;">
-                        📍 ${vm.selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})
-                      </span>
-                    </div>
-                  '''),
+                  FDText(
+                    '📅 Monday, Nov 23, 2026',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: vm.isDarkMode ? AppColors.textSecondary : const FlartColor('#475569'),
+                    ),
+                  ),
+                  const FDSizedBox(width: 8),
+                  const FDText('|', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
+                  const FDSizedBox(width: 8),
+                  FDContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlueSubtle,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: FDRow(
+                      children: [
+                        const FDText('📍 ', style: TextStyle(fontSize: 11)),
+                        FDText(
+                          '${vm.selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryBlueLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -55,13 +78,27 @@ class UtilityRibbon extends StatelessWidget {
                   if (!isTablet)
                     FDGestureDetector(
                       onTap: () => vm.setActiveScreen('markets'),
-                      child: FDRawHTML('''
-                        <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; font-family: monospace; cursor: pointer; margin-right: 14px; white-space: nowrap; overflow: hidden;">
-                          <span style="color: #10B981; font-weight: bold;">▲ S&P 5,984 (+0.72%)</span>
-                          <span style="color: #10B981; font-weight: bold;">▲ BTC \$98,650 (+3.65%)</span>
-                          <span style="color: #10B981; font-weight: bold;">▲ NVDA \$148.90 (+2.45%)</span>
-                        </div>
-                      '''),
+                      child: FDContainer(
+                        margin: const EdgeInsets.only(right: 14),
+                        child: FDRow(
+                          children: const [
+                            FDText(
+                              '▲ S&P 5,984 (+0.72%)',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                            ),
+                            FDSizedBox(width: 12),
+                            FDText(
+                              '▲ BTC \$98,650 (+3.65%)',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                            ),
+                            FDSizedBox(width: 12),
+                            FDText(
+                              '▲ NVDA \$148.90 (+2.45%)',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   FDGestureDetector(
                     onTap: () => vm.openEditionModal(),
