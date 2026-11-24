@@ -17,23 +17,28 @@ class PrimaryNavRibbon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navItems = [
-      {'id': 'headlines', 'name': 'Headlines', 'icon': '📰'},
-      {'id': 'for_you', 'name': 'For You', 'icon': '✨'},
-      {'id': 'local', 'name': 'Local News', 'icon': '📍'},
-      {'id': 'markets', 'name': 'Markets', 'icon': '📈'},
-      {'id': 'library', 'name': 'My Library', 'icon': '🔖', 'badge': '${vm.bookmarkedIds.length + vm.readLaterIds.length}'},
-      {'id': 'explore', 'name': 'Explore', 'icon': '🔍'},
-      {'id': 'profile', 'name': 'Profile & Settings', 'icon': '👤'},
+      {'id': 'headlines', 'name': 'FRONT PAGE', 'icon': '✦'},
+      {'id': 'for_you', 'name': 'CURATED', 'icon': '✦'},
+      {'id': 'local', 'name': 'CITY CHRONICLE', 'icon': '✦'},
+      {'id': 'markets', 'name': 'FINANCE & TRADE', 'icon': '✦'},
+      {'id': 'library', 'name': 'THE ARCHIVE', 'icon': '✦', 'badge': '${vm.bookmarkedIds.length + vm.readLaterIds.length}'},
+      {'id': 'explore', 'name': 'TOPICS & SEARCH', 'icon': '✦'},
+      {'id': 'profile', 'name': 'SUBSCRIBER DESK', 'icon': '✦'},
     ];
 
     return FDContainer(
       width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkNav : AppColors.lightNav,
-        border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
+        border: Border(
+          bottom: BorderSide(
+            color: vm.isDarkMode ? const FlartColor('#2A2B33') : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
+        ),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 7),
         child: FDSingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: FDRow(
@@ -45,57 +50,57 @@ class PrimaryNavRibbon extends StatelessWidget {
               return FDGestureDetector(
                 onTap: () => vm.setActiveScreen(item['id']!),
                 child: FDContainer(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  margin: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.primaryBlue
-                        : (vm.isDarkMode ? AppColors.borderSubtle : AppColors.lightSurface),
-                    borderRadius: BorderRadius.circular(20),
+                        ? (vm.isDarkMode ? FlartColors.white : FlartColors.black)
+                        : (vm.isDarkMode ? const FlartColor('#17181E') : const FlartColor('#FAF9F5')),
+                    borderRadius: BorderRadius.circular(2),
                     border: Border.all(
-                      color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
+                      color: isSelected
+                          ? (vm.isDarkMode ? FlartColors.white : FlartColors.black)
+                          : (vm.isDarkMode ? const FlartColor('#2D2F38') : const FlartColor('#C8C4B6')),
                       width: 1,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            const BoxShadow(
-                              color: FlartColor('rgba(59, 130, 246, 0.4)'),
-                              blurRadius: 10,
-                              offset: Offset(0, 3),
-                            ),
-                          ]
-                        : null,
                   ),
                   cssStyle: const {
-                    'transition': 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                    'transition': 'all 0.18s ease',
                     'cursor': 'pointer',
                   },
                   child: FDRow(
                     children: [
-                      FDText(item['icon']!, style: const TextStyle(fontSize: 14)),
-                      const FDSizedBox(width: 6),
                       FDText(
                         item['name']!,
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? FlartColors.white : (vm.isDarkMode ? FlartColors.white : FlartColors.black),
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.08,
+                          color: isSelected
+                              ? (vm.isDarkMode ? FlartColors.black : FlartColors.white)
+                              : (vm.isDarkMode ? const FlartColor('#EAE8E0') : const FlartColor('#222222')),
                         ),
                       ),
                       if (badge != null && badge != '0') ...[
                         const FDSizedBox(width: 6),
                         FDContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryBlueDark : AppColors.primaryBlueSubtle,
-                            borderRadius: BorderRadius.circular(10),
+                            color: isSelected
+                                ? (vm.isDarkMode ? const FlartColor('#E2DFD2') : const FlartColor('#222222'))
+                                : (vm.isDarkMode ? const FlartColor('#2A2B33') : const FlartColor('#E2DFD2')),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                           child: FDText(
                             badge,
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? FlartColors.white : AppColors.primaryBlueLight,
+                              fontFamily: 'Space Grotesk',
+                              color: isSelected
+                                  ? (vm.isDarkMode ? FlartColors.black : FlartColors.white)
+                                  : (vm.isDarkMode ? FlartColors.white : FlartColors.black),
                             ),
                           ),
                         ),

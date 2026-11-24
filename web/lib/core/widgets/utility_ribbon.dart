@@ -24,15 +24,20 @@ class UtilityRibbon extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkRibbon : AppColors.lightRibbon,
-        border: const Border(bottom: BorderSide(color: AppColors.borderSubtle, width: 1)),
+        border: Border(
+          bottom: BorderSide(
+            color: vm.isDarkMode ? const FlartColor('#262730') : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
+        ),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 6),
         child: FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Left: Date & Weather Clickable Pill
+            // Left: Broadsheet Vol/No & Weather Dateline
             FDContainer(
               cssStyle: const {'flex-shrink': '0'},
               child: FDGestureDetector(
@@ -42,31 +47,39 @@ class UtilityRibbon extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FDText(
-                      '📅 Monday, Nov 23, 2026',
+                      'VOL. CXLII No. 59,820  ✦  NEW YORK, MONDAY, NOV 23, 2026',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: vm.isDarkMode ? AppColors.textSecondary : const FlartColor('#475569'),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Space Grotesk',
+                        letterSpacing: 0.08,
+                        color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#4A4842'),
                       ),
                     ),
-                    const FDSizedBox(width: 8),
-                    const FDText('|', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
-                    const FDSizedBox(width: 8),
+                    const FDSizedBox(width: 10),
+                    const FDText('·', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
+                    const FDSizedBox(width: 10),
                     FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlueSubtle,
-                        borderRadius: BorderRadius.circular(12),
+                        color: vm.isDarkMode ? const FlartColor('#191A20') : const FlartColor('#E2DED2'),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(
+                          color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C4BFB0'),
+                          width: 1,
+                        ),
                       ),
                       child: FDRow(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const FDText('📍 ', style: TextStyle(fontSize: 11)),
                           FDText(
-                            '${vm.selectedCity} ${weather.temperatureC.toInt()}°C (${weather.condition})',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.primaryBlueLight,
+                            '${vm.selectedCity.toUpperCase()}: ${weather.temperatureC.toInt()}°C',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.06,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
                           ),
                         ],
@@ -77,7 +90,7 @@ class UtilityRibbon extends StatelessWidget {
               ),
             ),
 
-            // Right: Real-time Mini Stock Ticker (Desktop only) & Edition Badge
+            // Right: Real-time Mini Stock Ticker & Edition Badge
             if (!isMobile)
               FDContainer(
                 cssStyle: const {'flex-shrink': '0'},
@@ -93,20 +106,35 @@ class UtilityRibbon extends StatelessWidget {
                         child: FDRow(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
+                          children: [
                             FDText(
-                              '▲ S&P 5,984 (+0.72%)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                              'S&P 5,984 ▲0.72%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Space Grotesk',
+                                color: vm.isDarkMode ? const FlartColor('#C8C6BC') : const FlartColor('#333333'),
+                              ),
                             ),
-                            FDSizedBox(width: 12),
+                            const FDSizedBox(width: 12),
                             FDText(
-                              '▲ BTC \$98,650 (+3.65%)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                              'BTC \$98,650 ▲3.65%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Space Grotesk',
+                                color: vm.isDarkMode ? const FlartColor('#C8C6BC') : const FlartColor('#333333'),
+                              ),
                             ),
-                            FDSizedBox(width: 12),
+                            const FDSizedBox(width: 12),
                             FDText(
-                              '▲ NVDA \$148.90 (+2.45%)',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.bullGreen),
+                              'BRENT \$74.20 ▼1.15%',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Space Grotesk',
+                                color: vm.isDarkMode ? const FlartColor('#C8C6BC') : const FlartColor('#333333'),
+                              ),
                             ),
                           ],
                         ),
@@ -117,17 +145,25 @@ class UtilityRibbon extends StatelessWidget {
                     child: FDContainer(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlueSubtle,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.borderHighlighted, width: 1),
+                        color: vm.isDarkMode ? const FlartColor('#1A1B22') : const FlartColor('#FAF9F5'),
+                        borderRadius: BorderRadius.circular(2),
+                        border: Border.all(
+                          color: vm.isDarkMode ? const FlartColor('#444652') : const FlartColor('#222222'),
+                          width: 1,
+                        ),
                       ),
                       child: FDRow(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const FDText('🌐 ', style: TextStyle(fontSize: 10)),
                           FDText(
-                            vm.selectedEdition,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight),
+                            '[ ${vm.selectedEdition.toUpperCase()} EDITION · FIVE CENTS ]',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.08,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            ),
                           ),
                         ],
                       ),

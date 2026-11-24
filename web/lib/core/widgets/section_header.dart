@@ -21,51 +21,69 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FDRow(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Accent Bar & Title Block
-        FDRow(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FDContainer(
-              width: 4,
-              height: 20,
-              decoration: BoxDecoration(
-                color: accentColor,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const FDSizedBox(width: 10),
-            FDColumn(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FDText(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: isDarkMode ? FlartColors.white : FlartColors.black,
-                  ),
-                ),
-                if (subtitle != null) ...[
-                  const FDSizedBox(height: 2),
-                  FDText(
-                    subtitle!,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                  ),
-                ],
-              ],
-            ),
-          ],
+    return FDContainer(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: isDarkMode ? const FlartColor('#33353F') : const FlartColor('#111111'),
+            width: 2,
+          ),
+          top: BorderSide(
+            color: isDarkMode ? const FlartColor('#262830') : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
         ),
+      ),
+      child: FDRow(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          FDRow(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FDText(
+                '✦ ',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#4A4842'),
+                ),
+              ),
+              FDColumn(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FDText(
+                    title.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Playfair Display',
+                      letterSpacing: 0.06,
+                      color: isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const FDSizedBox(height: 2),
+                    FDText(
+                      subtitle!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontFamily: 'Newsreader',
+                        color: isDarkMode ? AppColors.textSecondary : const FlartColor('#6E6C66'),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
 
-        // Optional Trailing Action or Indicator
-        if (trailing != null) trailing!,
-      ],
+          // Optional Trailing Action or Indicator
+          if (trailing != null) trailing!,
+        ],
+      ),
     );
   }
 }

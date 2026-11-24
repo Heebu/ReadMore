@@ -8,34 +8,45 @@
   <meta name="theme-color" content="#0F172A">
   <title>ReadMore — Next-Gen News & Intelligence</title>
 
-  <!-- Google Fonts: Plus Jakarta Sans (Modern UI) & Playfair Display (Editorial Headlines) -->
+  <!-- Historic Broadsheet Fonts: Newsreader (Editorial Serif), Playfair Display (Headlines), Cinzel (Monumental Masthead), UnifrakturMaguntia (Gothic Initial), Space Grotesk (Typeset Lead) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;0,6..72,800;1,6..72,400;1,6..72,600&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
 
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Round|Material+Icons+Outlined" rel="stylesheet">
 
   <style>
     :root {
-      --bg-primary: #090D16;
-      --bg-surface: #111827;
-      --bg-card: #182234;
-      --bg-glass: rgba(17, 24, 39, 0.85);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --border-focus: #3B82F6;
-      --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
-      --accent-blue: #3B82F6;
-      --accent-cyan: #06B6D4;
-      --accent-red: #EF4444;
-      --accent-emerald: #10B981;
-      --accent-amber: #F59E0B;
-      --gradient-brand: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #EC4899 100%);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 20px 35px -5px rgba(0, 0, 0, 0.5), 0 10px 15px -5px rgba(0, 0, 0, 0.4);
+      /* Broadsheet Century-Old Newspaper Monochrome Design Tokens */
+      --paper-cream: #F7F5F0;
+      --paper-white: #FFFFFF;
+      --paper-card: #FAF8F4;
+      --paper-border: #DCD8CE;
+      --paper-border-dark: #2A2B32;
+      
+      --ink-black: #111111;
+      --ink-charcoal: #25262B;
+      --ink-graphite: #4A4A48;
+      --ink-slate: #6E6C66;
+      --ink-muted: #8E8C85;
+      --ink-faint: #B5B3AC;
+
+      /* The Midnight Gazette (Dark Mode Broadsheet) */
+      --noir-bg: #0D0E11;
+      --noir-surface: #141519;
+      --noir-card: #1A1B20;
+      --noir-card-secondary: #212228;
+      --noir-border: #2D2E36;
+      --noir-text-primary: #F4F3EE;
+      --noir-text-secondary: #9E9C95;
+
+      /* Broadsheet Rules & Hairlines */
+      --double-rule: 3px double currentColor;
+      --hairline-rule: 1px solid currentColor;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.2);
     }
 
     * {
@@ -47,33 +58,62 @@
     }
 
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Newsreader', 'Playfair Display', Georgia, 'Times New Roman', serif;
       overflow-x: hidden;
-      line-height: 1.5;
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #253348;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3B82F6;
-    }
-
-    /* Editorial Headline font */
+    /* Broadsheet Typography Classes */
     .headline-font {
       font-family: 'Playfair Display', Georgia, serif;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.015em;
+    }
+
+    .masthead-font {
+      font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .gothic-crest {
+      font-family: 'UnifrakturMaguntia', serif;
+    }
+
+    .kicker-font {
+      font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* Broadsheet Double Hairline Rules */
+    .broadsheet-rule-top {
+      border-top: 3px double currentColor;
+    }
+
+    .broadsheet-rule-bottom {
+      border-bottom: 3px double currentColor;
+    }
+
+    .broadsheet-rule-both {
+      border-top: 3px double currentColor;
+      border-bottom: 1px solid currentColor;
+    }
+
+    /* Custom Scrollbar in Monochrome */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(128, 128, 128, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(128, 128, 128, 0.4);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(128, 128, 128, 0.7);
     }
 
     /* Modern Monospace / Number Font */
@@ -81,28 +121,18 @@
       font-family: 'Space Grotesk', monospace;
     }
 
-    /* Glassmorphism Classes */
-    .glass-header {
-      background: var(--bg-glass) !important;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    /* Card Hover Animations */
+    /* Card Hover Animations in Monochrome */
     .news-card-hover, [id^="card-"], [id^="hero-card-"], [id^="compact-card-"] {
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease !important;
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s ease, border-color 0.24s ease !important;
       cursor: pointer;
     }
     .news-card-hover:hover, [id^="card-"]:hover, [id^="hero-card-"]:hover {
-      transform: translateY(-5px) scale(1.008);
-      box-shadow: 0 20px 35px -6px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(59, 130, 246, 0.4) !important;
-      border-color: rgba(59, 130, 246, 0.45) !important;
+      transform: translateY(-4px);
+      box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.22) !important;
     }
     [id^="compact-card-"]:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px -4px rgba(0, 0, 0, 0.35), 0 0 1px 1px rgba(59, 130, 246, 0.3) !important;
-      border-color: rgba(59, 130, 246, 0.4) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.18) !important;
     }
 
     /* Image zoom on card hover */

@@ -348,31 +348,22 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: FlartColor('rgba(59, 130, 246, 0.4)'),
-                              blurRadius: 14,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          borderRadius: BorderRadius.circular(2),
                         ),
                         cssStyle: const {
                           'cursor': 'pointer',
                           'transition': 'all 0.2s ease',
                         },
-                        child: const FDCenter(
+                        child: FDCenter(
                           child: FDText(
-                            '🚀 Launch Campaign & Distribute to Feed',
+                            'COMMENCE DISPATCH CAMPAIGN',
                             style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: FlartColors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.08,
+                              color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                             ),
                           ),
                         ),

@@ -1,10 +1,9 @@
 import 'package:flartdart/flartdart.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/filter_chip_pill.dart';
 import '../../../core/widgets/ranked_article_tile.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
 
-/// Sidebar Widget: Local Weather Snapshot with 3-day outlook.
+/// Sidebar Widget: Local Weather Snapshot with 3-day outlook in broadsheet styling.
 class WeatherSidebarWidget extends StatelessWidget {
   final NewsAppViewModel vm;
 
@@ -16,86 +15,121 @@ class WeatherSidebarWidget extends StatelessWidget {
 
     return FDContainer(
       decoration: BoxDecoration(
-        color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderRegular, width: 1),
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#D4CFBE'),
+          width: 1,
+        ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FDRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const FDText('Local Weather', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              FDText(
+                'LOCAL WEATHER DISPATCH',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Space Grotesk',
+                  letterSpacing: 0.08,
+                  color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+                ),
+              ),
               FDGestureDetector(
                 onTap: () => vm.setActiveScreen('local'),
                 child: FDText(
-                  '📍 ${vm.selectedCity}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.primaryBlue, fontWeight: FontWeight.bold),
+                  '📍 ${vm.selectedCity.toUpperCase()}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontFamily: 'Space Grotesk',
+                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
           ),
-          const FDSizedBox(height: 16),
+          const FDSizedBox(height: 14),
           FDRow(
             children: [
-              const FDText('🌤️', style: TextStyle(fontSize: 36)),
+              const FDText('🌤️', style: TextStyle(fontSize: 32)),
               const FDSizedBox(width: 14),
               FDColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FDText(
                     '${weather.temperatureC.toInt()}°C',
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Playfair Display',
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
+                    ),
                   ),
-                  FDText(weather.condition, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                  FDText(
+                    weather.condition,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Newsreader',
+                      fontStyle: FontStyle.italic,
+                      color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
-          const FDSizedBox(height: 14),
-          const FDDivider(color: AppColors.borderSubtle),
           const FDSizedBox(height: 12),
+          FDDivider(color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#E2DED2')),
+          const FDSizedBox(height: 10),
           FDRow(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              FDColumn(
-                children: [
-                  FDText('Tue', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                  FDSizedBox(height: 2),
-                  FDText('☀️', style: TextStyle(fontSize: 16)),
-                  FDSizedBox(height: 2),
-                  FDText('24°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              FDColumn(
-                children: [
-                  FDText('Wed', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                  FDSizedBox(height: 2),
-                  FDText('🌧️', style: TextStyle(fontSize: 16)),
-                  FDSizedBox(height: 2),
-                  FDText('19°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              FDColumn(
-                children: [
-                  FDText('Thu', style: TextStyle(fontSize: 11, color: AppColors.textMuted)),
-                  FDSizedBox(height: 2),
-                  FDText('⛅', style: TextStyle(fontSize: 16)),
-                  FDSizedBox(height: 2),
-                  FDText('21°C', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                ],
-              ),
+            children: [
+              _buildForecastDay('Tue', '☀️', '24°C', vm.isDarkMode),
+              _buildForecastDay('Wed', '🌧️', '19°C', vm.isDarkMode),
+              _buildForecastDay('Thu', '⛅', '21°C', vm.isDarkMode),
             ],
           ),
         ],
       ),
     );
   }
+
+  static Widget _buildForecastDay(String day, String icon, String temp, bool isDark) {
+    return FDColumn(
+      children: [
+        FDText(
+          day.toUpperCase(),
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Space Grotesk',
+            color: isDark ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+          ),
+        ),
+        const FDSizedBox(height: 3),
+        FDText(icon, style: const TextStyle(fontSize: 14)),
+        const FDSizedBox(height: 3),
+        FDText(
+          temp,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'Space Grotesk',
+            color: isDark ? FlartColors.white : FlartColors.black,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-/// Sidebar Widget: Real-time financial market quotes.
+/// Sidebar Widget: Real-time financial market quotes in broadsheet format.
 class MarketWatchSidebarWidget extends StatelessWidget {
   final NewsAppViewModel vm;
 
@@ -105,19 +139,48 @@ class MarketWatchSidebarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FDContainer(
       decoration: BoxDecoration(
-        color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderRegular, width: 1),
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#D4CFBE'),
+          width: 1,
+        ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FDRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              FDText('Financial Markets', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              FDText('Live Ticker', style: TextStyle(fontSize: 11, color: AppColors.accentEmerald, fontWeight: FontWeight.bold)),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FDText(
+                'FINANCIAL BOURSE & TRADE',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Space Grotesk',
+                  letterSpacing: 0.08,
+                  color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+                ),
+              ),
+              FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? const FlartColor('#22242D') : const FlartColor('#E2DED2'),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: FDText(
+                  'LIVE TICKER',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontFamily: 'Space Grotesk',
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.06,
+                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                  ),
+                ),
+              ),
             ],
           ),
           const FDSizedBox(height: 12),
@@ -125,37 +188,66 @@ class MarketWatchSidebarWidget extends StatelessWidget {
             children: vm.marketTickers.take(4).map((m) {
               return FDContainer(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                 decoration: BoxDecoration(
-                  color: vm.isDarkMode ? AppColors.borderSubtle : AppColors.lightBg,
-                  borderRadius: BorderRadius.circular(8),
+                  color: vm.isDarkMode ? const FlartColor('#1B1D24') : const FlartColor('#F7F5F0'),
+                  borderRadius: BorderRadius.circular(2),
+                  border: Border.all(
+                    color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#E6E2D8'),
+                    width: 1,
+                  ),
                 ),
                 child: FDRow(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FDColumn(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FDText(m.symbol, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                        FDText(m.name, style: const TextStyle(fontSize: 10, color: FlartColors.grey)),
+                        FDText(
+                          m.symbol,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Space Grotesk',
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
+                        ),
+                        FDText(
+                          m.name,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontFamily: 'Newsreader',
+                            color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                          ),
+                        ),
                       ],
                     ),
                     FDRow(
                       children: [
-                        FDText('\$${m.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        FDText(
+                          '\$${m.price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Space Grotesk',
+                            color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
+                          ),
+                        ),
                         const FDSizedBox(width: 8),
                         FDContainer(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: m.isPositive ? const FlartColor('rgba(16, 185, 129, 0.15)') : const FlartColor('rgba(239, 68, 68, 0.15)'),
-                            borderRadius: BorderRadius.circular(4),
+                            color: vm.isDarkMode ? const FlartColor('#262832') : const FlartColor('#E0DCD0'),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                           child: FDText(
-                            '${m.isPositive ? '+' : ''}${m.changePercent}%',
+                            '${m.isPositive ? '▲ +' : '▼ -'}${m.changePercent.abs()}%',
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: m.isPositive ? AppColors.accentEmerald : AppColors.accentRed,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Space Grotesk',
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
                           ),
                         ),
@@ -182,24 +274,36 @@ class TrendingTopicsSidebarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FDContainer(
       decoration: BoxDecoration(
-        color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderRegular, width: 1),
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#D4CFBE'),
+          width: 1,
+        ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const FDText('Trending Conversations', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          FDText(
+            'DISPATCH TOPICS & INDEX',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Space Grotesk',
+              letterSpacing: 0.08,
+              color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+            ),
+          ),
           const FDSizedBox(height: 12),
           FDWrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: vm.trendingTags.map((tag) {
               return FilterChipPill(
                 label: tag,
                 isSelected: false,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 onTap: () {
                   vm.setActiveScreen('explore');
                   vm.setSearchQuery(tag.replaceAll('#', ''));
@@ -226,15 +330,27 @@ class TopReadLeaderboardWidget extends StatelessWidget {
 
     return FDContainer(
       decoration: BoxDecoration(
-        color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderRegular, width: 1),
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#2A2B35') : const FlartColor('#D4CFBE'),
+          width: 1,
+        ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const FDText("Editor's Top Reads", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          FDText(
+            'MOST CIRCULATED DISPATCHES',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Space Grotesk',
+              letterSpacing: 0.08,
+              color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+            ),
+          ),
           const FDSizedBox(height: 12),
           FDColumn(
             children: topStories.asMap().entries.map((entry) {
@@ -251,7 +367,7 @@ class TopReadLeaderboardWidget extends StatelessWidget {
   }
 }
 
-/// Sidebar Widget: Morning Audio Briefing promo CTA.
+/// Sidebar Widget: Morning Audio Briefing promo CTA in letterpress styling.
 class MorningBriefingPromoWidget extends StatelessWidget {
   final NewsAppViewModel vm;
 
@@ -261,12 +377,12 @@ class MorningBriefingPromoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FDContainer(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [FlartColor('#312E81'), FlartColor('#4338CA')],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: vm.isDarkMode ? const FlartColor('#1A1B22') : const FlartColor('#111111'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#3A3C4A') : const FlartColor('#000000'),
+          width: 1,
         ),
-        borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(18),
       child: FDColumn(
@@ -274,40 +390,60 @@ class MorningBriefingPromoWidget extends StatelessWidget {
         children: [
           FDRow(
             children: const [
-              FDText('🎙️', style: TextStyle(fontSize: 16)),
-              FDSizedBox(width: 6),
               FDText(
-                'Morning Audio Briefing',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: FlartColors.white),
+                '✦',
+                style: TextStyle(fontSize: 14, color: FlartColors.white),
+              ),
+              FDSizedBox(width: 8),
+              FDText(
+                'MORNING AUDIO DISPATCH',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Space Grotesk',
+                  letterSpacing: 0.1,
+                  color: FlartColors.white,
+                ),
               ),
             ],
           ),
-          const FDSizedBox(height: 6),
+          const FDSizedBox(height: 8),
           const FDText(
-            '5-minute AI audio intelligence digest of today’s top geopolitical & tech shifts.',
-            style: TextStyle(fontSize: 12, color: FlartColor('#E0E7FF')),
+            'Five-minute spoken intelligence digest of today’s principal geopolitical and economic developments.',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Newsreader',
+              height: 1.45,
+              color: FlartColor('#D4CFBE'),
+            ),
           ),
-          const FDSizedBox(height: 12),
+          const FDSizedBox(height: 14),
           FDGestureDetector(
             onTap: () => vm.toggleBottomBriefing(),
             child: FDContainer(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: FlartColors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(2),
               ),
               child: FDRow(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FDIcon(
                     icon: vm.isBriefingPlaying ? FDIcons.close : FDIcons.play_arrow,
-                    size: 16,
-                    color: const FlartColor('#312E81'),
+                    size: 14,
+                    color: FlartColors.black,
                   ),
                   const FDSizedBox(width: 6),
                   FDText(
-                    vm.isBriefingPlaying ? 'Pause Episode' : 'Listen Now (5m)',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColor('#312E81')),
+                    vm.isBriefingPlaying ? 'PAUSE DISPATCH' : 'LISTEN TO DISPATCH (5M)',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Space Grotesk',
+                      letterSpacing: 0.08,
+                      color: FlartColors.black,
+                    ),
                   ),
                 ],
               ),
@@ -319,7 +455,7 @@ class MorningBriefingPromoWidget extends StatelessWidget {
   }
 }
 
-/// Sidebar Widget: Executive Daily Newsletter subscribe form.
+/// Sidebar Widget: Executive Daily Newsletter subscribe form in editorial broadsheet styling.
 class NewsletterWidget extends StatelessWidget {
   const NewsletterWidget({super.key});
 
@@ -327,39 +463,62 @@ class NewsletterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return FDContainer(
       decoration: BoxDecoration(
-        color: AppColors.darkBreaking,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const FlartColor('rgba(99, 102, 241, 0.3)'), width: 1),
+        color: const FlartColor('#111111'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: const FlartColor('#333333'), width: 1),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FDText('Daily Executive Digest', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: FlartColors.white)),
+          const FDText(
+            'THE DAILY GAZETTE COLOPHON',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Space Grotesk',
+              letterSpacing: 0.1,
+              color: FlartColors.white,
+            ),
+          ),
           const FDSizedBox(height: 6),
-          const FDText('Get verified global intelligence delivered to your inbox every morning at 06:00.', style: TextStyle(fontSize: 12, color: FlartColor('#C7D2FE'))),
+          const FDText(
+            'Receive verified dispatches delivered to your telegraph box every morning at dawn.',
+            style: TextStyle(
+              fontSize: 12,
+              fontFamily: 'Newsreader',
+              height: 1.45,
+              color: FlartColor('#C8C6BD'),
+            ),
+          ),
           const FDSizedBox(height: 14),
           FDRow(
             children: [
               Expanded(
                 child: FDTextField(
-                  placeholder: 'Enter your email',
-                  backgroundColor: const FlartColor('rgba(255, 255, 255, 0.1)'),
-                  borderColor: const FlartColor('rgba(255, 255, 255, 0.2)'),
-                  borderRadius: 8,
+                  placeholder: 'Your email address...',
+                  backgroundColor: const FlartColor('rgba(255, 255, 255, 0.08)'),
+                  borderColor: const FlartColor('#444444'),
+                  borderRadius: 2,
                 ),
               ),
               const FDSizedBox(width: 8),
               FDElevatedButton(
                 onPressed: () {},
                 style: FDElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  shape: BorderRadius.circular(8),
+                  backgroundColor: FlartColors.white,
+                  shape: BorderRadius.circular(2),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 ),
                 child: const FDText(
-                  'Join',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColors.white),
+                  'JOIN',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Space Grotesk',
+                    letterSpacing: 0.08,
+                    color: FlartColors.black,
+                  ),
                 ),
               ),
             ],

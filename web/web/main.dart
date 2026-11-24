@@ -50,8 +50,8 @@ class ReadMoreApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: FDScaffold(
             cssStyle: {
-              'background': vm.isDarkMode ? '#090D16' : '#F8FAFC',
-              'color': vm.isDarkMode ? '#F8FAFC' : '#0F172A',
+              'background': vm.isDarkMode ? '#0D0E11' : '#F7F5F0',
+              'color': vm.isDarkMode ? '#F4F3EE' : '#111111',
             },
             body: FDStack(
               children: [

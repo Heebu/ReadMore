@@ -34,10 +34,13 @@ class ArticleCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.borderRegular, width: 1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
           boxShadow: const [
-            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.2)'), blurRadius: 10, offset: Offset(0, 4)),
+            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.08)'), blurRadius: 8, offset: Offset(0, 2)),
           ],
         ),
         cssStyle: const {
@@ -70,25 +73,32 @@ class ArticleCard extends StatelessWidget {
                       },
                     ),
                   ),
-                  FDPositioned(
-                    top: 10,
-                    left: 10,
-                    child: FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkSurface,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: FDText(
-                        article.category.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primaryBlueLight,
+                    // Category Dispatch Stamp
+                    FDPositioned(
+                      top: 10,
+                      left: 10,
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: vm.isDarkMode ? const FlartColor('#0D0E11') : const FlartColor('#FFFFFF'),
+                          borderRadius: BorderRadius.circular(2),
+                          border: Border.all(
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            width: 1,
+                          ),
+                        ),
+                        child: FDText(
+                          '[ ${article.category.toUpperCase()} ]',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.08,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   FDPositioned(
                     top: 10,
                     right: 10,
@@ -126,26 +136,34 @@ class ArticleCard extends StatelessWidget {
                   ),
                   const FDSizedBox(height: 8),
 
-                  // Headline
+                  // Headline in Historic Broadsheet Editorial Serif
                   FDText(
                     article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Playfair Display',
+                      height: 1.25,
+                      letterSpacing: -0.015,
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
                     ),
                   ),
                   const FDSizedBox(height: 8),
 
-                  // Summary
+                  // Summary in High-Legibility Newsreader Serif
                   if (showSummary) ...[
                     FDText(
                       article.summary,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Newsreader',
+                        height: 1.45,
+                        color: vm.isDarkMode ? const FlartColor('#A2A098') : const FlartColor('#4A4842'),
+                      ),
                     ),
                     const FDSizedBox(height: 14),
                   ],

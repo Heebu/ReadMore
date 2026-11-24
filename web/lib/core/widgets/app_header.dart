@@ -41,71 +41,75 @@ class AppHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Brand Engraved Crest & Stately Serif Masthead
                     FDContainer(
-                      width: 38,
-                      height: 38,
+                      width: 42,
+                      height: 42,
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            AppColors.primaryBlue,
-                            AppColors.accentPurple
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+                          width: 2,
                         ),
-                        borderRadius: BorderRadius.circular(10),
                         boxShadow: const [
                           BoxShadow(
-                            color: FlartColor('rgba(59, 130, 246, 0.4)'),
-                            blurRadius: 14,
-                            offset: Offset(0, 4),
+                            color: FlartColor('rgba(0, 0, 0, 0.2)'),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
                           ),
                         ],
                       ),
-                      child: const FDCenter(
+                      child: FDCenter(
                         child: FDText(
                           'R',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: FlartColors.white,
+                            fontFamily: 'Cinzel',
+                            color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                           ),
                         ),
                       ),
                     ),
-                    const FDSizedBox(width: 10),
+                    const FDSizedBox(width: 12),
                     FDColumn(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FDRichText(
-                          text: TextSpan(
-                            text: 'Read',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.04,
-                              color: vm.isDarkMode
-                                  ? FlartColors.white
-                                  : FlartColors.black,
-                            ),
-                            children: const [
-                              TextSpan(
-                                text: 'More',
-                                style: TextStyle(
-                                  color: AppColors.primaryBlue,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                        FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          children: [
+                            FDText(
+                              'ReadMore',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Cinzel',
+                                letterSpacing: 0.04,
+                                color: vm.isDarkMode
+                                    ? const FlartColor('#F4F3EE')
+                                    : const FlartColor('#111111'),
                               ),
-                            ],
-                          ),
+                            ),
+                            const FDSizedBox(width: 6),
+                            FDText(
+                              '✦',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#6E6C66'),
+                              ),
+                            ),
+                          ],
                         ),
                         const FDText(
-                          'GLOBAL NEWS & INTELLIGENCE',
+                          'THE CHRONICLE OF GLOBAL DISPATCHES',
                           style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Space Grotesk',
                             color: AppColors.textMuted,
-                            letterSpacing: 0.12,
+                            letterSpacing: 0.14,
                           ),
                         ),
                       ],
@@ -123,27 +127,27 @@ class AppHeader extends StatelessWidget {
                   margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 30),
                   child: FDTextField(
                     placeholder: isTablet
-                        ? 'Search news...'
-                        : 'Search stories, topics, sources, locations...',
+                        ? 'Search archive...'
+                        : 'Search historical dispatches, topics, intelligence...',
                     backgroundColor: vm.isDarkMode
                         ? AppColors.darkInput
                         : AppColors.lightInput,
                     borderColor: vm.isDarkMode
                         ? AppColors.borderRegular
-                        : const FlartColor('#E2E8F0'),
-                    borderRadius: 24,
-                    prefixIcon: const FDIcon(
+                        : const FlartColor('#C8C4B7'),
+                    borderRadius: 4,
+                    prefixIcon: FDIcon(
                         icon: FDIcons.search,
                         size: 16,
-                        color: FlartColors.grey),
+                        color: vm.isDarkMode ? FlartColors.grey : const FlartColor('#555555')),
                     onChanged: (val) => vm.setSearchQuery(val),
                   ),
                 ),
               ),
 
-           const SizedBox(width: 100),
+            const FDSizedBox(width: 16),
 
-            // Header Quick Controls
+            // Header Quick Controls (Classic Broadsheet Typesetting)
             FDContainer(
               cssStyle: const {'flex-shrink': '0'},
               child: FDRow(
@@ -155,35 +159,31 @@ class AppHeader extends StatelessWidget {
                     onTap: () => vm.toggleNotificationsModal(),
                     child: FDContainer(
                       decoration: BoxDecoration(
-                        color: AppColors.borderSubtle,
-                        borderRadius: BorderRadius.circular(18),
+                        color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#C8C4B7'),
+                          width: 1,
+                        ),
                       ),
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(7),
                       child: FDStack(
                         children: [
                           FDIcon(
                             icon: FDIcons.notifications,
-                            size: 18,
-                            color: vm.hasUnreadNotifications
-                                ? FlartColors.amber
-                                : FlartColors.grey,
+                            size: 16,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                           ),
                           if (vm.hasUnreadNotifications)
                             FDPositioned(
                               top: -2,
                               right: -2,
                               child: FDContainer(
-                                width: 8,
-                                height: 8,
+                                width: 6,
+                                height: 6,
                                 decoration: BoxDecoration(
-                                  color: AppColors.bearRed,
+                                  color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: vm.isDarkMode
-                                        ? AppColors.darkSurface
-                                        : AppColors.lightSurface,
-                                    width: 1.5,
-                                  ),
                                 ),
                               ),
                             ),
@@ -198,22 +198,30 @@ class AppHeader extends StatelessWidget {
                     onTap: () => vm.openInterestsModal(),
                     child: FDContainer(
                       decoration: BoxDecoration(
-                        color: AppColors.borderSubtle,
-                        borderRadius: BorderRadius.circular(18),
+                        color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                        borderRadius: BorderRadius.circular(4),
                         border: Border.all(
-                            color: AppColors.borderRegular, width: 1),
+                          color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#C8C4B7'),
+                          width: 1,
+                        ),
                       ),
                       padding: EdgeInsets.symmetric(
                           horizontal: isTablet ? 8 : 10, vertical: 6),
                       child: FDRow(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const FDText('⚡', style: TextStyle(fontSize: 12)),
+                          const FDText('✦', style: TextStyle(fontSize: 10)),
                           if (!isTablet) ...[
-                            const FDSizedBox(width: 4),
-                            const FDText('Interests',
-                                style: TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.bold)),
+                            const FDSizedBox(width: 5),
+                            FDText(
+                              'Topics',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Space Grotesk',
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              ),
+                            ),
                           ],
                         ],
                       ),
@@ -221,34 +229,43 @@ class AppHeader extends StatelessWidget {
                   ),
                   const FDSizedBox(width: 8),
 
-                  // Theme Switcher
+                  // Theme Switcher (Day / Night Press)
                   FDGestureDetector(
                     onTap: () => vm.toggleDarkMode(),
                     child: FDContainer(
                       decoration: BoxDecoration(
-                        color: AppColors.borderSubtle,
-                        borderRadius: BorderRadius.circular(18),
+                        color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#C8C4B7'),
+                          width: 1,
+                        ),
                       ),
-                      padding: const EdgeInsets.all(8),
-                      child: FDIcon(
-                        icon: vm.isDarkMode ? 'wb_sunny' : 'nightlight',
-                        size: 16,
-                        color: FlartColors.amber,
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      child: FDText(
+                        vm.isDarkMode ? '☼ LIGHT' : '☾ NOIR',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.08,
+                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        ),
                       ),
                     ),
                   ),
                   const FDSizedBox(width: 8),
 
-                  // Reading Streak
+                  // Reading Streak (Letterpress Stamp)
                   FDContainer(
                     id: 'reading-streak-badge',
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     decoration: BoxDecoration(
-                      color: const FlartColor('rgba(245, 158, 11, 0.15)'),
-                      borderRadius: BorderRadius.circular(18),
+                      color: vm.isDarkMode ? const FlartColor('#1E1F25') : const FlartColor('#EFECE4'),
+                      borderRadius: BorderRadius.circular(4),
                       border: Border.all(
-                        color: const FlartColor('rgba(245, 158, 11, 0.3)'),
+                        color: vm.isDarkMode ? const FlartColor('#444652') : const FlartColor('#B5B1A2'),
                         width: 1,
                       ),
                     ),
@@ -259,13 +276,15 @@ class AppHeader extends StatelessWidget {
                     child: FDRow(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FDText('🔥 ', style: TextStyle(fontSize: 12)),
+                        const FDText('✦ ', style: TextStyle(fontSize: 10)),
                         FDText(
-                          '${vm.currentUser.readingStreakDays}d',
-                          style: const TextStyle(
-                            fontSize: 12,
+                          '${vm.currentUser.readingStreakDays}d STREAK',
+                          style: TextStyle(
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.accentAmber,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.06,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                           ),
                         ),
                       ],
@@ -280,29 +299,20 @@ class AppHeader extends StatelessWidget {
                       child: FDContainer(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.accentPurple, AppColors.primaryBlue],
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: FlartColor('rgba(139, 92, 246, 0.35)'),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
+                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const FDRow(
+                        child: FDRow(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            FDText('⚡', style: TextStyle(fontSize: 11)),
-                            FDSizedBox(width: 4),
                             FDText(
-                              'Go Pro',
+                              'PRO ✦',
                               style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: FlartColors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Cinzel',
+                                letterSpacing: 0.08,
+                                color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                               ),
                             ),
                           ],
@@ -320,22 +330,20 @@ class AppHeader extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: vm.currentUser.isPro ? AppColors.accentPurple : AppColors.borderRegular,
-                            width: vm.currentUser.isPro ? 1.5 : 1,
+                            color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#C8C4B7'),
+                            width: 1,
                           ),
                         ),
                         child: FDRow(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             FDContainer(
-                              width: 24,
-                              height: 24,
+                              width: 20,
+                              height: 20,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                                ),
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                                 shape: BoxShape.circle,
                               ),
                               child: FDCenter(
@@ -343,10 +351,11 @@ class AppHeader extends StatelessWidget {
                                   vm.currentUser.displayName.isNotEmpty
                                       ? vm.currentUser.displayName[0].toUpperCase()
                                       : 'U',
-                                  style: const TextStyle(
-                                    fontSize: 11,
+                                  style: TextStyle(
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w900,
-                                    color: FlartColors.white,
+                                    fontFamily: 'Cinzel',
+                                    color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                                   ),
                                 ),
                               ),
@@ -359,7 +368,7 @@ class AppHeader extends StatelessWidget {
                               ),
                               if (vm.currentUser.isPro) ...[
                                 const FDSizedBox(width: 4),
-                                const FDText('★', style: TextStyle(fontSize: 10, color: AppColors.accentAmber)),
+                                const FDText('✦', style: TextStyle(fontSize: 9)),
                               ],
                             ],
                           ],
@@ -372,15 +381,17 @@ class AppHeader extends StatelessWidget {
                       child: FDContainer(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryBlue,
-                          borderRadius: BorderRadius.circular(18),
+                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const FDText(
-                          'Sign In',
+                        child: FDText(
+                          'SIGN IN',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            color: FlartColors.white,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.08,
+                            color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                           ),
                         ),
                       ),

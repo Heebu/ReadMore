@@ -27,10 +27,13 @@ class HeroSpotlightCard extends StatelessWidget {
         id: 'hero-card-${article.id}',
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.borderRegular, width: 1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
           boxShadow: const [
-            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.3)'), blurRadius: 20, offset: Offset(0, 8)),
+            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.1)'), blurRadius: 12, offset: Offset(0, 4)),
           ],
         ),
         cssStyle: const {
@@ -41,67 +44,97 @@ class HeroSpotlightCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (article.imageUrl != null)
-              FDStack(
-                children: [
-                  FDContainer(
-                    height: 340,
-                    width: double.infinity,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.vertical(top: 16),
-                    ),
-                    child: FDImage.network(
-                      article.imageUrl!,
+              FDContainer(
+                width: double.infinity,
+                cssStyle: const {
+                  'width': '100%',
+                  'min-width': '100%',
+                  'display': 'block',
+                },
+                child: FDStack(
+                  children: [
+                    FDContainer(
                       height: 340,
-                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.vertical(top: 4),
+                      ),
                       cssStyle: const {
                         'width': '100%',
+                        'min-width': '100%',
                         'height': '340px',
-                        'object-fit': 'cover',
                         'display': 'block',
                       },
+                      child: FDImage.network(
+                        article.imageUrl!,
+                        height: 340,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        cssStyle: const {
+                          'width': '100%',
+                          'min-width': '100%',
+                          'height': '340px',
+                          'object-fit': 'cover',
+                          'display': 'block',
+                        },
+                      ),
                     ),
-                  ),
-                  FDPositioned(
-                    top: 16,
-                    left: 16,
-                    child: FDRow(
-                      children: [
-                        FDContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: FDText(
-                            article.category.toUpperCase(),
-                            style: const TextStyle(
-                              color: FlartColors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                    FDPositioned(
+                      top: 16,
+                      left: 16,
+                      child: FDRow(
+                        children: [
+                          FDContainer(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: vm.isDarkMode ? const FlartColor('#0D0E11') : const FlartColor('#FFFFFF'),
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                width: 1,
+                              ),
+                            ),
+                            child: FDText(
+                              '[ ${article.category.toUpperCase()} DISPATCH ]',
+                              style: TextStyle(
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Space Grotesk',
+                                letterSpacing: 0.08,
+                              ),
                             ),
                           ),
-                        ),
-                        const FDSizedBox(width: 8),
-                        FDContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.darkSurface,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: FDText(
-                            '⚡ ${article.readTimeMinutes} min read',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
+                          const FDSizedBox(width: 8),
+                          FDContainer(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: vm.isDarkMode
+                                  ? const FlartColor('rgba(255, 255, 255, 0.12)')
+                                  : const FlartColor('rgba(0, 0, 0, 0.75)'),
+                              borderRadius: BorderRadius.circular(2),
+                              border: Border.all(
+                                color: vm.isDarkMode ? const FlartColor('#444444') : const FlartColor('#000000'),
+                                width: 1,
+                              ),
+                            ),
+                            child: FDText(
+                              '✦ ${article.readTimeMinutes} MIN READ',
+                              style: const TextStyle(
+                                color: FlartColors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Space Grotesk',
+                                letterSpacing: 0.08,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             FDContainer(
               padding: const EdgeInsets.all(24),
@@ -117,15 +150,23 @@ class HeroSpotlightCard extends StatelessWidget {
                   FDText(
                     article.title,
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Playfair Display',
+                      height: 1.2,
+                      letterSpacing: -0.02,
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
                     ),
                   ),
                   const FDSizedBox(height: 10),
                   FDText(
                     article.summary,
-                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Newsreader',
+                      height: 1.5,
+                      color: vm.isDarkMode ? const FlartColor('#A2A098') : const FlartColor('#4A4842'),
+                    ),
                   ),
                   const FDSizedBox(height: 18),
                   FDRow(
@@ -151,13 +192,23 @@ class HeroSpotlightCard extends StatelessWidget {
                         ],
                       ),
                       FDRow(
-                        children: const [
+                        children: [
                           FDText(
-                            'Read Full Story',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
+                            'READ DISPATCH',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.08,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            ),
                           ),
-                          FDSizedBox(width: 4),
-                          FDIcon(icon: FDIcons.arrow_forward, size: 16, color: AppColors.primaryBlue),
+                          const FDSizedBox(width: 4),
+                          FDIcon(
+                            icon: FDIcons.arrow_forward,
+                            size: 14,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
                         ],
                       ),
                     ],

@@ -1,5 +1,4 @@
 import 'package:flartdart/flartdart.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
@@ -30,17 +29,16 @@ class ForYouView extends StatelessWidget {
     return FDColumn(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Personalized Header Banner
+        // Personalized Header Banner in Broadsheet Dispatch Styling
         FDContainer(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [FlartColor('#1E1B4B'), FlartColor('#1E293B')],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+            color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#111111'),
+            borderRadius: BorderRadius.circular(3),
+            border: Border.all(
+              color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#000000'),
+              width: 1,
             ),
-            borderRadius: const BorderRadius.circular(18),
-            border: Border.all(color: AppColors.primaryBlueLight, width: 1.5),
           ),
           child: FDColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,15 +47,24 @@ class ForYouView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                 const FDRow(
+                  FDRow(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: const [
-                      FDText('✨', style: TextStyle(fontSize: 20)),
+                      FDText(
+                        '✦',
+                        style: TextStyle(fontSize: 16, color: FlartColors.white),
+                      ),
                       FDSizedBox(width: 8),
                       FDText(
-                        'Your Personalized Intelligence Feed',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: FlartColors.white),
+                        'YOUR PERSONALIZED INTELLIGENCE FEED',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.1,
+                          color: FlartColors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -66,12 +73,18 @@ class ForYouView extends StatelessWidget {
                     child: FDContainer(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
-                        borderRadius: BorderRadius.circular(16),
+                        color: FlartColors.white,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                       child: const FDText(
-                        'Customize Topics +',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColors.white),
+                        'CUSTOMIZE TOPICS +',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.08,
+                          color: FlartColors.black,
+                        ),
                       ),
                     ),
                   ),
@@ -79,8 +92,12 @@ class ForYouView extends StatelessWidget {
               ),
               const FDSizedBox(height: 8),
               const FDText(
-                'Synthesized from your active interests, reading velocity, and fresh global reporting.',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                'Synthesized from your curated reading interests, historical dispatches, and syndication velocity.',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Newsreader',
+                  color: FlartColor('#D4CFBE'),
+                ),
               ),
               const FDSizedBox(height: 16),
 

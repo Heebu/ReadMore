@@ -42,9 +42,12 @@ class _AuthModalState extends State<AuthModal> {
         child: FDContainer(
           margin: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderRegular, width: 1),
+            color: vm.isDarkMode ? const FlartColor('#111217') : const FlartColor('#F7F5F0'),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(
+              color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
+              width: 1,
+            ),
             boxShadow: const [
               BoxShadow(
                 color: FlartColor('rgba(0, 0, 0, 0.5)'),
@@ -72,30 +75,28 @@ class _AuthModalState extends State<AuthModal> {
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              shape: BoxShape.circle,
                             ),
-                            child: const FDCenter(
+                            child: FDCenter(
                               child: FDText(
                                 'R',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w900,
-                                  color: FlartColors.white,
+                                  fontFamily: 'Cinzel',
+                                  color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                                 ),
                               ),
                             ),
                           ),
                           const FDSizedBox(width: 10),
                           FDText(
-                            isSignIn ? 'Sign In to ReadMore' : 'Join ReadMore',
+                            isSignIn ? 'Sign In to ReadMore' : 'Subscriber Registration',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Playfair Display',
                               color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
                           ),
@@ -308,7 +309,7 @@ class _AuthModalState extends State<AuthModal> {
                   ),
                   const FDSizedBox(height: 20),
 
-                  // Primary Submit Button
+                  // Primary Submit Button in Broadsheet Monochrome
                   FDGestureDetector(
                     onTap: () {
                       if (isSignIn) {
@@ -321,19 +322,8 @@ class _AuthModalState extends State<AuthModal> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: FlartColor('rgba(59, 130, 246, 0.4)'),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                       cssStyle: const {
                         'cursor': 'pointer',
@@ -341,11 +331,13 @@ class _AuthModalState extends State<AuthModal> {
                       },
                       child: FDCenter(
                         child: FDText(
-                          isSignIn ? 'Sign In' : 'Create Free Account',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: FlartColors.white,
+                          isSignIn ? 'SIGN IN' : 'CREATE SUBSCRIBER ACCOUNT',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.08,
+                            color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                           ),
                         ),
                       ),

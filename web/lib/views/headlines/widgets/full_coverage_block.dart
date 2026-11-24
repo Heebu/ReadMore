@@ -1,5 +1,4 @@
 import 'package:flartdart/flartdart.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/compact_article_tile.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
 
@@ -18,9 +17,12 @@ class FullCoverageBlock extends StatelessWidget {
 
     return FDContainer(
       decoration: BoxDecoration(
-        color: vm.isDarkMode ? AppColors.darkCardSecondary : AppColors.lightNav,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderHighlighted, width: 1.5),
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#EFECE4'),
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(
+          color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
+          width: 1,
+        ),
       ),
       padding: const EdgeInsets.all(20),
       child: FDColumn(
@@ -28,41 +30,50 @@ class FullCoverageBlock extends StatelessWidget {
         children: [
           FDRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               FDRow(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   FDContainer(
-                    width: 20,
-                    height: 20,
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue,
-                      borderRadius: BorderRadius.circular(6),
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    child: const FDCenter(
-                      child: FDText(
-                        '❖',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: FlartColors.white),
+                    child: FDText(
+                      '❖',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                       ),
                     ),
                   ),
                   const FDSizedBox(width: 8),
-                  const FDText(
-                    'FULL COVERAGE',
+                  FDText(
+                    'COMPREHENSIVE DOSSIER',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primaryBlueLight,
-                      letterSpacing: 0.05,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Space Grotesk',
+                      letterSpacing: 0.1,
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
                     ),
                   ),
                 ],
               ),
               FDGestureDetector(
                 onTap: () => vm.openFullCoverage(),
-                child: const FDText(
-                  'View All 4 Perspectives ↗',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight),
+                child: FDText(
+                  'VIEW ALL 4 PERSPECTIVES →',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Space Grotesk',
+                    letterSpacing: 0.08,
+                    color: vm.isDarkMode ? const FlartColor('#D4CFBE') : const FlartColor('#333333'),
+                  ),
                 ),
               ),
             ],
@@ -70,7 +81,13 @@ class FullCoverageBlock extends StatelessWidget {
           const FDSizedBox(height: 12),
           FDText(
             cluster.topicHeadline,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Playfair Display',
+              letterSpacing: -0.01,
+              color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
+            ),
           ),
           const FDSizedBox(height: 14),
           FDColumn(

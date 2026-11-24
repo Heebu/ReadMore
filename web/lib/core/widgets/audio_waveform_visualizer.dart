@@ -24,8 +24,8 @@ class AudioWaveformVisualizer extends StatelessWidget {
             'width': '3px',
             'height': isPlaying ? '18px' : '4px',
             'background': isPlaying
-                ? 'linear-gradient(to top, #3B82F6, #8B5CF6)'
-                : 'rgba(148, 163, 184, 0.4)',
+                ? '#111111'
+                : 'rgba(128, 128, 128, 0.4)',
             'border-radius': '2px',
             'transition': 'all 0.25s ease',
             if (isPlaying)

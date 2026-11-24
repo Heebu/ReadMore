@@ -38,55 +38,55 @@ class FilterChipPill extends StatelessWidget {
         },
         decoration: BoxDecoration(
           color: isSelected
-              ? activeColor
-              : (isDarkMode ? AppColors.darkCard : AppColors.lightCard),
-          borderRadius: BorderRadius.circular(20),
+              ? (isDarkMode ? FlartColors.white : FlartColors.black)
+              : (isDarkMode ? const FlartColor('#18191F') : const FlartColor('#FAF9F5')),
+          borderRadius: BorderRadius.circular(3),
           border: Border.all(
-            color: isSelected ? activeColor : AppColors.borderRegular,
+            color: isSelected
+                ? (isDarkMode ? FlartColors.white : FlartColors.black)
+                : (isDarkMode ? const FlartColor('#2D2F38') : const FlartColor('#C8C4B6')),
             width: 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: FlartColor('rgba(59, 130, 246, 0.3)'),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
         ),
         child: FDRow(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (iconOrEmoji != null) ...[
-              FDText(iconOrEmoji!, style: const TextStyle(fontSize: 13)),
-              const FDSizedBox(width: 6),
+              FDText(iconOrEmoji!, style: const TextStyle(fontSize: 12)),
+              const FDSizedBox(width: 5),
             ],
             FDText(
-              label,
+              label.toUpperCase(),
               style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                fontFamily: 'Space Grotesk',
+                letterSpacing: 0.06,
                 color: isSelected
-                    ? FlartColors.white
-                    : (isDarkMode ? FlartColors.white : FlartColors.black),
+                    ? (isDarkMode ? FlartColors.black : FlartColors.white)
+                    : (isDarkMode ? const FlartColor('#EAE8E0') : const FlartColor('#222222')),
               ),
             ),
             if (badge != null && badge != '0') ...[
               const FDSizedBox(width: 6),
               FDContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primaryBlueDark : AppColors.primaryBlueSubtle,
-                  borderRadius: BorderRadius.circular(10),
+                  color: isSelected
+                      ? (isDarkMode ? const FlartColor('#E2DFD2') : const FlartColor('#222222'))
+                      : (isDarkMode ? const FlartColor('#2A2B33') : const FlartColor('#E2DFD2')),
+                  borderRadius: BorderRadius.circular(2),
                 ),
                 child: FDText(
                   badge!,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? FlartColors.white : AppColors.primaryBlueLight,
+                    fontFamily: 'Space Grotesk',
+                    color: isSelected
+                        ? (isDarkMode ? FlartColors.black : FlartColors.white)
+                        : (isDarkMode ? FlartColors.white : FlartColors.black),
                   ),
                 ),
               ),

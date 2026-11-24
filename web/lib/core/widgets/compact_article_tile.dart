@@ -32,10 +32,13 @@ class CompactArticleTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderSubtle, width: 1),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(
+            color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
           boxShadow: const [
-            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.15)'), blurRadius: 6, offset: Offset(0, 2)),
+            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.06)'), blurRadius: 6, offset: Offset(0, 1)),
           ],
         ),
         cssStyle: const {
@@ -63,9 +66,10 @@ class CompactArticleTile extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Playfair Display',
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
                     ),
                   ),
                   if (showSummary) ...[
@@ -74,7 +78,11 @@ class CompactArticleTile extends StatelessWidget {
                       article.summary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: 'Newsreader',
+                        color: vm.isDarkMode ? const FlartColor('#A2A098') : const FlartColor('#4A4842'),
+                      ),
                     ),
                   ],
                   const FDSizedBox(height: 8),

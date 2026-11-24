@@ -33,11 +33,11 @@ class _SubscriptionModalState extends State<SubscriptionModal> {
         child: FDContainer(
           margin: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
+            color: vm.isDarkMode ? const FlartColor('#111217') : const FlartColor('#F7F5F0'),
+            borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: const FlartColor('rgba(139, 92, 246, 0.4)'),
-              width: 1.5,
+              color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
+              width: 1,
             ),
             boxShadow: const [
               BoxShadow(
@@ -62,19 +62,18 @@ class _SubscriptionModalState extends State<SubscriptionModal> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           FDContainer(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [AppColors.accentPurple, AppColors.primaryBlue],
-                              ),
-                              borderRadius: BorderRadius.circular(8),
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              borderRadius: BorderRadius.circular(2),
                             ),
-                            child: const FDText(
-                              'PRO ACCESS',
+                            child: FDText(
+                              '✦ PRO ACCESS ✦',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w900,
-                                color: FlartColors.white,
+                                fontFamily: 'Space Grotesk',
+                                color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                                 letterSpacing: 0.1,
                               ),
                             ),
@@ -272,39 +271,23 @@ class _SubscriptionModalState extends State<SubscriptionModal> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.accentPurple, AppColors.primaryBlue],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: FlartColor('rgba(139, 92, 246, 0.45)'),
-                            blurRadius: 14,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                       cssStyle: const {
                         'cursor': 'pointer',
                         'transition': 'all 0.2s ease',
                       },
                       child: FDCenter(
-                        child: FDRow(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const FDText('⚡', style: TextStyle(fontSize: 16)),
-                            const FDSizedBox(width: 6),
-                            FDText(
-                              _selectedPlan == 'annual' ? 'Upgrade Now — \$49 / year' : 'Upgrade Now — \$4.99 / mo',
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: FlartColors.white,
-                              ),
-                            ),
-                          ],
+                        child: FDText(
+                          'AUTHORIZE PRO SUBSCRIPTION',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.08,
+                            color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                          ),
                         ),
                       ),
                     ),

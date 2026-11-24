@@ -1,6 +1,5 @@
 import 'package:flartdart/flartdart.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
-import '../constants/app_colors.dart';
 import 'centered_shell.dart';
 
 /// Animated live breaking news ticker ribbon with robust single-line scaling across all zoom levels.
@@ -22,41 +21,47 @@ class BreakingTicker extends StatelessWidget {
 
     return FDContainer(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: AppColors.darkBreaking,
-        border: Border(bottom: BorderSide(color: FlartColor('rgba(239, 68, 68, 0.3)'), width: 1)),
+      decoration: BoxDecoration(
+        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#111111'),
+        border: Border(
+          top: BorderSide(
+            color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#000000'),
+            width: 1,
+          ),
+          bottom: BorderSide(
+            color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#000000'),
+            width: 2,
+          ),
+        ),
       ),
       child: CenteredShell(
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 9),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 8),
         child: FDRow(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Live dot + BREAKING tag
+            // Broadsheet Telegraph Badge
             FDRow(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               cssStyle: const {'flex-shrink': '0'},
               children: [
                 FDContainer(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.bearRed,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const FDSizedBox(width: 6),
-                FDContainer(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppColors.bearRed,
-                    borderRadius: BorderRadius.circular(4),
+                    color: FlartColors.transparent,
+                    borderRadius: BorderRadius.circular(2),
+                    border: Border.all(
+                      color: FlartColors.white,
+                      width: 1,
+                    ),
                   ),
                   child: const FDText(
-                    'BREAKING',
+                    'SPECIAL DISPATCH',
                     style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Space Grotesk',
+                      letterSpacing: 0.1,
                       color: FlartColors.white,
                     ),
                   ),
@@ -65,23 +70,27 @@ class BreakingTicker extends StatelessWidget {
             ),
             const FDSizedBox(width: 12),
 
-            // Ticker Headline Text - Pure single line with text-overflow ellipsis
+            // Ticker Headline Text in Editorial Italic Serif (Robust single line, no vertical wrap)
             Expanded(
               child: FDContainer(
                 onClick: () => vm.openArticleReader(breakingArticle),
                 cssStyle: const {
                   'width': '100%',
+                  'min-width': '0',
                   'overflow': 'hidden',
                   'white-space': 'nowrap',
                   'text-overflow': 'ellipsis',
+                  'display': 'block',
                   'cursor': 'pointer',
                 },
                 child: FDText(
                   breakingArticle.title,
                   style: const TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: FlartColor('#E0E7FF'),
+                    fontStyle: FontStyle.italic,
+                    fontFamily: 'Playfair Display',
+                    color: FlartColors.white,
+                    letterSpacing: -0.01,
                   ),
                 ),
               ),
@@ -102,11 +111,17 @@ class BreakingTicker extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: const [
                     FDText(
-                      'Full Coverage',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: FlartColor('#818CF8')),
+                      'READ DISPATCH',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Space Grotesk',
+                        letterSpacing: 0.08,
+                        color: FlartColors.white,
+                      ),
                     ),
                     FDSizedBox(width: 4),
-                    FDIcon(icon: FDIcons.arrow_forward, size: 14, color: FlartColor('#818CF8')),
+                    FDText('→', style: TextStyle(fontSize: 12, color: FlartColors.white)),
                   ],
                 ),
               ),

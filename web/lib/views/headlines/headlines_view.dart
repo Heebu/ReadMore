@@ -147,35 +147,35 @@ class HeadlinesView extends StatelessWidget {
   String _getCategoryEmoji(String slug) {
     switch (slug.toLowerCase()) {
       case 'top':
-        return '🔥';
+        return '✦';
       case 'for_you':
-        return '✨';
+        return '❖';
       case 'local':
-        return '📍';
+        return '§';
       case 'world':
-        return '🌐';
+        return '⊕';
       case 'tech':
-        return '💻';
+        return '⚙';
       case 'business':
-        return '📈';
+        return '▲';
       case 'sports':
-        return '🏆';
+        return '⚔';
       case 'entertainment':
-        return '🎬';
+        return '❦';
       case 'science':
-        return '🔬';
+        return '⚛';
       case 'health':
-        return '🩺';
+        return '✚';
       case 'lifestyle':
-        return '🌿';
+        return '❧';
       case 'gists':
-        return '💬';
+        return '❝';
       case 'food':
-        return '🍲';
+        return '♨';
       case 'opinion':
-        return '💭';
+        return '✒';
       default:
-        return '📰';
+        return '✦';
     }
   }
 }

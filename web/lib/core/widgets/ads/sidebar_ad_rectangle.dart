@@ -31,8 +31,11 @@ class SidebarAdRectangle extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.borderRegular, width: 1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: vm.isDarkMode ? AppColors.borderRegular : const FlartColor('#D4CFBE'),
+            width: 1,
+          ),
         ),
         child: FDColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,15 +49,21 @@ class SidebarAdRectangle extends StatelessWidget {
                   FDContainer(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const FlartColor('rgba(59, 130, 246, 0.15)'),
-                      borderRadius: BorderRadius.circular(4),
+                      color: vm.isDarkMode ? const FlartColor('#0D0E11') : const FlartColor('#FFFFFF'),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        width: 1,
+                      ),
                     ),
-                    child: const FDText(
-                      'Ad · by Google',
+                    child: FDText(
+                      '[ GOOGLE AD ]',
                       style: TextStyle(
                         fontSize: 9,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryBlueLight,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Space Grotesk',
+                        letterSpacing: 0.08,
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                       ),
                     ),
                   ),
@@ -122,23 +131,25 @@ class SidebarAdRectangle extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryBlue,
-                      borderRadius: BorderRadius.circular(8),
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                     child: FDCenter(
                       child: FDRow(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           FDText(
-                            ad.callToAction,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: FlartColors.white,
+                            ad.callToAction.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.06,
+                              color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                             ),
                           ),
                           const FDSizedBox(width: 4),
-                          const FDText('↗', style: TextStyle(fontSize: 11, color: FlartColors.white)),
+                          FDText('↗', style: TextStyle(fontSize: 11, color: vm.isDarkMode ? FlartColors.black : FlartColors.white)),
                         ],
                       ),
                     ),

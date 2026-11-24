@@ -107,29 +107,27 @@ class UserSettingsView extends StatelessWidget {
               FDRow(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // User Avatar
+                  // User Avatar Monogram Seal
                   FDContainer(
-                    width: 56,
-                    height: 56,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: vm.isDarkMode ? const FlartColor('#C8C6BD') : const FlartColor('#333333'),
+                        width: 2,
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: FlartColor('rgba(59, 130, 246, 0.35)'),
-                          blurRadius: 12,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: FDCenter(
                       child: FDText(
                         user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : 'U',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: FlartColors.white),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Cinzel',
+                          color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -153,12 +151,17 @@ class UserSettingsView extends StatelessWidget {
                             FDContainer(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [AppColors.accentPurple, AppColors.primaryBlue]),
-                                borderRadius: BorderRadius.circular(6),
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                borderRadius: BorderRadius.circular(2),
                               ),
-                              child: const FDText(
-                                'PRO',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: FlartColors.white),
+                              child: FDText(
+                                'PRO ✦',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'Space Grotesk',
+                                  color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                                ),
                               ),
                             )
                           else
@@ -326,28 +329,23 @@ class UserSettingsView extends StatelessWidget {
                 FDGestureDetector(
                   onTap: () => vm.openSubscriptionModal(),
                   child: FDContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppColors.accentPurple, AppColors.primaryBlue],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: FlartColor('rgba(139, 92, 246, 0.4)'),
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    child: const FDRow(
+                    child: FDRow(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FDText('⚡', style: TextStyle(fontSize: 12)),
-                        FDSizedBox(width: 6),
                         FDText(
-                          'Upgrade to Pro — \$4.99/mo',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: FlartColors.white),
+                          'UPGRADE TO PRO — \$4.99/MO',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Space Grotesk',
+                            letterSpacing: 0.08,
+                            color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                          ),
                         ),
                       ],
                     ),

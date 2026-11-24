@@ -36,13 +36,13 @@ class GoogleAdBanner extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: vm.isDarkMode
-            ? const FlartColor('#0D1524')
-            : const FlartColor('#F1F5F9'),
-        borderRadius: BorderRadius.circular(12),
+            ? const FlartColor('#15161C')
+            : const FlartColor('#FAF9F5'),
+        borderRadius: BorderRadius.circular(2),
         border: Border.all(
           color: vm.isDarkMode
-              ? const FlartColor('rgba(255, 255, 255, 0.08)')
-              : const FlartColor('rgba(0, 0, 0, 0.08)'),
+              ? const FlartColor('#33353F')
+              : const FlartColor('#C8C4B7'),
           width: 1,
         ),
       ),
@@ -60,25 +60,31 @@ class GoogleAdBanner extends StatelessWidget {
                   FDContainer(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const FlartColor('rgba(59, 130, 246, 0.15)'),
-                      borderRadius: BorderRadius.circular(4),
+                      color: vm.isDarkMode ? const FlartColor('#0D0E11') : const FlartColor('#FFFFFF'),
+                      borderRadius: BorderRadius.circular(2),
+                      border: Border.all(
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        width: 1,
+                      ),
                     ),
-                    child: const FDText(
-                      'Ad · by Google',
+                    child: FDText(
+                      '[ COMMERCIAL NOTICE · GOOGLE AD ]',
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryBlueLight,
-                        letterSpacing: 0.04,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Space Grotesk',
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                        letterSpacing: 0.08,
                       ),
                     ),
                   ),
                   const FDSizedBox(width: 8),
                   FDText(
-                    ad.sponsorName,
+                    ad.sponsorName.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Space Grotesk',
                       color: AppColors.textMuted,
                     ),
                   ),
@@ -91,15 +97,17 @@ class GoogleAdBanner extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   child: FDRow(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      FDText('⚡', style: TextStyle(fontSize: 10)),
-                      FDSizedBox(width: 4),
+                    children: [
+                      const FDText('✦', style: TextStyle(fontSize: 10)),
+                      const FDSizedBox(width: 4),
                       FDText(
-                        'Hide ads with Pro',
+                        'AD-FREE WITH PRO',
                         style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.accentAmber,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.06,
+                          color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#4A4842'),
                         ),
                       ),
                     ],
@@ -180,15 +188,8 @@ class GoogleAdBanner extends StatelessWidget {
                     vertical: isMobile ? 6 : 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: FlartColor('rgba(59, 130, 246, 0.3)'),
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
+                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                   cssStyle: const {
                     'transition': 'all 0.2s ease',
@@ -198,19 +199,21 @@ class GoogleAdBanner extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       FDText(
-                        ad.callToAction,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: FlartColors.white,
+                        ad.callToAction.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.06,
+                          color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                         ),
                       ),
                       const FDSizedBox(width: 4),
-                      const FDText(
+                      FDText(
                         '↗',
                         style: TextStyle(
-                          fontSize: 12,
-                          color: FlartColors.white,
+                          fontSize: 11,
+                          color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
                           fontWeight: FontWeight.w800,
                         ),
                       ),

@@ -28,13 +28,14 @@ class RankedArticleTile extends StatelessWidget {
         child: FDRow(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Prominent Rank Digits
+            // Prominent Rank Digits in Broadsheet Serif
             FDText(
               rankFormatted,
-              style: const TextStyle(
-                fontSize: 20,
+              style: TextStyle(
+                fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: AppColors.primaryBlue,
+                fontFamily: 'Playfair Display',
+                color: vm.isDarkMode ? const FlartColor('#D4CFBE') : const FlartColor('#222222'),
                 letterSpacing: -0.05,
               ),
             ),
@@ -51,8 +52,10 @@ class RankedArticleTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Playfair Display',
+                      letterSpacing: -0.01,
+                      color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),
                     ),
                   ),
                   const FDSizedBox(height: 4),
@@ -69,12 +72,17 @@ class RankedArticleTile extends StatelessWidget {
                       const FDSizedBox(width: 4),
                       FDText(
                         article.source.name,
-                        style: const TextStyle(fontSize: 11, color: FlartColors.grey, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
+                          fontFamily: 'Space Grotesk',
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const FDSizedBox(width: 6),
                       FDText(
                         '• ${article.readTimeMinutes}m',
-                        style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                        style: const TextStyle(fontSize: 10, color: AppColors.textMuted),
                       ),
                     ],
                   ),
