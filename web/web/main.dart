@@ -12,12 +12,16 @@ import 'package:read_more_web/views/headlines/headlines_view.dart';
 import 'package:read_more_web/views/library/library_view.dart';
 import 'package:read_more_web/views/local/local_news_view.dart';
 import 'package:read_more_web/views/markets/markets_view.dart';
+import 'package:read_more_web/views/overlays/ad_publisher_modal.dart';
+import 'package:read_more_web/views/overlays/auth_modal.dart';
 import 'package:read_more_web/views/overlays/edition_modal.dart';
 import 'package:read_more_web/views/overlays/full_coverage_modal.dart';
 import 'package:read_more_web/views/overlays/interests_modal.dart';
 import 'package:read_more_web/views/overlays/notifications_popover.dart';
 import 'package:read_more_web/views/overlays/reader_view_modal.dart';
 import 'package:read_more_web/views/overlays/sticky_audio_player.dart';
+import 'package:read_more_web/views/overlays/subscription_modal.dart';
+import 'package:read_more_web/views/profile/user_settings_view.dart';
 
 void main() {
   ScreenUtil.init(width: 1440, height: 900);
@@ -108,6 +112,15 @@ class ReadMoreApp extends StatelessWidget {
 
                 if (vm.showEditionModal)
                   EditionModal(vm: vm, isMobile: isMobile),
+
+                if (vm.showAuthModal)
+                  AuthModal(vm: vm, isMobile: isMobile),
+
+                if (vm.showSubscriptionModal)
+                  SubscriptionModal(vm: vm, isMobile: isMobile),
+
+                if (vm.showAdPublisherModal)
+                  AdPublisherModal(vm: vm, isMobile: isMobile),
               ],
             ),
           ),
@@ -128,6 +141,8 @@ class ReadMoreApp extends StatelessWidget {
         return LibraryView(vm: vm, isMobile: isMobile, isTablet: isTablet);
       case 'explore':
         return ExploreView(vm: vm, isMobile: isMobile, isTablet: isTablet);
+      case 'profile':
+        return UserSettingsView(vm: vm, isMobile: isMobile, isTablet: isTablet);
       case 'headlines':
       default:
         return HeadlinesView(vm: vm, isMobile: isMobile, isTablet: isTablet);

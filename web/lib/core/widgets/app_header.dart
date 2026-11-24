@@ -256,13 +256,13 @@ class AppHeader extends StatelessWidget {
                       'transition': 'transform 0.2s ease',
                       'cursor': 'default',
                     },
-                    child: const FDRow(
+                    child: FDRow(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FDText('🔥 ', style: TextStyle(fontSize: 12)),
+                        const FDText('🔥 ', style: TextStyle(fontSize: 12)),
                         FDText(
-                          '5d',
-                          style: TextStyle(
+                          '${vm.currentUser.readingStreakDays}d',
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: AppColors.accentAmber,
@@ -271,6 +271,120 @@ class AppHeader extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const FDSizedBox(width: 8),
+
+                  // Pro Upgrade CTA (if not pro)
+                  if (!vm.currentUser.isPro) ...[
+                    FDGestureDetector(
+                      onTap: () => vm.openSubscriptionModal(),
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.accentPurple, AppColors.primaryBlue],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: FlartColor('rgba(139, 92, 246, 0.35)'),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FDText('⚡', style: TextStyle(fontSize: 11)),
+                            FDSizedBox(width: 4),
+                            FDText(
+                              'Go Pro',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: FlartColors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const FDSizedBox(width: 8),
+                  ],
+
+                  // User Avatar Pill (Opens Profile & Personalization)
+                  if (vm.isAuthenticated)
+                    FDGestureDetector(
+                      onTap: () => vm.setActiveScreen('profile'),
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: vm.currentUser.isPro ? AppColors.accentPurple : AppColors.borderRegular,
+                            width: vm.currentUser.isPro ? 1.5 : 1,
+                          ),
+                        ),
+                        child: FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FDContainer(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [AppColors.primaryBlue, AppColors.accentPurple],
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: FDCenter(
+                                child: FDText(
+                                  vm.currentUser.displayName.isNotEmpty
+                                      ? vm.currentUser.displayName[0].toUpperCase()
+                                      : 'U',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    color: FlartColors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (!isTablet && !isMobile) ...[
+                              const FDSizedBox(width: 6),
+                              FDText(
+                                vm.currentUser.displayName.split(' ').first,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              ),
+                              if (vm.currentUser.isPro) ...[
+                                const FDSizedBox(width: 4),
+                                const FDText('★', style: TextStyle(fontSize: 10, color: AppColors.accentAmber)),
+                              ],
+                            ],
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    FDGestureDetector(
+                      onTap: () => vm.openAuthModal(),
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryBlue,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const FDText(
+                          'Sign In',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: FlartColors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

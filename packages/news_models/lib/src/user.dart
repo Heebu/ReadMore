@@ -11,19 +11,21 @@ class UserPreferences {
   final double? longitude;
   final bool enableBreakingAlerts;
   final bool enableDailyBriefing;
+  final bool audioAutoplay;
 
   const UserPreferences({
-    this.followedTopics = const ['top', 'tech'],
+    this.followedTopics = const ['top', 'tech', 'business'],
     this.mutedTopics = const [],
     this.blockedSources = const [],
     this.favoriteSources = const [],
     this.preferredLanguage = 'en',
-    this.locationCity,
-    this.locationCountry,
+    this.locationCity = 'New York',
+    this.locationCountry = 'United States',
     this.latitude,
     this.longitude,
     this.enableBreakingAlerts = true,
     this.enableDailyBriefing = true,
+    this.audioAutoplay = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -38,20 +40,22 @@ class UserPreferences {
         'longitude': longitude,
         'enableBreakingAlerts': enableBreakingAlerts,
         'enableDailyBriefing': enableDailyBriefing,
+        'audioAutoplay': audioAutoplay,
       };
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) => UserPreferences(
-        followedTopics: (json['followedTopics'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const ['top', 'tech'],
+        followedTopics: (json['followedTopics'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const ['top', 'tech', 'business'],
         mutedTopics: (json['mutedTopics'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
         blockedSources: (json['blockedSources'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
         favoriteSources: (json['favoriteSources'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
         preferredLanguage: json['preferredLanguage'] as String? ?? 'en',
-        locationCity: json['locationCity'] as String?,
-        locationCountry: json['locationCountry'] as String?,
+        locationCity: json['locationCity'] as String? ?? 'New York',
+        locationCountry: json['locationCountry'] as String? ?? 'United States',
         latitude: (json['latitude'] as num?)?.toDouble(),
         longitude: (json['longitude'] as num?)?.toDouble(),
         enableBreakingAlerts: json['enableBreakingAlerts'] as bool? ?? true,
         enableDailyBriefing: json['enableDailyBriefing'] as bool? ?? true,
+        audioAutoplay: json['audioAutoplay'] as bool? ?? true,
       );
 
   UserPreferences copyWith({
@@ -66,6 +70,7 @@ class UserPreferences {
     double? longitude,
     bool? enableBreakingAlerts,
     bool? enableDailyBriefing,
+    bool? audioAutoplay,
   }) {
     return UserPreferences(
       followedTopics: followedTopics ?? this.followedTopics,
@@ -79,19 +84,24 @@ class UserPreferences {
       longitude: longitude ?? this.longitude,
       enableBreakingAlerts: enableBreakingAlerts ?? this.enableBreakingAlerts,
       enableDailyBriefing: enableDailyBriefing ?? this.enableDailyBriefing,
+      audioAutoplay: audioAutoplay ?? this.audioAutoplay,
     );
   }
 }
 
-/// User account entity
+/// User account entity with subscription and streak metrics
 class User {
   final String id;
   final String email;
   final String displayName;
   final String? avatarUrl;
-  final String role; // 'user', 'editor', 'admin'
+  final String role; // 'user', 'editor', 'admin', 'publisher'
   final DateTime createdAt;
   final UserPreferences preferences;
+  final String subscriptionTier; // 'free', 'pro', 'enterprise'
+  final bool adFreeEnabled;
+  final int readingStreakDays;
+  final int articlesReadCount;
 
   const User({
     required this.id,
@@ -101,7 +111,13 @@ class User {
     this.role = 'user',
     required this.createdAt,
     this.preferences = const UserPreferences(),
+    this.subscriptionTier = 'free',
+    this.adFreeEnabled = false,
+    this.readingStreakDays = 5,
+    this.articlesReadCount = 42,
   });
+
+  bool get isPro => subscriptionTier == 'pro' || subscriptionTier == 'enterprise';
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -111,6 +127,10 @@ class User {
         'role': role,
         'createdAt': createdAt.toIso8601String(),
         'preferences': preferences.toJson(),
+        'subscriptionTier': subscriptionTier,
+        'adFreeEnabled': adFreeEnabled,
+        'readingStreakDays': readingStreakDays,
+        'articlesReadCount': articlesReadCount,
       };
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -123,5 +143,37 @@ class User {
         preferences: json['preferences'] != null
             ? UserPreferences.fromJson(json['preferences'] as Map<String, dynamic>)
             : const UserPreferences(),
+        subscriptionTier: json['subscriptionTier'] as String? ?? 'free',
+        adFreeEnabled: json['adFreeEnabled'] as bool? ?? false,
+        readingStreakDays: json['readingStreakDays'] as int? ?? 5,
+        articlesReadCount: json['articlesReadCount'] as int? ?? 42,
       );
+
+  User copyWith({
+    String? id,
+    String? email,
+    String? displayName,
+    String? avatarUrl,
+    String? role,
+    DateTime? createdAt,
+    UserPreferences? preferences,
+    String? subscriptionTier,
+    bool? adFreeEnabled,
+    int? readingStreakDays,
+    int? articlesReadCount,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
+      createdAt: createdAt ?? this.createdAt,
+      preferences: preferences ?? this.preferences,
+      subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      adFreeEnabled: adFreeEnabled ?? this.adFreeEnabled,
+      readingStreakDays: readingStreakDays ?? this.readingStreakDays,
+      articlesReadCount: articlesReadCount ?? this.articlesReadCount,
+    );
+  }
 }

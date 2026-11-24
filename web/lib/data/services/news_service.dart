@@ -12,6 +12,7 @@ abstract class NewsService {
   List<AppNotification> getNotifications();
   List<ArticleComment> getComments(String articleId);
   List<String> getAvailableInterests();
+  List<SponsoredAd> getSponsoredAds();
 }
 
 /// In-memory / Mock implementation for end-to-end self-contained testing.
@@ -73,4 +74,7 @@ class MockNewsService implements NewsService {
 
   @override
   List<String> getAvailableInterests() => WebMockData.allAvailableInterests;
+
+  @override
+  List<SponsoredAd> getSponsoredAds() => List.from(WebMockData.initialAds);
 }

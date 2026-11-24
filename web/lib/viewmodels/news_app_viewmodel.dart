@@ -11,6 +11,8 @@ class NewsAppViewModel extends ChangeNotifier {
   NewsAppViewModel({NewsService? service})
       : _service = service ?? MockNewsService() {
     _comments = _service.getComments('default');
+    _currentUser = WebMockData.mockUser;
+    _ads = _service.getSponsoredAds();
   }
 
   // ==========================================
@@ -91,6 +93,217 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void setSourceFilter(String source) {
     _selectedSourceFilter = source;
+    notifyListeners();
+  }
+
+  // ==========================================
+  // USER AUTHENTICATION & PROFILE
+  // ==========================================
+  User? _currentUser;
+  bool _isAuthenticated = true;
+
+  bool get isAuthenticated => _isAuthenticated && _currentUser != null;
+  User get currentUser => _currentUser ?? WebMockData.mockUser;
+
+  void signInWithGoogle() {
+    _currentUser = WebMockData.mockUser.copyWith(
+      displayName: 'Alex Rivera',
+      email: 'alex.rivera@readmore.org',
+      role: 'user',
+    );
+    _isAuthenticated = true;
+    _showAuthModal = false;
+    notifyListeners();
+  }
+
+  void signInWithEmail(String email, String password) {
+    final name = email.contains('@') ? email.split('@').first : 'Reader';
+    _currentUser = User(
+      id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
+      email: email,
+      displayName: name.isNotEmpty ? name[0].toUpperCase() + name.substring(1) : 'Reader',
+      role: 'user',
+      createdAt: DateTime.now(),
+      subscriptionTier: 'free',
+      adFreeEnabled: false,
+      readingStreakDays: 1,
+      articlesReadCount: 1,
+    );
+    _isAuthenticated = true;
+    _showAuthModal = false;
+    notifyListeners();
+  }
+
+  void signUp(String name, String email, String password) {
+    _currentUser = User(
+      id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
+      email: email,
+      displayName: name.isNotEmpty ? name : 'New Reader',
+      role: 'user',
+      createdAt: DateTime.now(),
+      subscriptionTier: 'free',
+      adFreeEnabled: false,
+      readingStreakDays: 1,
+      articlesReadCount: 0,
+    );
+    _isAuthenticated = true;
+    _showAuthModal = false;
+    notifyListeners();
+  }
+
+  void signOut() {
+    _isAuthenticated = false;
+    _currentUser = null;
+    notifyListeners();
+  }
+
+  void updateUserProfile({
+    String? displayName,
+    String? locationCity,
+    bool? audioAutoplay,
+    bool? breakingAlerts,
+    bool? dailyBriefing,
+  }) {
+    if (_currentUser == null) return;
+    final curPrefs = _currentUser!.preferences;
+    final updatedPrefs = curPrefs.copyWith(
+      locationCity: locationCity,
+      audioAutoplay: audioAutoplay,
+      enableBreakingAlerts: breakingAlerts,
+      enableDailyBriefing: dailyBriefing,
+    );
+    _currentUser = _currentUser!.copyWith(
+      displayName: displayName,
+      preferences: updatedPrefs,
+    );
+    notifyListeners();
+  }
+
+  // ==========================================
+  // PRO SUBSCRIPTION SYSTEM
+  // ==========================================
+  void upgradeToPro({String plan = 'annual', String paymentMethod = 'Google Pay'}) {
+    _currentUser = currentUser.copyWith(
+      subscriptionTier: 'pro',
+      adFreeEnabled: true,
+    );
+    _isAuthenticated = true;
+    _showSubscriptionModal = false;
+    notifyListeners();
+  }
+
+  void cancelSubscription() {
+    _currentUser = currentUser.copyWith(
+      subscriptionTier: 'free',
+      adFreeEnabled: false,
+    );
+    notifyListeners();
+  }
+
+  void toggleAdFree() {
+    if (currentUser.isPro) {
+      _currentUser = currentUser.copyWith(
+        adFreeEnabled: !currentUser.adFreeEnabled,
+      );
+      notifyListeners();
+    }
+  }
+
+  // ==========================================
+  // DYNAMIC ADS SYSTEM
+  // ==========================================
+  late List<SponsoredAd> _ads;
+  List<SponsoredAd> get ads => List.unmodifiable(_ads);
+
+  bool get showAds => !(isAuthenticated && currentUser.isPro && currentUser.adFreeEnabled);
+
+  SponsoredAd? getLeaderboardAd({String? category}) {
+    final active = _ads.where((a) => a.isActive && a.placement == AdPlacement.leaderboardBanner).toList();
+    if (active.isEmpty) return null;
+    if (category != null && category != 'top' && category != 'all') {
+      final matched = active.where((a) => a.targetCategory == 'all' || a.targetCategory == category).toList();
+      if (matched.isNotEmpty) return matched.first;
+    }
+    return active.first;
+  }
+
+  SponsoredAd? getInFeedNativeAd({String? category}) {
+    final active = _ads.where((a) => a.isActive && a.placement == AdPlacement.inFeedNative).toList();
+    if (active.isEmpty) return null;
+    if (category != null && category != 'top' && category != 'all') {
+      final matched = active.where((a) => a.targetCategory == 'all' || a.targetCategory == category).toList();
+      if (matched.isNotEmpty) return matched.first;
+    }
+    return active.first;
+  }
+
+  SponsoredAd? getSidebarAd({String? category}) {
+    final active = _ads.where((a) => a.isActive && a.placement == AdPlacement.sidebarRectangle).toList();
+    if (active.isEmpty) return null;
+    if (category != null && category != 'top' && category != 'all') {
+      final matched = active.where((a) => a.targetCategory == 'all' || a.targetCategory == category).toList();
+      if (matched.isNotEmpty) return matched.first;
+    }
+    return active.first;
+  }
+
+  void recordAdClick(String adId) {
+    final idx = _ads.indexWhere((a) => a.id == adId);
+    if (idx != -1) {
+      final old = _ads[idx];
+      _ads[idx] = old.copyWith(clicks: old.clicks + 1);
+      notifyListeners();
+    }
+  }
+
+  void publishNewAdCampaign(SponsoredAd ad) {
+    _ads.insert(0, ad);
+    _showAdPublisherModal = false;
+    notifyListeners();
+  }
+
+  // ==========================================
+  // MODALS & OVERLAYS CONTROLS
+  // ==========================================
+  bool _showAuthModal = false;
+  String _authModalTab = 'signin';
+  bool get showAuthModal => _showAuthModal;
+  String get authModalTab => _authModalTab;
+
+  void openAuthModal({String tab = 'signin'}) {
+    _authModalTab = tab;
+    _showAuthModal = true;
+    notifyListeners();
+  }
+
+  void closeAuthModal() {
+    _showAuthModal = false;
+    notifyListeners();
+  }
+
+  bool _showSubscriptionModal = false;
+  bool get showSubscriptionModal => _showSubscriptionModal;
+
+  void openSubscriptionModal() {
+    _showSubscriptionModal = true;
+    notifyListeners();
+  }
+
+  void closeSubscriptionModal() {
+    _showSubscriptionModal = false;
+    notifyListeners();
+  }
+
+  bool _showAdPublisherModal = false;
+  bool get showAdPublisherModal => _showAdPublisherModal;
+
+  void openAdPublisherModal() {
+    _showAdPublisherModal = true;
+    notifyListeners();
+  }
+
+  void closeAdPublisherModal() {
+    _showAdPublisherModal = false;
     notifyListeners();
   }
 

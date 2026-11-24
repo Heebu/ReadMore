@@ -1,6 +1,8 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/ads/google_ad_banner.dart';
+import '../../core/widgets/ads/sidebar_ad_rectangle.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
@@ -58,7 +60,9 @@ class HeadlinesView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const FDSizedBox(height: 16),
+                    const FDSizedBox(height: 12),
+                    GoogleAdBanner(vm: vm, isMobile: isMobile, category: vm.selectedCategory),
+                    const FDSizedBox(height: 12),
                     HeroSpotlightCard(article: heroArticle, vm: vm),
                     const FDSizedBox(height: 24),
                     FullCoverageBlock(vm: vm),
@@ -78,6 +82,8 @@ class HeadlinesView extends StatelessWidget {
                     WeatherSidebarWidget(vm: vm),
                     const FDSizedBox(height: 20),
                     MarketWatchSidebarWidget(vm: vm),
+                    const FDSizedBox(height: 20),
+                    SidebarAdRectangle(vm: vm, category: vm.selectedCategory),
                     const FDSizedBox(height: 20),
                     TrendingTopicsSidebarWidget(vm: vm),
                     const FDSizedBox(height: 20),
@@ -99,7 +105,9 @@ class HeadlinesView extends StatelessWidget {
                 title: 'Top Global Headlines',
                 isDarkMode: vm.isDarkMode,
               ),
-              const FDSizedBox(height: 16),
+              const FDSizedBox(height: 12),
+              GoogleAdBanner(vm: vm, isMobile: isMobile, category: vm.selectedCategory),
+              const FDSizedBox(height: 12),
               HeroSpotlightCard(article: heroArticle, vm: vm),
               const FDSizedBox(height: 20),
               FullCoverageBlock(vm: vm),

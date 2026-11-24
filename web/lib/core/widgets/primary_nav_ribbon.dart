@@ -23,6 +23,7 @@ class PrimaryNavRibbon extends StatelessWidget {
       {'id': 'markets', 'name': 'Markets', 'icon': '📈'},
       {'id': 'library', 'name': 'My Library', 'icon': '🔖', 'badge': '${vm.bookmarkedIds.length + vm.readLaterIds.length}'},
       {'id': 'explore', 'name': 'Explore', 'icon': '🔍'},
+      {'id': 'profile', 'name': 'Profile & Settings', 'icon': '👤'},
     ];
 
     return FDContainer(
