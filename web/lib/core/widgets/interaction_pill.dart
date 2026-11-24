@@ -29,6 +29,8 @@ class InteractionPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: FDRow(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FDIcon(icon: icon, size: 14, color: color),
             const FDSizedBox(width: 4),

@@ -1,5 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/filter_chip_pill.dart';
+import '../../../core/widgets/ranked_article_tile.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
 
 /// Sidebar Widget: Local Weather Snapshot with 3-day outlook.
@@ -194,23 +196,15 @@ class TrendingTopicsSidebarWidget extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: vm.trendingTags.map((tag) {
-              return FDGestureDetector(
+              return FilterChipPill(
+                label: tag,
+                isSelected: false,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 onTap: () {
                   vm.setActiveScreen('explore');
                   vm.setSearchQuery(tag.replaceAll('#', ''));
                 },
-                child: FDContainer(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: vm.isDarkMode ? AppColors.borderSubtle : AppColors.lightNav,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderSubtle, width: 1),
-                  ),
-                  child: FDText(
-                    tag,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.primaryBlueLight),
-                  ),
-                ),
+                isDarkMode: vm.isDarkMode,
               );
             }).toList(),
           ),
@@ -244,34 +238,10 @@ class TopReadLeaderboardWidget extends StatelessWidget {
           const FDSizedBox(height: 12),
           FDColumn(
             children: topStories.asMap().entries.map((entry) {
-              final rank = entry.key + 1;
-              final article = entry.value;
-
-              return FDGestureDetector(
-                onTap: () => vm.openArticleReader(article),
-                child: FDContainer(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: FDRow(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FDText(
-                        '0$rank',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.primaryBlue),
-                      ),
-                      const FDSizedBox(width: 12),
-                      Expanded(
-                        child: FDColumn(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FDText(article.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
-                            const FDSizedBox(height: 4),
-                            FDText(article.source.name, style: const TextStyle(fontSize: 11, color: FlartColors.grey)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return RankedArticleTile(
+                rank: entry.key + 1,
+                article: entry.value,
+                vm: vm,
               );
             }).toList(),
           ),

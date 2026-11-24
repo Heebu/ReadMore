@@ -1,5 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/empty_state_widget.dart';
+import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
 
@@ -66,21 +68,12 @@ class ExploreView extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: FDRow(
                   children: vm.trendingTags.map((t) {
-                    return FDGestureDetector(
+                    return FilterChipPill(
+                      label: t,
+                      isSelected: false,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       onTap: () => vm.setSearchQuery(t.replaceAll('#', '')),
-                      child: FDContainer(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlueSubtle,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.borderHighlighted, width: 1),
-                        ),
-                        child: FDText(
-                          t,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight),
-                        ),
-                      ),
+                      isDarkMode: vm.isDarkMode,
                     );
                   }).toList(),
                 ),
@@ -93,16 +86,29 @@ class ExploreView extends StatelessWidget {
         // Sort By & Results Count Bar
         FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FDText(
               '${results.length} stories found',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: FlartColors.grey),
             ),
             FDRow(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _buildSortPill('latest', 'Latest'),
-                const FDSizedBox(width: 8),
-                _buildSortPill('most_read', 'Most Read'),
+                FilterChipPill(
+                  label: 'Latest',
+                  isSelected: vm.sortBy == 'latest',
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  onTap: () => vm.setSortBy('latest'),
+                  isDarkMode: vm.isDarkMode,
+                ),
+                FilterChipPill(
+                  label: 'Most Read',
+                  isSelected: vm.sortBy == 'most_read',
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  onTap: () => vm.setSortBy('most_read'),
+                  isDarkMode: vm.isDarkMode,
+                ),
               ],
             ),
           ],
@@ -111,45 +117,14 @@ class ExploreView extends StatelessWidget {
 
         // Search Results Grid or Empty State
         if (results.isEmpty)
-          FDContainer(
-            padding: const EdgeInsets.symmetric(vertical: 60),
-            child: FDCenter(
-              child: FDColumn(
-                children: [
-                  const FDText('🔍', style: TextStyle(fontSize: 48)),
-                  const FDSizedBox(height: 16),
-                  const FDText('No stories found matching your query', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const FDSizedBox(height: 8),
-                  const FDText('Try searching for broader keywords or browsing by category.', style: TextStyle(fontSize: 13, color: FlartColors.grey)),
-                ],
-              ),
-            ),
+          const EmptyStateWidget(
+            emoji: '🔍',
+            title: 'No stories found matching your query',
+            description: 'Try searching for broader keywords or browsing by category.',
           )
         else
           ArticlesGrid(articles: results, columns: isMobile ? 1 : (isTablet ? 2 : 3), vm: vm),
       ],
-    );
-  }
-
-  Widget _buildSortPill(String id, String label) {
-    final isSelected = vm.sortBy == id;
-    return FDGestureDetector(
-      onTap: () => vm.setSortBy(id),
-      child: FDContainer(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryBlue : AppColors.borderSubtle,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: FDText(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? FlartColors.white : FlartColors.grey,
-          ),
-        ),
-      ),
     );
   }
 }

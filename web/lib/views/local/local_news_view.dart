@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
-import '../../core/constants/app_colors.dart';
+import '../../core/widgets/filter_chip_pill.dart';
+import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
 
@@ -42,37 +43,13 @@ class LocalNewsView extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: FDRow(
             children: cities.map((city) {
-              final isSelected = vm.selectedCity == city;
-              return FDGestureDetector(
+              return FilterChipPill(
+                label: city,
+                iconOrEmoji: _getCityEmoji(city),
+                isSelected: vm.selectedCity == city,
                 onTap: () => vm.setSelectedCity(city),
-                child: FDContainer(
-                  margin: const EdgeInsets.only(right: 10),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primaryBlue
-                        : (vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
-                      width: 1,
-                    ),
-                  ),
-                  child: FDRow(
-                    children: [
-                      FDText(_getCityEmoji(city), style: const TextStyle(fontSize: 16)),
-                      const FDSizedBox(width: 6),
-                      FDText(
-                        city,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? FlartColors.white : (vm.isDarkMode ? FlartColors.white : FlartColors.black),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                isDarkMode: vm.isDarkMode,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               );
             }).toList(),
           ),
@@ -144,26 +121,9 @@ class LocalNewsView extends StatelessWidget {
         const FDSizedBox(height: 28),
 
         // City Local Articles Grid
-        FDRow(
-          children: [
-            FDContainer(
-              width: 4,
-              height: 20,
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlue,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const FDSizedBox(width: 10),
-            FDText(
-              'Top News from ${vm.selectedCity}',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-              ),
-            ),
-          ],
+        SectionHeader(
+          title: 'Top News from ${vm.selectedCity}',
+          isDarkMode: vm.isDarkMode,
         ),
         const FDSizedBox(height: 16),
         ArticlesGrid(

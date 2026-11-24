@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/compact_article_tile.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
 
 /// Google News "Full Coverage" block displaying multiple editorial perspectives.
@@ -74,40 +75,10 @@ class FullCoverageBlock extends StatelessWidget {
           const FDSizedBox(height: 14),
           FDColumn(
             children: cluster.alternativePerspectives.map((persp) {
-              return FDGestureDetector(
-                onTap: () => vm.openArticleReader(persp),
-                child: FDContainer(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.borderSubtle, width: 1),
-                  ),
-                  child: FDRow(
-                    children: [
-                      FDImage.network(
-                        persp.source.iconUrl,
-                        width: 18,
-                        height: 18,
-                        borderRadius: BorderRadius.circular(4),
-                        fit: BoxFit.cover,
-                      ),
-                      const FDSizedBox(width: 10),
-                      Expanded(
-                        child: FDText(
-                          persp.title,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                      const FDSizedBox(width: 8),
-                      FDText(
-                        persp.source.name,
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
-                      ),
-                    ],
-                  ),
-                ),
+              return CompactArticleTile(
+                article: persp,
+                vm: vm,
+                showThumbnail: false,
               );
             }).toList(),
           ),

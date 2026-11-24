@@ -1,6 +1,8 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/filter_chip_pill.dart';
+import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import 'widgets/articles_grid.dart';
 import 'widgets/full_coverage_block.dart';
@@ -44,7 +46,18 @@ class HeadlinesView extends StatelessWidget {
                 child: FDColumn(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildSectionHeader('Top Global Headlines'),
+                    SectionHeader(
+                      title: 'Top Global Headlines',
+                      isDarkMode: vm.isDarkMode,
+                      trailing: const FDText(
+                        '● Live Updates Every 5m',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMuted,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                     const FDSizedBox(height: 16),
                     HeroSpotlightCard(article: heroArticle, vm: vm),
                     const FDSizedBox(height: 24),
@@ -82,7 +95,10 @@ class HeadlinesView extends StatelessWidget {
           FDColumn(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildSectionHeader('Top Global Headlines'),
+              SectionHeader(
+                title: 'Top Global Headlines',
+                isDarkMode: vm.isDarkMode,
+              ),
               const FDSizedBox(height: 16),
               HeroSpotlightCard(article: heroArticle, vm: vm),
               const FDSizedBox(height: 20),
@@ -101,47 +117,6 @@ class HeadlinesView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return FDRow(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        FDRow(
-          children: [
-            FDContainer(
-              width: 4,
-              height: 20,
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlue,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const FDSizedBox(width: 10),
-            FDText(
-              title,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-              ),
-            ),
-          ],
-        ),
-        const FDRow(
-          children: [
-            FDText(
-              '● Live Updates Every 5m',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textMuted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Widget _buildCategoryPillNavbar() {
     return FDSingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -149,36 +124,12 @@ class HeadlinesView extends StatelessWidget {
         children: vm.categories.map((cat) {
           final isSelected = vm.selectedCategory.toLowerCase() == cat.slug.toLowerCase();
 
-          return FDGestureDetector(
+          return FilterChipPill(
+            label: cat.name,
+            iconOrEmoji: _getCategoryEmoji(cat.slug),
+            isSelected: isSelected,
             onTap: () => vm.setSelectedCategory(cat.slug),
-            child: FDContainer(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primaryBlue
-                    : (vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
-                  width: 1,
-                ),
-              ),
-              child: FDRow(
-                children: [
-                  FDText(_getCategoryEmoji(cat.slug), style: const TextStyle(fontSize: 13)),
-                  const FDSizedBox(width: 6),
-                  FDText(
-                    cat.name,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isSelected ? FlartColors.white : (vm.isDarkMode ? FlartColors.white : FlartColors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            isDarkMode: vm.isDarkMode,
           );
         }).toList(),
       ),

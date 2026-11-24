@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
 
@@ -48,7 +49,7 @@ class ForYouView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  FDRow(
+                 const FDRow(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: const [
@@ -88,16 +89,12 @@ class ForYouView extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: vm.userInterests.map((interest) {
-                  return FDContainer(
+                  return FilterChipPill(
+                    label: '#$interest',
+                    isSelected: false,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const FlartColor('rgba(255, 255, 255, 0.1)'),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: FDText(
-                      '#$interest',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight),
-                    ),
+                    onTap: () => vm.openInterestsModal(),
+                    isDarkMode: true,
                   );
                 }).toList(),
               ),

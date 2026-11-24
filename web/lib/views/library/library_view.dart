@@ -1,6 +1,8 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/empty_state_widget.dart';
+import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
 
@@ -48,49 +50,13 @@ class LibraryView extends StatelessWidget {
             FDRow(
               mainAxisSize: MainAxisSize.min,
               children: tabs.map((t) {
-                final isSelected = vm.libraryTab == t['id'];
-                return FDGestureDetector(
+                return FilterChipPill(
+                  label: t['name'] as String,
+                  iconOrEmoji: t['icon'] as String,
+                  badge: '${t['count']}',
+                  isSelected: vm.libraryTab == t['id'],
                   onTap: () => vm.setLibraryTab(t['id'] as String),
-                  child: FDContainer(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primaryBlue
-                          : (vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
-                        width: 1,
-                      ),
-                    ),
-                    child: FDRow(
-                      children: [
-                        FDText(t['icon'] as String, style: const TextStyle(fontSize: 14)),
-                        const FDSizedBox(width: 6),
-                        FDText(
-                          t['name'] as String,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected ? FlartColors.white : (vm.isDarkMode ? FlartColors.white : FlartColors.black),
-                          ),
-                        ),
-                        const FDSizedBox(width: 6),
-                        FDContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryBlueDark : AppColors.primaryBlueSubtle,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: FDText(
-                            '${t['count']}',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  isDarkMode: vm.isDarkMode,
                 );
               }).toList(),
             ),
@@ -130,42 +96,14 @@ class LibraryView extends StatelessWidget {
 
         // Items Grid or Empty State
         if (displayed.isEmpty)
-          FDContainer(
-            padding: const EdgeInsets.symmetric(vertical: 80),
-            child: FDCenter(
-              child: FDColumn(
-                children: [
-                  const FDText('📭', style: TextStyle(fontSize: 48)),
-                  const FDSizedBox(height: 16),
-                  FDText(
-                    vm.libraryTab == 'bookmarks'
-                        ? 'No bookmarks saved yet'
-                        : (vm.libraryTab == 'read_later' ? 'Your Read Later queue is empty' : 'No reading history yet'),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const FDSizedBox(height: 8),
-                  const FDText(
-                    'Save articles while browsing to read them anytime, anywhere.',
-                    style: TextStyle(fontSize: 13, color: FlartColors.grey),
-                  ),
-                  const FDSizedBox(height: 20),
-                  FDGestureDetector(
-                    onTap: () => vm.setActiveScreen('headlines'),
-                    child: FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryBlue,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const FDText(
-                        'Explore Top Stories',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: FlartColors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          EmptyStateWidget(
+            emoji: '📭',
+            title: vm.libraryTab == 'bookmarks'
+                ? 'No bookmarks saved yet'
+                : (vm.libraryTab == 'read_later' ? 'Your Read Later queue is empty' : 'No reading history yet'),
+            description: 'Save articles while browsing to read them anytime, anywhere.',
+            actionLabel: 'Explore Top Stories',
+            onAction: () => vm.setActiveScreen('headlines'),
           )
         else
           ArticlesGrid(articles: displayed, columns: isMobile ? 1 : 2, vm: vm),

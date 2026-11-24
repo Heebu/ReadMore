@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/widgets/article_meta_bar.dart';
 import '../../../core/widgets/interaction_pill.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
 
@@ -97,26 +98,10 @@ class HeroSpotlightCard extends StatelessWidget {
               child: FDColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FDRow(
-                    children: [
-                      FDImage.network(
-                        article.source.iconUrl,
-                        width: 18,
-                        height: 18,
-                        borderRadius: BorderRadius.circular(4),
-                        fit: BoxFit.cover,
-                      ),
-                      const FDSizedBox(width: 8),
-                      FDText(
-                        article.source.name,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryBlue),
-                      ),
-                      const FDSizedBox(width: 6),
-                      const FDText(
-                        '• 25m ago',
-                        style: TextStyle(fontSize: 12, color: AppColors.textMuted),
-                      ),
-                    ],
+                  ArticleMetaBar(
+                    source: article.source,
+                    timestamp: '25m ago',
+                    isDarkMode: vm.isDarkMode,
                   ),
                   const FDSizedBox(height: 12),
                   FDText(
