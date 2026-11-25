@@ -65,6 +65,51 @@ class LibraryView extends StatelessWidget {
         ),
         const FDSizedBox(height: 20),
 
+        // Guest Archive Notice
+        if (!vm.isAuthenticated) ...[
+          FDContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: vm.isDarkMode ? const FlartColor('#17181F') : const FlartColor('#EFECE4'),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.borderRegular, width: 1),
+            ),
+            child: FDRow(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Expanded(
+                  child: FDText(
+                    'Guest Archive — Sign in to permanently sync bookmarks, queue, and reading history across devices.',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  ),
+                ),
+                const FDSizedBox(width: 12),
+                FDGestureDetector(
+                  onTap: () => vm.openAuthModal(tab: 'signin'),
+                  child: FDContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: FDText(
+                      'SIGN IN',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Space Grotesk',
+                        color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const FDSizedBox(height: 16),
+        ],
+
         // Read Later Time Calculator Banner
         if (vm.libraryTab == 'read_later' && displayed.isNotEmpty)
           FDContainer(
@@ -78,7 +123,7 @@ class LibraryView extends StatelessWidget {
               children: [
                 const FDText('⏱️ ', style: TextStyle(fontSize: 16)),
                 FDText(
-                  'Estimated Total Reading Time: ~$totalReadingMinutes minutes across ${displayed.length} articles.',
+                  'Estimated Total Reading Time: ~$totalReadingMinutes ${totalReadingMinutes == 1 ? 'minute' : 'minutes'} across ${displayed.length} ${displayed.length == 1 ? 'article' : 'articles'}.',
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: FlartColor('#C4B5FD')),
                 ),
               ],

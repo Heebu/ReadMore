@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../constants/app_colors.dart';
+import '../utils/web_dom_helper.dart';
 
 /// Reusable interaction pill for actions (Bookmarks, Queue, Likes, Share).
 class InteractionPill extends StatelessWidget {
@@ -20,31 +21,41 @@ class InteractionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FDGestureDetector(
-      onTap: onTap,
-      child: FDContainer(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.borderSubtle : AppColors.lightNav,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        cssStyle: const {
-          'transition': 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease',
-          'cursor': 'pointer',
+    return FDElement(
+      tag: 'div',
+      attributes: const {'role': 'button', 'tabindex': '0', 'class': 'interactive-pill'},
+      styles: const {'display': 'inline-block', 'cursor': 'pointer'},
+      events: {
+        'click': (dynamic e) {
+          stopEventPropagation(e);
+          onTap();
         },
-        child: FDRow(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FDIcon(icon: icon, size: 14, color: color),
-            const FDSizedBox(width: 4),
-            FDText(
-              label,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
-            ),
-          ],
+      },
+      children: [
+        FDContainer(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isDarkMode ? AppColors.borderSubtle : AppColors.lightNav,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          cssStyle: const {
+            'transition': 'transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease',
+            'cursor': 'pointer',
+          },
+          child: FDRow(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FDIcon(icon: icon, size: 14, color: color),
+              const FDSizedBox(width: 4),
+              FDText(
+                label,
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

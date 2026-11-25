@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../data/mock_data.dart';
@@ -12,55 +13,48 @@ class NewsAppViewModel extends ChangeNotifier {
       : _service = service ?? ApiNewsService() {
     _comments = _service.getComments('default');
     _ads = _service.getSponsoredAds();
-    if (_service is ApiNewsService && (_service as ApiNewsService).wasExplicitlySignedOut) {
-      _currentUser = null;
-      _isAuthenticated = false;
-    } else {
-      _currentUser = WebMockData.mockUser;
-      _isAuthenticated = true;
-    }
+    _currentUser = null;
+    _isAuthenticated = false;
     _initApiSync();
   }
 
   bool get isBackendConnected =>
-      _service is ApiNewsService && (_service as ApiNewsService).isBackendConnected;
+      _service is ApiNewsService && (_service).isBackendConnected;
 
   void _initApiSync() {
     if (_service is! ApiNewsService) return;
-    final api = _service as ApiNewsService;
+    final api = _service;
 
     // 1. Sync public feeds, widgets, clusters, ads, comments, notifications
     api.syncAllAsync(city: _selectedCity, interests: _userInterests).then((_) {
       _ads = _service.getSponsoredAds();
       final activeId = _activeReadingArticle?.id ?? 'default';
-      _comments = _service.getComments(activeId);
+      _comments = _dedupeComments(_service.getComments(activeId));
       _refreshUnreadBadge();
       notifyListeners();
     });
 
-    // 2. Restore existing session OR bootstrap seeded demo session with real JWT
+    // 2. Restore existing JWT session if user previously signed in
     _bootstrapAuthSession(api);
   }
 
   Future<void> _bootstrapAuthSession(ApiNewsService api) async {
+    if (api.wasExplicitlySignedOut) {
+      _currentUser = null;
+      _isAuthenticated = false;
+      notifyListeners();
+      return;
+    }
+
     User? user;
     if (api.authToken != null && api.authToken!.isNotEmpty) {
       user = await api.fetchCurrentUserAsync();
     }
 
-    if (user == null && !api.wasExplicitlySignedOut) {
-      final res = await api.loginAsync('demo@readmore.com', 'Password123!');
-      if (res != null && res['user'] is Map<String, dynamic>) {
-        try {
-          user = User.fromJson(res['user'] as Map<String, dynamic>);
-        } catch (_) {}
-      }
-    }
-
     if (user != null) {
       _applyAuthenticatedUser(user);
       await _syncUserCollections(api);
-    } else if (api.wasExplicitlySignedOut) {
+    } else {
       _currentUser = null;
       _isAuthenticated = false;
       notifyListeners();
@@ -114,7 +108,7 @@ class NewsAppViewModel extends ChangeNotifier {
 
   Future<void> refreshAllFeeds() async {
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       await api.refreshFeedsAsync();
       _ads = _service.getSponsoredAds();
       notifyListeners();
@@ -147,7 +141,7 @@ class NewsAppViewModel extends ChangeNotifier {
       }
       notifyListeners();
       if (_service is ApiNewsService) {
-        final api = _service as ApiNewsService;
+        final api = _service;
         if (screen == 'for_you') {
           api
               .fetchForYouAsync(
@@ -168,21 +162,26 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   void setCategory(String category) {
-    if (category == 'for_you') {
+    final normalized = category.toLowerCase();
+    if (normalized == 'for_you' || normalized == 'for-you') {
       _activeScreen = 'for_you';
       notifyListeners();
       if (_service is ApiNewsService) {
-        (_service as ApiNewsService)
-            .fetchForYouAsync(topics: _userInterests, city: _selectedCity)
+        (_service)
+            .fetchForYouAsync(
+              topics: _userInterests,
+              city: _selectedCity,
+              country: _selectedEdition,
+            )
             .then((_) => notifyListeners());
       }
       return;
     }
-    if (category == 'local') {
+    if (normalized == 'local') {
       _activeScreen = 'local';
       notifyListeners();
       if (_service is ApiNewsService) {
-        (_service as ApiNewsService)
+        (_service)
             .fetchLocalNewsAsync(city: _selectedCity)
             .then((_) => notifyListeners());
       }
@@ -191,7 +190,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _selectedCategory = category;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).fetchArticlesAsync(category: category).then((_) {
+      (_service).fetchArticlesAsync(category: category).then((_) {
         notifyListeners();
       });
     }
@@ -202,7 +201,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _selectedCity = city;
     notifyListeners();
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       Future.wait([
         api.fetchWeatherAsync(city),
         api.fetchLocalNewsAsync(city: city),
@@ -217,7 +216,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _selectedMarketSector = sector;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).fetchMarketTickersAsync(sector: sector).then((_) {
+      (_service).fetchMarketTickersAsync(sector: sector).then((_) {
         notifyListeners();
       });
     }
@@ -241,28 +240,39 @@ class NewsAppViewModel extends ChangeNotifier {
   String _sortBy = 'latest';
   String get sortBy => _sortBy;
 
+  int _searchRequestSeq = 0;
+
   void setSearchQuery(String query) {
     _searchQuery = query;
     if (query.trim().isNotEmpty && _activeScreen != 'explore') {
       _activeScreen = 'explore';
     }
+    final seq = ++_searchRequestSeq;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService)
+      (_service)
           .fetchArticlesAsync(
             query: query.trim().isNotEmpty ? query : null,
             source: _selectedSourceFilter,
             sortBy: _sortBy,
           )
-          .then((_) => notifyListeners());
+          .then((_) {
+        if (seq == _searchRequestSeq) {
+          notifyListeners();
+        }
+      });
     }
+  }
+
+  void clearSearchQuery() {
+    setSearchQuery('');
   }
 
   void setSortBy(String sort) {
     _sortBy = sort;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService)
+      (_service)
           .fetchArticlesAsync(
             category: _activeScreen == 'explore' ? null : _selectedCategory,
             query: _searchQuery.trim().isNotEmpty ? _searchQuery : null,
@@ -277,7 +287,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _selectedSourceFilter = source;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService)
+      (_service)
           .fetchArticlesAsync(
             category: _activeScreen == 'explore' ? null : _selectedCategory,
             query: _searchQuery.trim().isNotEmpty ? _searchQuery : null,
@@ -292,7 +302,7 @@ class NewsAppViewModel extends ChangeNotifier {
   // USER AUTHENTICATION & PROFILE
   // ==========================================
   User? _currentUser;
-  bool _isAuthenticated = true;
+  bool _isAuthenticated = false;
   bool _isAuthLoading = false;
   String? _authError;
   String? _authSuccessMessage;
@@ -300,18 +310,21 @@ class NewsAppViewModel extends ChangeNotifier {
   String? _profileStatusMessage;
 
   bool get isAuthenticated => _isAuthenticated && _currentUser != null;
-  User get currentUser => _currentUser ?? WebMockData.mockUser;
+  User get currentUser => _currentUser ?? WebMockData.guestUser;
   bool get isAuthLoading => _isAuthLoading;
   String? get authError => _authError;
   String? get authSuccessMessage => _authSuccessMessage;
   String? get devResetCodeHint => _devResetCodeHint;
   String? get profileStatusMessage => _profileStatusMessage;
 
-  void clearAuthFeedback() {
+  void clearAuthFeedback({bool notify = true}) {
+    final hadFeedback = _authError != null || _authSuccessMessage != null || _devResetCodeHint != null;
     _authError = null;
     _authSuccessMessage = null;
     _devResetCodeHint = null;
-    notifyListeners();
+    if (notify && hadFeedback) {
+      notifyListeners();
+    }
   }
 
   Future<void> signInWithGoogle() async {
@@ -321,7 +334,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       final res = await api.loginWithGoogleAsync(
         email: 'alex.rivera@readmore.org',
         displayName: 'Alex Rivera',
@@ -373,7 +386,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       final res = await api.loginAsync(email.trim(), password);
       _isAuthLoading = false;
 
@@ -435,7 +448,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       final res = await api.registerAsync(email.trim(), password, name.trim());
       _isAuthLoading = false;
 
@@ -487,7 +500,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final res = await (_service as ApiNewsService).requestPasswordResetAsync(email.trim());
+      final res = await (_service).requestPasswordResetAsync(email.trim());
       _isAuthLoading = false;
       if (res == null) {
         _authError = 'Backend unreachable. Start server on port 8085 to reset password.';
@@ -524,7 +537,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final res = await (_service as ApiNewsService).resetPasswordAsync(
+      final res = await (_service).resetPasswordAsync(
         token: code.trim(),
         newPassword: newPassword,
       );
@@ -556,7 +569,7 @@ class NewsAppViewModel extends ChangeNotifier {
       return;
     }
     if (_service is ApiNewsService) {
-      final res = await (_service as ApiNewsService).changePasswordAsync(
+      final res = await (_service).changePasswordAsync(
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
@@ -576,9 +589,13 @@ class NewsAppViewModel extends ChangeNotifier {
     _currentUser = null;
     _bookmarkedIds.clear();
     _readLaterIds.clear();
+    _likedIds.clear();
+    _readingHistoryIds.clear();
     _profileStatusMessage = null;
+    _isAudioPlaying = false;
+    _stopAudioTimer();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).markSignedOut();
+      (_service).markSignedOut();
     }
     notifyListeners();
   }
@@ -606,12 +623,12 @@ class NewsAppViewModel extends ChangeNotifier {
       _selectedCity = locationCity;
     }
     if (displayName != null) {
-      _profileStatusMessage = '✓ Profile & preferences saved to SQLite.';
+      _profileStatusMessage = '✓ Profile & preferences saved.';
     }
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       api
           .updatePreferencesAsync(
             displayName: displayName,
@@ -637,15 +654,19 @@ class NewsAppViewModel extends ChangeNotifier {
   // PRO SUBSCRIPTION SYSTEM
   // ==========================================
   void upgradeToPro({String plan = 'annual', String paymentMethod = 'Google Pay'}) {
+    if (!isAuthenticated) {
+      _showSubscriptionModal = false;
+      openAuthModal(tab: 'signin');
+      return;
+    }
     _currentUser = currentUser.copyWith(
       subscriptionTier: 'pro',
       adFreeEnabled: true,
     );
-    _isAuthenticated = true;
     _showSubscriptionModal = false;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).upgradeSubscriptionAsync(
+      (_service).upgradeSubscriptionAsync(
         plan: plan,
         paymentMethod: paymentMethod,
       );
@@ -659,7 +680,7 @@ class NewsAppViewModel extends ChangeNotifier {
     );
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).cancelSubscriptionAsync();
+      (_service).cancelSubscriptionAsync();
     }
   }
 
@@ -670,7 +691,7 @@ class NewsAppViewModel extends ChangeNotifier {
       );
       notifyListeners();
       if (_service is ApiNewsService) {
-        (_service as ApiNewsService).toggleAdFreeAsync();
+        (_service).toggleAdFreeAsync();
       }
     }
   }
@@ -721,7 +742,7 @@ class NewsAppViewModel extends ChangeNotifier {
       notifyListeners();
     }
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).recordAdClickAsync(adId);
+      (_service).recordAdClickAsync(adId);
     }
   }
 
@@ -730,7 +751,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _showAdPublisherModal = false;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).createAdCampaignAsync(ad);
+      (_service).createAdCampaignAsync(ad);
     }
   }
 
@@ -809,7 +830,7 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       api.updatePreferencesAsync(followedTopics: _userInterests.toList());
       api.fetchForYouAsync(topics: _userInterests, city: _selectedCity).then((_) => notifyListeners());
     }
@@ -818,16 +839,16 @@ class NewsAppViewModel extends ChangeNotifier {
   // ==========================================
   // USER COLLECTIONS (END-TO-END REACTIVE STATE)
   // ==========================================
-  final Set<String> _bookmarkedIds = {'seed-top-1', 'seed-tech-1', 'seed-business-1', 'art-hero-1', 'art-tech-1', 'art-bus-1'};
+  final Set<String> _bookmarkedIds = {};
   Set<String> get bookmarkedIds => Set.unmodifiable(_bookmarkedIds);
 
-  final Set<String> _readLaterIds = {'seed-science-1', 'art-sci-1', 'art-food-1'};
+  final Set<String> _readLaterIds = {};
   Set<String> get readLaterIds => Set.unmodifiable(_readLaterIds);
 
-  final Set<String> _likedIds = {'seed-tech-1', 'seed-top-1', 'art-tech-1', 'art-hero-1'};
+  final Set<String> _likedIds = {};
   Set<String> get likedIds => Set.unmodifiable(_likedIds);
 
-  final List<String> _readingHistoryIds = ['seed-top-1', 'seed-tech-1', 'art-hero-1', 'art-tech-1'];
+  final List<String> _readingHistoryIds = [];
   List<String> get readingHistoryIds => List.unmodifiable(_readingHistoryIds);
 
   final Set<String> _marketWatchlist = {'BTC/USD', 'NVDA', 'AAPL'};
@@ -847,7 +868,7 @@ class NewsAppViewModel extends ChangeNotifier {
     }
     notifyListeners();
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       if (wasBookmarked) {
         api.removeBookmarkAsync(id);
       } else {
@@ -865,7 +886,7 @@ class NewsAppViewModel extends ChangeNotifier {
     }
     notifyListeners();
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       if (wasInQueue) {
         api.removeReadLaterAsync(id);
       } else {
@@ -883,7 +904,7 @@ class NewsAppViewModel extends ChangeNotifier {
     }
     notifyListeners();
     if (_service is ApiNewsService && isNowLiked) {
-      (_service as ApiNewsService).recordInteractionAsync(id, 'like');
+      (_service).recordInteractionAsync(id, 'like');
     }
   }
 
@@ -913,27 +934,69 @@ class NewsAppViewModel extends ChangeNotifier {
   bool _isAudioPlaying = false;
   bool get isAudioPlaying => _isAudioPlaying;
 
-  double _audioProgress = 0.35;
+  double _audioProgress = 0.0;
   double get audioProgress => _audioProgress;
 
   double _audioSpeed = 1.0;
   double get audioSpeed => _audioSpeed;
 
+  Timer? _audioTimer;
+  Timer? _briefingTimer;
+
   late List<ArticleComment> _comments;
   List<ArticleComment> get comments => List.unmodifiable(_comments);
 
+  List<ArticleComment> _dedupeComments(List<ArticleComment> list) {
+    final seenIds = <String>{};
+    final result = <ArticleComment>[];
+    for (final c in list) {
+      if (seenIds.add(c.id)) {
+        result.add(c);
+      }
+    }
+    return result;
+  }
+
+  void _startAudioTimer() {
+    _stopAudioTimer();
+    _audioTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!_isAudioPlaying || _activeReadingArticle == null) {
+        _stopAudioTimer();
+        return;
+      }
+      final totalSeconds = (_activeReadingArticle!.readTimeMinutes * 60).clamp(60, 900);
+      final step = _audioSpeed / totalSeconds;
+      _audioProgress = (_audioProgress + step).clamp(0.0, 1.0);
+      if (_audioProgress >= 1.0) {
+        _isAudioPlaying = false;
+        _stopAudioTimer();
+      }
+      notifyListeners();
+    });
+  }
+
+  void _stopAudioTimer() {
+    _audioTimer?.cancel();
+    _audioTimer = null;
+  }
+
   void openArticleReader(Article article) {
     _activeReadingArticle = article;
-    _isAudioPlaying = false;
     _audioProgress = 0.0;
-    if (!_readingHistoryIds.contains(article.id)) {
-      _readingHistoryIds.insert(0, article.id);
+    _newCommentDraft = '';
+    _isAudioPlaying = isAuthenticated && currentUser.preferences.audioAutoplay;
+    if (_isAudioPlaying) {
+      _startAudioTimer();
+    } else {
+      _stopAudioTimer();
     }
-    _comments = _service.getComments(article.id);
+    _readingHistoryIds.remove(article.id);
+    _readingHistoryIds.insert(0, article.id);
+    _comments = _dedupeComments(_service.getComments(article.id));
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       api.recordInteractionAsync(article.id, 'click', dwellTimeSeconds: 30).then((updatedUser) {
         if (updatedUser != null && _currentUser != null) {
           _currentUser = updatedUser;
@@ -948,22 +1011,54 @@ class NewsAppViewModel extends ChangeNotifier {
       });
       api.fetchCommentsAsync(article.id).then((fetchedComments) {
         if (_activeReadingArticle?.id == article.id) {
-          _comments = fetchedComments;
+          final pendingLocal = _comments.where((c) => c.id.startsWith('c-')).toList();
+          _comments = _dedupeComments([...pendingLocal, ...fetchedComments]);
           notifyListeners();
         }
       });
     }
   }
 
+  Future<void> openArticleById(String articleId) async {
+    Article? match;
+    final candidates = <Article>[
+      ..._service.getArticles(),
+      ...breakingArticles,
+      ...trendingArticles,
+      ...personalizedArticles,
+      ...localArticles,
+      fullCoverageCluster.primaryArticle,
+      ...fullCoverageCluster.alternativePerspectives,
+    ];
+    for (final a in candidates) {
+      if (a.id == articleId) {
+        match = a;
+        break;
+      }
+    }
+    if (match == null && _service is ApiNewsService) {
+      final api = _service;
+      match = api.getCachedArticleById(articleId);
+      match ??= await api.fetchArticleByIdAsync(articleId);
+    }
+    if (match != null) {
+      openArticleReader(match);
+    } else if (candidates.isNotEmpty) {
+      openArticleReader(candidates.first);
+    }
+  }
+
   void closeArticleReader() {
     _activeReadingArticle = null;
     _isAudioPlaying = false;
+    _newCommentDraft = '';
+    _stopAudioTimer();
     notifyListeners();
   }
 
   void nextArticle() {
     if (_activeReadingArticle == null) return;
-    final allArticles = _service.getArticles();
+    final allArticles = _dedupeArticles(_service.getArticles());
     final currentIndex = allArticles.indexWhere((a) => a.id == _activeReadingArticle!.id);
     if (currentIndex != -1 && currentIndex < allArticles.length - 1) {
       openArticleReader(allArticles[currentIndex + 1]);
@@ -974,7 +1069,7 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void prevArticle() {
     if (_activeReadingArticle == null) return;
-    final allArticles = _service.getArticles();
+    final allArticles = _dedupeArticles(_service.getArticles());
     final currentIndex = allArticles.indexWhere((a) => a.id == _activeReadingArticle!.id);
     if (currentIndex > 0) {
       openArticleReader(allArticles[currentIndex - 1]);
@@ -985,11 +1080,11 @@ class NewsAppViewModel extends ChangeNotifier {
 
   int get activeArticleIndex {
     if (_activeReadingArticle == null) return -1;
-    final all = _service.getArticles();
+    final all = _dedupeArticles(_service.getArticles());
     return all.indexWhere((a) => a.id == _activeReadingArticle!.id);
   }
 
-  int get totalArticlesCount => _service.getArticles().length;
+  int get totalArticlesCount => _dedupeArticles(_service.getArticles()).length;
 
   void adjustReaderFontSize(double delta) {
     final next = _readerFontSize + delta;
@@ -1001,6 +1096,12 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void toggleArticleAudio() {
     _isAudioPlaying = !_isAudioPlaying;
+    if (_isAudioPlaying) {
+      if (_audioProgress >= 1.0) _audioProgress = 0.0;
+      _startAudioTimer();
+    } else {
+      _stopAudioTimer();
+    }
     notifyListeners();
   }
 
@@ -1016,38 +1117,39 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   void addComment(String text) {
-    if (text.trim().isEmpty) return;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
     final articleId = _activeReadingArticle?.id ?? 'default';
-    final authorName = _currentUser?.displayName ?? 'You (Verified Reader)';
+    final authorName = isAuthenticated && _currentUser != null
+        ? _currentUser!.displayName
+        : 'Guest Reader';
     final avatar = _currentUser?.avatarUrl ??
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=128&q=80';
 
     final localComment = ArticleComment(
-      id: 'c-${DateTime.now().millisecondsSinceEpoch}',
+      id: 'c-${DateTime.now().microsecondsSinceEpoch}',
       articleId: articleId,
       author: authorName,
       avatarUrl: avatar,
-      text: text.trim(),
+      text: trimmed,
       timeAgo: 'Just now',
     );
-    _comments.insert(0, localComment);
+    _comments = _dedupeComments([localComment, ..._comments]);
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService)
+      (_service)
           .postCommentAsync(
             articleId,
             author: authorName,
             avatarUrl: avatar,
-            text: text.trim(),
+            text: trimmed,
           )
           .then((saved) {
-        if (saved != null) {
-          final idx = _comments.indexWhere((c) => c.id == localComment.id);
-          if (idx != -1) {
-            _comments[idx] = saved;
-            notifyListeners();
-          }
+        if (saved != null && (_activeReadingArticle?.id ?? 'default') == articleId) {
+          final updated = _comments.map((c) => c.id == localComment.id ? saved : c).toList();
+          _comments = _dedupeComments(updated);
+          notifyListeners();
         }
       });
     }
@@ -1062,7 +1164,7 @@ class NewsAppViewModel extends ChangeNotifier {
       notifyListeners();
     }
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).toggleCommentLikeAsync(commentId);
+      (_service).toggleCommentLikeAsync(commentId);
     }
   }
 
@@ -1091,7 +1193,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _showFullCoverageModal = true;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).fetchClustersAsync().then((_) => notifyListeners());
+      (_service).fetchClustersAsync().then((_) => notifyListeners());
     }
   }
   void openFullCoverageModal() => openFullCoverage();
@@ -1117,7 +1219,7 @@ class NewsAppViewModel extends ChangeNotifier {
     if (_showNotificationsModal) {
       _hasUnreadNotifications = false;
       if (_service is ApiNewsService) {
-        final api = _service as ApiNewsService;
+        final api = _service;
         for (final n in api.getNotifications().where((n) => !n.isRead)) {
           api.markNotificationReadAsync(n.id);
         }
@@ -1141,7 +1243,7 @@ class NewsAppViewModel extends ChangeNotifier {
     _showEditionModal = false;
     notifyListeners();
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       api.updatePreferencesAsync(locationCountry: edition);
       api.fetchForYouAsync(topics: _userInterests, city: _selectedCity, country: edition).then((_) => notifyListeners());
     }
@@ -1151,15 +1253,55 @@ class NewsAppViewModel extends ChangeNotifier {
   // ==========================================
   // STICKY BOTTOM AUDIO BRIEFING
   // ==========================================
+  static const int _briefingDurationSeconds = 300;
   bool _showBottomBriefing = true;
   bool get showBottomBriefing => _showBottomBriefing;
 
   bool _isBriefingPlaying = false;
   bool get isBriefingPlaying => _isBriefingPlaying;
 
+  int _briefingElapsedSeconds = 0;
+  double get briefingProgress => (_briefingElapsedSeconds / _briefingDurationSeconds).clamp(0.0, 1.0);
+  String get briefingElapsedFormatted => _formatDurationSeconds(_briefingElapsedSeconds);
+  String get briefingTotalFormatted => _formatDurationSeconds(_briefingDurationSeconds);
+
+  String _formatDurationSeconds(int seconds) {
+    final mins = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$mins:$secs';
+  }
+
+  void _startBriefingTimer() {
+    _stopBriefingTimer();
+    _briefingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!_isBriefingPlaying) {
+        _stopBriefingTimer();
+        return;
+      }
+      if (_briefingElapsedSeconds < _briefingDurationSeconds) {
+        _briefingElapsedSeconds += 1;
+      } else {
+        _isBriefingPlaying = false;
+        _briefingElapsedSeconds = 0;
+        _stopBriefingTimer();
+      }
+      notifyListeners();
+    });
+  }
+
+  void _stopBriefingTimer() {
+    _briefingTimer?.cancel();
+    _briefingTimer = null;
+  }
+
   void toggleBottomBriefing() {
     _showBottomBriefing = true;
     _isBriefingPlaying = !_isBriefingPlaying;
+    if (_isBriefingPlaying) {
+      _startBriefingTimer();
+    } else {
+      _stopBriefingTimer();
+    }
     notifyListeners();
   }
   void toggleBriefingPlaying() => toggleBottomBriefing();
@@ -1167,7 +1309,15 @@ class NewsAppViewModel extends ChangeNotifier {
   void closeBottomBriefing() {
     _showBottomBriefing = false;
     _isBriefingPlaying = false;
+    _stopBriefingTimer();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _stopAudioTimer();
+    _stopBriefingTimer();
+    super.dispose();
   }
 
   void closeReaderModal() => closeArticleReader();
@@ -1181,9 +1331,10 @@ class NewsAppViewModel extends ChangeNotifier {
     _newCommentDraft = text;
   }
   void postComment() {
-    if (_newCommentDraft.trim().isNotEmpty) {
-      addComment(_newCommentDraft);
+    final draft = _newCommentDraft.trim();
+    if (draft.isNotEmpty) {
       _newCommentDraft = '';
+      addComment(draft);
     }
   }
 
@@ -1202,7 +1353,7 @@ class NewsAppViewModel extends ChangeNotifier {
     }
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).updatePreferencesAsync(darkMode: _isDarkMode);
+      (_service).updatePreferencesAsync(darkMode: _isDarkMode);
     }
   }
 
@@ -1218,27 +1369,47 @@ class NewsAppViewModel extends ChangeNotifier {
   List<String> get availableInterests => _service.getAvailableInterests();
   List<String> get allAvailableInterests => availableInterests;
 
+  List<Article> _dedupeArticles(List<Article> items) {
+    final seenIds = <String>{};
+    final seenTitles = <String>{};
+    final result = <Article>[];
+    for (final a in items) {
+      final normTitle = a.title.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
+      if (seenIds.add(a.id) && (normTitle.isEmpty || seenTitles.add(normTitle))) {
+        result.add(a);
+      }
+    }
+    return result;
+  }
+
   List<NewsCategory> get categories => _service.getCategories();
-  List<Article> get sampleArticles => _service.getArticles();
+  List<Article> get sampleArticles => _dedupeArticles(_service.getArticles());
   List<Article> get filteredArticles => headlinesArticles;
-  List<Article> get breakingArticles => _service.getBreakingArticles();
-  List<Article> get trendingArticles => _service.getTrendingArticles();
+  List<Article> get breakingArticles => _dedupeArticles(_service.getBreakingArticles());
+  List<Article> get trendingArticles => _dedupeArticles(_service.getTrendingArticles());
 
   List<Article> get headlinesArticles {
-    return _service.getArticles(category: _selectedCategory);
+    return _dedupeArticles(_service.getArticles(category: _selectedCategory));
   }
 
   List<Article> get personalizedArticles {
-    return _service.getForYouArticles(interests: _userInterests);
+    return _dedupeArticles(_service.getForYouArticles(interests: _userInterests));
   }
 
   List<Article> get localArticles {
-    return _service.getLocalArticles(city: _selectedCity);
+    return _dedupeArticles(_service.getLocalArticles(city: _selectedCity));
   }
 
   List<Article> get marketArticles {
-    final all = _service.getArticles();
+    final all = _dedupeArticles(_service.getArticles());
     return all.where((a) => a.category == 'business' || a.category == 'tech').toList();
+  }
+
+  List<Article> relatedArticlesFor(Article article, {int limit = 3}) {
+    final all = _dedupeArticles(_service.getArticles());
+    final sameCategory = all.where((a) => a.id != article.id && a.category == article.category).toList();
+    final others = all.where((a) => a.id != article.id && a.category != article.category).toList();
+    return [...sameCategory, ...others].take(limit).toList();
   }
 
   List<Article> get libraryArticles {
@@ -1250,13 +1421,13 @@ class NewsAppViewModel extends ChangeNotifier {
     final all = _service.getArticles();
     final map = <String, Article>{for (final a in all) a.id: a};
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
+      final api = _service;
       for (final id in ids) {
         final cached = api.getCachedArticleById(id);
         if (cached != null) map[id] = cached;
       }
     }
-    return ids.map((id) => map[id]).whereType<Article>().toList();
+    return _dedupeArticles(ids.map((id) => map[id]).whereType<Article>().toList());
   }
 
   int get totalQueueReadingMinutes {
@@ -1264,10 +1435,10 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   List<Article> get exploreArticles {
-    return _service.getArticles(
+    return _dedupeArticles(_service.getArticles(
       query: _searchQuery,
       source: _selectedSourceFilter,
       sortBy: _sortBy,
-    );
+    ));
   }
 }

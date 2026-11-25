@@ -1,4 +1,5 @@
 import 'package:flartdart/flartdart.dart';
+import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../headlines/widgets/articles_grid.dart';
@@ -126,12 +127,21 @@ class ForYouView extends StatelessWidget {
         ),
         const FDSizedBox(height: 24),
 
-        // Personalized Feed Grid
-        ArticlesGrid(
-          articles: articlesToShow,
-          columns: isMobile ? 1 : (isTablet ? 2 : 3),
-          vm: vm,
-        ),
+        // Personalized Feed Grid or Empty State Fallback
+        if (articlesToShow.isEmpty)
+          EmptyStateWidget(
+            emoji: '✨',
+            title: 'No curated stories matching your current topics',
+            description: 'Add more topics or explore Top Global Headlines while we gather personalized dispatches.',
+            actionLabel: 'Customize Topics',
+            onAction: () => vm.openInterestsModal(),
+          )
+        else
+          ArticlesGrid(
+            articles: articlesToShow,
+            columns: isMobile ? 1 : (isTablet ? 2 : 3),
+            vm: vm,
+          ),
       ],
     );
   }

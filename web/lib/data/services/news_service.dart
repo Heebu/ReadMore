@@ -41,12 +41,29 @@ class MockNewsService implements NewsService {
     }
 
     if (query != null && query.trim().isNotEmpty) {
-      final q = query.toLowerCase().trim();
+      final cleaned = query.trim().replaceAll('#', '');
+      final q = cleaned.toLowerCase();
+      final qCompact = q.replaceAll(RegExp(r'[^a-z0-9]'), '');
+      final tokens = cleaned
+          .replaceAllMapped(RegExp(r'([A-Z]+)([A-Z][a-z])'), (m) => '${m.group(1)} ${m.group(2)}')
+          .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m.group(1)} ${m.group(2)}')
+          .replaceAllMapped(RegExp(r'([A-Za-z])(\d)'), (m) => '${m.group(1)} ${m.group(2)}')
+          .toLowerCase()
+          .split(RegExp(r'[^a-z0-9]+'))
+          .where((t) => t.length >= 2)
+          .toList();
       list = list.where((a) {
-        return a.title.toLowerCase().contains(q) ||
-            a.summary.toLowerCase().contains(q) ||
-            a.tags.any((t) => t.toLowerCase().contains(q)) ||
-            a.source.name.toLowerCase().contains(q);
+        final haystack =
+            '${a.title} ${a.summary} ${a.subcategory ?? ''} ${a.tags.join(' ')} ${a.source.name}'.toLowerCase();
+        if (haystack.contains(q)) return true;
+        if (qCompact.length >= 3 &&
+            haystack.replaceAll(RegExp(r'[^a-z0-9]'), '').contains(qCompact)) {
+          return true;
+        }
+        if (tokens.length > 1) {
+          return tokens.every((tok) => haystack.contains(tok));
+        }
+        return false;
       }).toList();
     }
 
@@ -74,8 +91,9 @@ class MockNewsService implements NewsService {
 
   @override
   List<Article> getLocalArticles({String? city}) {
-    final matched = getArticles(city: city);
-    if (matched.isNotEmpty) return matched;
+    if (city != null && city.trim().isNotEmpty) {
+      return getArticles(city: city);
+    }
     return WebMockData.sampleArticles.where((a) => a.category == 'local').toList();
   }
 

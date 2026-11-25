@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../constants/app_colors.dart';
+import '../utils/time_formatter.dart';
 import 'centered_shell.dart';
 
 /// Top MSN-style utility ribbon for live weather, market quotes, and edition.
@@ -47,7 +48,7 @@ class UtilityRibbon extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     FDText(
-                      'VOL. CXLII No. 59,820  ✦  NEW YORK, MONDAY, NOV 23, 2026',
+                      'VOL. CXLII No. 59,820  ✦  ${vm.selectedCity.toUpperCase()}, ${formatMastheadDate(DateTime.now())}',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,

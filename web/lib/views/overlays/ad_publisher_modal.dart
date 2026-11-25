@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
 /// Modal dialog allowing partners and advertisers to build, preview, and launch dynamic ad campaigns.
@@ -148,12 +149,14 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                     ),
                     const FDSizedBox(height: 6),
-                    FDTextField(
+                    AppTextField(
+                      key: const ValueKey('ad-title-input'),
+                      value: _title,
                       placeholder: 'e.g. Next-Gen AI Infrastructure for Teams',
                       backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                       borderColor: AppColors.borderRegular,
                       borderRadius: 10,
-                      onChanged: (val) => setState(() => _title = val),
+                      onChanged: (val) => _title = val,
                     ),
                     const FDSizedBox(height: 14),
 
@@ -163,12 +166,14 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                     ),
                     const FDSizedBox(height: 6),
-                    FDTextField(
+                    AppTextField(
+                      key: const ValueKey('ad-desc-input'),
+                      value: _description,
                       placeholder: 'Highlight your product or service benefits...',
                       backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                       borderColor: AppColors.borderRegular,
                       borderRadius: 10,
-                      onChanged: (val) => setState(() => _description = val),
+                      onChanged: (val) => _description = val,
                     ),
                     const FDSizedBox(height: 14),
 
@@ -185,12 +190,14 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                               ),
                               const FDSizedBox(height: 6),
-                              FDTextField(
+                              AppTextField(
+                                key: const ValueKey('ad-sponsor-input'),
+                                value: _sponsorName,
                                 placeholder: 'e.g. Datadog / Acme Corp',
                                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                                 borderColor: AppColors.borderRegular,
                                 borderRadius: 10,
-                                onChanged: (val) => setState(() => _sponsorName = val),
+                                onChanged: (val) => _sponsorName = val,
                               ),
                             ],
                           ),
@@ -206,12 +213,14 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                               ),
                               const FDSizedBox(height: 6),
-                              FDTextField(
+                              AppTextField(
+                                key: const ValueKey('ad-cta-input'),
+                                value: _callToAction,
                                 placeholder: 'e.g. Learn More',
                                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                                 borderColor: AppColors.borderRegular,
                                 borderRadius: 10,
-                                onChanged: (val) => setState(() => _callToAction = val),
+                                onChanged: (val) => _callToAction = val,
                               ),
                             ],
                           ),
@@ -233,12 +242,15 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                               ),
                               const FDSizedBox(height: 6),
-                              FDTextField(
+                              AppTextField(
+                                key: const ValueKey('ad-url-input'),
+                                value: _targetUrl,
                                 placeholder: 'https://...',
+                                keyboardType: TextInputType.url,
                                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                                 borderColor: AppColors.borderRegular,
                                 borderRadius: 10,
-                                onChanged: (val) => setState(() => _targetUrl = val),
+                                onChanged: (val) => _targetUrl = val,
                               ),
                             ],
                           ),
@@ -254,12 +266,14 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                               ),
                               const FDSizedBox(height: 6),
-                              FDTextField(
+                              AppTextField(
+                                key: const ValueKey('ad-category-input'),
+                                value: _targetCategory,
                                 placeholder: 'all / tech / business',
                                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                                 borderColor: AppColors.borderRegular,
                                 borderRadius: 10,
-                                onChanged: (val) => setState(() => _targetCategory = val),
+                                onChanged: (val) => _targetCategory = val,
                               ),
                             ],
                           ),

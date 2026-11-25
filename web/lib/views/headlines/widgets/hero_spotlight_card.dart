@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/time_formatter.dart';
 import '../../../core/widgets/article_meta_bar.dart';
 import '../../../core/widgets/interaction_pill.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
@@ -143,7 +144,7 @@ class HeroSpotlightCard extends StatelessWidget {
                 children: [
                   ArticleMetaBar(
                     source: article.source,
-                    timestamp: '25m ago',
+                    timestamp: formatRelativeTime(article.publishedAt),
                     isDarkMode: vm.isDarkMode,
                   ),
                   const FDSizedBox(height: 12),

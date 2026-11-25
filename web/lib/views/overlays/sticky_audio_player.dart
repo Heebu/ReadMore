@@ -45,7 +45,7 @@ class StickyAudioPlayer extends StatelessWidget {
                     ),
                     child: FDCenter(
                       child: FDIcon(
-                        icon: vm.isBriefingPlaying ? FDIcons.close : FDIcons.play_arrow,
+                        icon: vm.isBriefingPlaying ? FDIcons.pause : FDIcons.play_arrow,
                         size: 20,
                         color: FlartColors.white,
                       ),
@@ -73,7 +73,10 @@ class StickyAudioPlayer extends StatelessWidget {
             if (!isMobile)
               FDRow(
                 children: [
-                  const FDText('01:45', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  FDText(
+                    vm.briefingElapsedFormatted,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
                   const FDSizedBox(width: 8),
                   FDContainer(
                     width: 220,
@@ -85,7 +88,7 @@ class StickyAudioPlayer extends StatelessWidget {
                     child: FDAlign(
                       alignment: Alignment.centerLeft,
                       child: FDContainer(
-                        width: 77,
+                        width: (220 * vm.briefingProgress).clamp(4.0, 220.0),
                         height: 4,
                         decoration: BoxDecoration(
                           color: AppColors.primaryBlue,
@@ -95,7 +98,10 @@ class StickyAudioPlayer extends StatelessWidget {
                     ),
                   ),
                   const FDSizedBox(width: 8),
-                  const FDText('05:00', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                  FDText(
+                    vm.briefingTotalFormatted,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             FDGestureDetector(

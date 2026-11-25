@@ -1,4 +1,5 @@
 import 'package:flartdart/flartdart.dart';
+import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
@@ -136,17 +137,26 @@ class LocalNewsView extends StatelessWidget {
         ),
         const FDSizedBox(height: 28),
 
-        // City Local Articles Grid
+        // City Local Articles Grid or Clear Local Empty State
         SectionHeader(
           title: 'Top News from ${vm.selectedCity}',
           isDarkMode: vm.isDarkMode,
         ),
         const FDSizedBox(height: 16),
-        ArticlesGrid(
-          articles: articlesToShow,
-          columns: isMobile ? 1 : 2,
-          vm: vm,
-        ),
+        if (articlesToShow.isEmpty)
+          EmptyStateWidget(
+            emoji: '🗞️',
+            title: 'No regional dispatches for ${vm.selectedCity} yet',
+            description: 'Our local bureau has no new stories for ${vm.selectedCity} at this hour. Try another city bureau or browse global headlines.',
+            actionLabel: 'Browse Global Headlines',
+            onAction: () => vm.setActiveScreen('headlines'),
+          )
+        else
+          ArticlesGrid(
+            articles: articlesToShow,
+            columns: isMobile ? 1 : 2,
+            vm: vm,
+          ),
       ],
     );
   }

@@ -77,11 +77,11 @@ class WebMockData {
   static final List<Article> sampleArticles = [
     // Top Story / Spotlight Hero
     Article(
-      id: 'art-hero-1',
+      id: 'seed-top-1',
       title: 'Global Climate Summit Reaches Landmark Accord on Renewable Grid Transition',
       slug: 'global-climate-summit-reaches-landmark-accord',
       summary: 'Delegates from 195 nations have ratified an unprecedented binding treaty mandating a 300% expansion in cross-border clean energy transmission lines by 2035.',
-      content: 'Delegates from 195 nations reached an extraordinary breakthrough after 14 days of intense diplomatic negotiations. The treaty provides \$500 billion in annual public-private guarantees to rapidly deploy high-voltage direct current (HVDC) transmission lines connecting continental solar, wind, and storage hubs. Leading economic institutes project this agreement will create over 12 million clean-tech jobs while drastically cutting global fossil fuel reliance.',
+      content: 'Delegates from 195 nations reached an extraordinary breakthrough after 14 days of intense diplomatic negotiations.\n\nThe treaty provides \$500 billion in annual public-private guarantees to rapidly deploy high-voltage direct current (HVDC) transmission lines connecting continental solar, wind, and storage hubs.\n\nLeading economic institutes project this agreement will create over 12 million clean-tech jobs while drastically cutting global fossil fuel reliance.',
       originalUrl: 'https://www.reuters.com/environment/summit-agreement-2026',
       imageUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1200&q=80',
       source: sources['reuters']!,
@@ -93,16 +93,16 @@ class WebMockData {
       isBreaking: true,
       viewCount: 14250,
       likeCount: 3890,
-      clusterId: 'cluster-climate-summit',
+      clusterId: 'cluster_climate_2026',
     ),
 
     // Tech 1: Autonomous AI
     Article(
-      id: 'art-tech-1',
+      id: 'seed-tech-1',
       title: 'Next-Gen Autonomous AI Agents Shift Paradigms Across Enterprise Engineering',
       slug: 'next-gen-autonomous-ai-agents-shift-paradigms',
       summary: 'State-of-the-art multi-agent networks can now ingest design architectures, write verified code, execute test suites, and deploy infrastructure end-to-end.',
-      content: 'Software development is experiencing its most seismic inflection point in four decades. Enterprise research labs have unveiled recursive agent swarms capable of inspecting legacy codebases, refactoring monolithic architectures into reactive microservices, and enforcing automated zero-trust security audits.',
+      content: 'Software development is experiencing its most seismic inflection point in four decades.\n\nEnterprise research labs have unveiled recursive agent swarms capable of inspecting legacy codebases, refactoring monolithic architectures into reactive microservices, and enforcing automated zero-trust security audits.',
       originalUrl: 'https://techcrunch.com/2026/11/ai-agents-paradigm-shift/',
       imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
       source: sources['techcrunch']!,
@@ -121,7 +121,7 @@ class WebMockData {
       title: 'Commercial Fault-Tolerant Quantum Processor Achieves Real-Time Error Correction',
       slug: 'commercial-fault-tolerant-quantum-processor',
       summary: 'Physicists demonstrate 10,000 logical qubits operating under active syndrome decoding, solving complex molecular simulation challenges in seconds.',
-      content: 'The long-standing holy grail of quantum physics—fault-tolerant active error correction—has officially crossed into commercial viability. The breakthrough paves the way for catalyst discovery and next-generation battery chemistries previously impossible to model on classical supercomputers.',
+      content: 'The long-standing holy grail of quantum physics—fault-tolerant active error correction—has officially crossed into commercial viability.\n\nThe breakthrough paves the way for catalyst discovery and next-generation battery chemistries previously impossible to model on classical supercomputers.',
       originalUrl: 'https://www.theverge.com/quantum/2026/fault-tolerant-quantum-milestone',
       imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80',
       source: sources['verge']!,
@@ -136,11 +136,11 @@ class WebMockData {
 
     // Business 1: Wall Street & Crypto
     Article(
-      id: 'art-bus-1',
+      id: 'seed-business-1',
       title: 'Global Markets Rally as Tech Giants Post Record Capital Expenditure Returns',
       slug: 'global-markets-rally-tech-capex-returns',
       summary: 'Major indices surge to fresh all-time highs as enterprise monetization of automated digital infrastructure surges 65% year-over-year.',
-      content: 'Wall Street and international equity markets experienced explosive upward momentum this morning. Financial analysts noted that capital expenditures into computing clusters and energy grids are now generating immediate margin expansions, defying previous recessionary fears.',
+      content: 'Wall Street and international equity markets experienced explosive upward momentum this morning.\n\nFinancial analysts noted that capital expenditures into computing clusters and energy grids are now generating immediate margin expansions, defying previous recessionary fears.',
       originalUrl: 'https://www.bloomberg.com/markets/2026-rally-capex-surge',
       imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1200&q=80',
       source: sources['bloomberg']!,
@@ -155,7 +155,7 @@ class WebMockData {
 
     // Sports 1: Football / Soccer
     Article(
-      id: 'art-sport-1',
+      id: 'seed-sports-1',
       title: 'Champions League Thriller: Stoppage-Time Overhead Volley Caps Impossible Comeback',
       slug: 'champions-league-thriller-stoppage-time-volley',
       summary: 'Trailing by two goals on aggregate with five minutes remaining, underdog squad orchestrates an immortal Champions League miracle.',
@@ -174,11 +174,11 @@ class WebMockData {
 
     // Entertainment: Cinema & Streaming
     Article(
-      id: 'art-ent-1',
+      id: 'seed-ent-1',
       title: 'Groundbreaking Sci-Fi Odyssey Smashes All-Time Global Box Office Benchmarks',
       slug: 'groundbreaking-sci-fi-odyssey-smashes-box-office',
       summary: 'Directed with visionary in-camera practical effects and next-gen immersive spatial audio, the epic crosses \$400M worldwide in its first 72 hours.',
-      content: 'Audiences around the globe are flocking back to premier large-format theaters in historic numbers. Critics have widely praised the films seamless blend of tactile practical miniatures and cutting-edge holographic cinematography.',
+      content: 'Audiences around the globe are flocking back to premier large-format theaters in historic numbers. Critics have widely praised the film’s seamless blend of tactile practical miniatures and cutting-edge holographic cinematography.',
       originalUrl: 'https://variety.com/film/box-office-phenomenon-2026',
       imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1200&q=80',
       source: sources['variety']!,
@@ -193,7 +193,7 @@ class WebMockData {
 
     // Science 1: Astronomy
     Article(
-      id: 'art-sci-1',
+      id: 'seed-science-1',
       title: 'Deep Space Observatory Confirms Atmospheric Water Vapor on Nearby Super-Earth',
       slug: 'deep-space-observatory-confirms-atmospheric-water',
       summary: 'Spectroscopic analysis reveals clear signatures of atmospheric moisture and methane in the habitable zone of star system Gliese 486.',
@@ -269,7 +269,7 @@ class WebMockData {
 
     // Local News: New York
     Article(
-      id: 'art-local-ny',
+      id: 'seed-local-1',
       title: 'Metro High-Speed Transit Expansion Completes Phase 1 Six Months Ahead of Schedule',
       slug: 'metro-transit-expansion-phase-1-complete',
       summary: 'Zero-emission electric express lines now seamlessly connect the downtown cultural district with western suburban medical corridors.',
@@ -290,7 +290,7 @@ class WebMockData {
 
     // Local News: London
     Article(
-      id: 'art-local-london',
+      id: 'seed-local-london',
       title: 'Thames Clean Energy Corridor Initiates First Hydro-Turbine Array Beneath Tower Bridge',
       slug: 'thames-clean-energy-hydro-turbine-tower-bridge',
       summary: 'Sub-surface tidal power generators begin feeding clean electrical power directly into the historic London Underground network.',
@@ -311,7 +311,7 @@ class WebMockData {
 
     // Local News: Tokyo
     Article(
-      id: 'art-local-tokyo',
+      id: 'seed-local-tokyo',
       title: 'Tokyo Unveils Massive Multi-Level Vertical Forest District in Shibuya',
       slug: 'tokyo-vertical-forest-district-shibuya',
       summary: 'Towering biophilic towers incorporate over 250,000 indigenous trees, dropping local neighborhood summer temperatures by 4 degrees.',
@@ -332,7 +332,7 @@ class WebMockData {
 
     // Local News: Lagos
     Article(
-      id: 'art-local-lagos',
+      id: 'seed-local-lagos',
       title: 'Lagos Tech Ecosystem Celebrates Launch of Africa’s Largest Undersea Fiber Landing Hub',
       slug: 'lagos-undersea-fiber-landing-hub-launched',
       summary: 'New high-capacity subsea terminal in Lekki multiplies West African cloud bandwidth by 10x, accelerating regional fintech innovation.',
@@ -353,7 +353,7 @@ class WebMockData {
 
     // Local News: Paris
     Article(
-      id: 'art-local-paris',
+      id: 'seed-local-paris',
       title: 'Seine Swimming Program Expands to Permanent Public Waterways Along Latin Quarter',
       slug: 'paris-seine-swimming-latin-quarter',
       summary: 'Following Olympic ecological restoration, the City of Light opens four historic riverside swimming basins for public recreation.',
@@ -374,7 +374,7 @@ class WebMockData {
 
     // Local News: San Francisco
     Article(
-      id: 'art-local-sf',
+      id: 'seed-local-sf',
       title: 'San Francisco Waterfront Greenway Connects Presidio with Mission Bay in 10-Mile Park',
       slug: 'sf-waterfront-greenway-presidio-mission-bay',
       summary: 'Continuous waterfront promenade features dedicated protected bicycle corridors, public art installations, and restored wetland habitats.',
@@ -395,7 +395,7 @@ class WebMockData {
   ];
 
   static final StoryCluster fullCoverageCluster = StoryCluster(
-    id: 'cluster-climate-summit',
+    id: 'cluster_climate_2026',
     topicHeadline: 'Global Climate Summit 2026: Historic Renewable Energy Treaty',
     category: 'top',
     primaryArticle: sampleArticles.first,
@@ -541,16 +541,16 @@ class WebMockData {
   ];
 
   static const List<String> trendingTags = [
-    '#ClimateAccord2026',
+    '#Climate',
     '#AIAgents',
     '#ChampionsLeague',
     '#QuantumComputing',
-    '#Bitcoin100k',
-    '#BiophilicLiving',
-    '#DeepSpaceWater',
-    '#CleanEnergySupergrid',
+    '#WallStreet',
+    '#Biophilic',
+    '#Exoplanet',
+    '#CleanEnergy',
     '#LagosFiberHub',
-    '#TokyoUrbanForest',
+    '#TokyoForest',
   ];
 
   static final List<ArticleComment> initialComments = [
@@ -586,19 +586,19 @@ class WebMockData {
       title: 'BREAKING: Global Climate Summit concludes with historic clean energy treaty.',
       timeAgo: '25m ago',
       isBreaking: true,
-      articleId: 'art-hero-1',
+      articleId: 'seed-top-1',
     ),
     AppNotification(
       id: 'notif-2',
-      title: 'MARKET ALERT: Bitcoin surges past \$98,600 as tech stocks lead broad rally.',
+      title: 'MARKET ALERT: Tech & global markets rally on infrastructure expansion.',
       timeAgo: '1h ago',
-      articleId: 'art-bus-1',
+      articleId: 'seed-business-1',
     ),
     AppNotification(
       id: 'notif-3',
       title: 'DISCOVERY: Space telescope array confirms atmospheric water vapor on exoplanet.',
       timeAgo: '5h ago',
-      articleId: 'art-sci-1',
+      articleId: 'seed-science-1',
     ),
   ];
 
@@ -619,6 +619,26 @@ class WebMockData {
     'Biomedical Breakthroughs',
     'Cinema & Box Office',
   ];
+
+  static final User guestUser = User(
+    id: 'guest',
+    email: 'Sign in to sync your reading streak, bookmarks & preferences',
+    displayName: 'Guest Reader',
+    role: 'guest',
+    createdAt: DateTime(2026, 1, 1),
+    subscriptionTier: 'free',
+    adFreeEnabled: false,
+    readingStreakDays: 0,
+    articlesReadCount: 0,
+    preferences: const UserPreferences(
+      followedTopics: ['top', 'tech', 'business'],
+      locationCity: 'New York',
+      locationCountry: 'United States',
+      audioAutoplay: false,
+      enableBreakingAlerts: true,
+      enableDailyBriefing: true,
+    ),
+  );
 
   static final User mockUser = User(
     id: 'user-001',

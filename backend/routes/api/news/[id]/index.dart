@@ -1,16 +1,13 @@
 import 'package:backend/backend.dart';
 import 'package:dart_frog/dart_frog.dart';
 
-Response onRequest(RequestContext context, String id) {
+Future<Response> onRequest(RequestContext context, String id) async {
   if (context.request.method != HttpMethod.get) {
     return Response(statusCode: 405, body: 'Method Not Allowed. Use GET.');
   }
 
   final container = context.read<AppContainer>();
-  var article = container.newsRepository.getArticleById(id);
-
-  // Fallback: check if id is actually a slug
-  article ??= container.newsRepository.getArticleBySlug(id);
+  final article = await container.newsRepository.getAndEnrichArticleById(id);
 
   if (article == null) {
     return Response.json(

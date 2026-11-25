@@ -1,5 +1,6 @@
 import 'package:flartdart/flartdart.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
@@ -28,13 +29,23 @@ class ExploreView extends StatelessWidget {
       children: [
         // Large Search Bar
         FDContainer(
-          child: FDTextField(
+          child: AppTextField(
+            key: const ValueKey('explore-search-input'),
+            value: vm.searchQuery,
             placeholder: 'Search topics, breaking events, entities, or authors...',
+            ariaLabel: 'Search topics, breaking events, entities, or authors',
             backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
             borderColor: AppColors.borderRegular,
             borderRadius: 16,
             prefixIcon: const FDIcon(icon: FDIcons.search, size: 20, color: FlartColors.grey),
+            suffixIcon: vm.searchQuery.trim().isNotEmpty
+                ? FDGestureDetector(
+                    onTap: () => vm.clearSearchQuery(),
+                    child: const FDIcon(icon: FDIcons.close, size: 18, color: FlartColors.grey),
+                  )
+                : null,
             onChanged: (val) => vm.setSearchQuery(val),
+            onSubmitted: (val) => vm.setSearchQuery(val),
           ),
         ),
         const FDSizedBox(height: 16),
@@ -50,11 +61,13 @@ class ExploreView extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: FDRow(
                   children: vm.trendingTags.map((t) {
+                    final tagQuery = t.replaceAll('#', '');
+                    final isSelected = vm.searchQuery.trim().toLowerCase() == tagQuery.toLowerCase();
                     return FilterChipPill(
                       label: t,
-                      isSelected: false,
+                      isSelected: isSelected,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      onTap: () => vm.setSearchQuery(t.replaceAll('#', '')),
+                      onTap: () => vm.setSearchQuery(tagQuery),
                       isDarkMode: vm.isDarkMode,
                     );
                   }).toList(),
@@ -71,7 +84,7 @@ class ExploreView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FDText(
-              '${results.length} stories found',
+              '${results.length} ${results.length == 1 ? 'story' : 'stories'} found',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: FlartColors.grey),
             ),
             FDRow(

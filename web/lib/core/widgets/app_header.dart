@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../constants/app_colors.dart';
+import 'app_text_field.dart';
 import 'centered_shell.dart';
 
 /// Main brand header with logo, responsive search bar, and interactive controls.
@@ -125,10 +126,13 @@ class AppHeader extends StatelessWidget {
                 child: FDContainer(
                   id: 'header-search-container',
                   margin: EdgeInsets.symmetric(horizontal: isTablet ? 12 : 30),
-                  child: FDTextField(
+                  child: AppTextField(
+                    key: const ValueKey('header-search-input'),
+                    value: vm.searchQuery,
                     placeholder: isTablet
                         ? 'Search archive...'
                         : 'Search historical dispatches, topics, intelligence...',
+                    ariaLabel: 'Search historical dispatches, topics, intelligence',
                     backgroundColor: vm.isDarkMode
                         ? AppColors.darkInput
                         : AppColors.lightInput,
@@ -141,6 +145,7 @@ class AppHeader extends StatelessWidget {
                         size: 16,
                         color: vm.isDarkMode ? FlartColors.grey : const FlartColor('#555555')),
                     onChanged: (val) => vm.setSearchQuery(val),
+                    onSubmitted: (val) => vm.setSearchQuery(val),
                   ),
                 ),
               ),
@@ -256,41 +261,43 @@ class AppHeader extends StatelessWidget {
                   ),
                   const FDSizedBox(width: 8),
 
-                  // Reading Streak (Letterpress Stamp)
-                  FDContainer(
-                    id: 'reading-streak-badge',
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: vm.isDarkMode ? const FlartColor('#1E1F25') : const FlartColor('#EFECE4'),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: vm.isDarkMode ? const FlartColor('#444652') : const FlartColor('#B5B1A2'),
-                        width: 1,
+                  // Reading Streak (Letterpress Stamp — authenticated users only)
+                  if (vm.isAuthenticated) ...[
+                    FDContainer(
+                      id: 'reading-streak-badge',
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: vm.isDarkMode ? const FlartColor('#1E1F25') : const FlartColor('#EFECE4'),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: vm.isDarkMode ? const FlartColor('#444652') : const FlartColor('#B5B1A2'),
+                          width: 1,
+                        ),
+                      ),
+                      cssStyle: const {
+                        'transition': 'transform 0.2s ease',
+                        'cursor': 'default',
+                      },
+                      child: FDRow(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const FDText('✦ ', style: TextStyle(fontSize: 10)),
+                          FDText(
+                            '${vm.currentUser.readingStreakDays}d STREAK',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'Space Grotesk',
+                              letterSpacing: 0.06,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    cssStyle: const {
-                      'transition': 'transform 0.2s ease',
-                      'cursor': 'default',
-                    },
-                    child: FDRow(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const FDText('✦ ', style: TextStyle(fontSize: 10)),
-                        FDText(
-                          '${vm.currentUser.readingStreakDays}d STREAK',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Space Grotesk',
-                            letterSpacing: 0.06,
-                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const FDSizedBox(width: 8),
+                    const FDSizedBox(width: 8),
+                  ],
 
                   // Pro Upgrade CTA (if not pro)
                   if (!vm.currentUser.isPro) ...[

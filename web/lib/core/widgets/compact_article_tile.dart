@@ -2,6 +2,8 @@ import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import '../constants/app_colors.dart';
+import '../utils/time_formatter.dart';
+import '../utils/web_dom_helper.dart';
 import 'article_meta_bar.dart';
 
 /// Sleek horizontal news tile for sidebars, perspective clusters, and compact list views.
@@ -55,7 +57,7 @@ class CompactArticleTile extends StatelessWidget {
                 children: [
                   ArticleMetaBar(
                     source: article.source,
-                    timestamp: '30m ago',
+                    timestamp: formatRelativeTime(article.publishedAt),
                     readTimeMinutes: article.readTimeMinutes,
                     isDarkMode: vm.isDarkMode,
                     isCompact: true,
@@ -89,22 +91,42 @@ class CompactArticleTile extends StatelessWidget {
                   FDRow(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FDGestureDetector(
-                        onTap: () => vm.toggleBookmark(article.id),
-                        child: FDIcon(
-                          icon: FDIcons.favorite,
-                          size: 14,
-                          color: isBookmarked ? FlartColors.red : FlartColors.grey,
-                        ),
+                      FDElement(
+                        tag: 'div',
+                        attributes: const {'role': 'button', 'tabindex': '0'},
+                        styles: const {'display': 'inline-block', 'cursor': 'pointer'},
+                        events: {
+                          'click': (dynamic e) {
+                            stopEventPropagation(e);
+                            vm.toggleBookmark(article.id);
+                          },
+                        },
+                        children: [
+                          FDIcon(
+                            icon: FDIcons.favorite,
+                            size: 14,
+                            color: isBookmarked ? FlartColors.red : FlartColors.grey,
+                          ),
+                        ],
                       ),
                       const FDSizedBox(width: 10),
-                      FDGestureDetector(
-                        onTap: () => vm.toggleReadLater(article.id),
-                        child: FDIcon(
-                          icon: FDIcons.hourglass,
-                          size: 14,
-                          color: isReadLater ? FlartColors.amber : FlartColors.grey,
-                        ),
+                      FDElement(
+                        tag: 'div',
+                        attributes: const {'role': 'button', 'tabindex': '0'},
+                        styles: const {'display': 'inline-block', 'cursor': 'pointer'},
+                        events: {
+                          'click': (dynamic e) {
+                            stopEventPropagation(e);
+                            vm.toggleReadLater(article.id);
+                          },
+                        },
+                        children: [
+                          FDIcon(
+                            icon: FDIcons.hourglass,
+                            size: 14,
+                            color: isReadLater ? FlartColors.amber : FlartColors.grey,
+                          ),
+                        ],
                       ),
                     ],
                   ),

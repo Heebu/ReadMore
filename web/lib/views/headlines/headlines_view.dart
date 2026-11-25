@@ -3,6 +3,7 @@ import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/ads/google_ad_banner.dart';
 import '../../core/widgets/ads/sidebar_ad_rectangle.dart';
+import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/filter_chip_pill.dart';
 import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
@@ -28,7 +29,8 @@ class HeadlinesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final articles = vm.filteredArticles;
-    final heroArticle = articles.isNotEmpty ? articles.first : vm.sampleArticles.first;
+    final hasArticles = articles.isNotEmpty;
+    final heroArticle = hasArticles ? articles.first : null;
     final remainingArticles = articles.length > 1 ? articles.sublist(1) : <Article>[];
 
     return FDColumn(
@@ -63,11 +65,23 @@ class HeadlinesView extends StatelessWidget {
                     const FDSizedBox(height: 12),
                     GoogleAdBanner(vm: vm, isMobile: isMobile, category: vm.selectedCategory),
                     const FDSizedBox(height: 12),
-                    HeroSpotlightCard(article: heroArticle, vm: vm),
-                    const FDSizedBox(height: 24),
-                    FullCoverageBlock(vm: vm),
-                    const FDSizedBox(height: 28),
-                    ArticlesGrid(articles: remainingArticles, columns: 2, vm: vm),
+                    if (heroArticle != null) ...[
+                      HeroSpotlightCard(article: heroArticle, vm: vm),
+                      const FDSizedBox(height: 24),
+                      if (vm.selectedCategory == 'top') ...[
+                        FullCoverageBlock(vm: vm),
+                        const FDSizedBox(height: 28),
+                      ],
+                      if (remainingArticles.isNotEmpty)
+                        ArticlesGrid(articles: remainingArticles, columns: 2, vm: vm),
+                    ] else
+                      EmptyStateWidget(
+                        emoji: '📰',
+                        title: 'No dispatches in this section yet',
+                        description: 'Try another category or view Top Global Headlines.',
+                        actionLabel: 'Back to Top Stories',
+                        onAction: () => vm.setSelectedCategory('top'),
+                      ),
                   ],
                 ),
               ),
@@ -108,11 +122,23 @@ class HeadlinesView extends StatelessWidget {
               const FDSizedBox(height: 12),
               GoogleAdBanner(vm: vm, isMobile: isMobile, category: vm.selectedCategory),
               const FDSizedBox(height: 12),
-              HeroSpotlightCard(article: heroArticle, vm: vm),
-              const FDSizedBox(height: 20),
-              FullCoverageBlock(vm: vm),
-              const FDSizedBox(height: 20),
-              ArticlesGrid(articles: remainingArticles, columns: isTablet ? 2 : 1, vm: vm),
+              if (heroArticle != null) ...[
+                HeroSpotlightCard(article: heroArticle, vm: vm),
+                const FDSizedBox(height: 20),
+                if (vm.selectedCategory == 'top') ...[
+                  FullCoverageBlock(vm: vm),
+                  const FDSizedBox(height: 20),
+                ],
+                if (remainingArticles.isNotEmpty)
+                  ArticlesGrid(articles: remainingArticles, columns: isTablet ? 2 : 1, vm: vm),
+              ] else
+                EmptyStateWidget(
+                  emoji: '📰',
+                  title: 'No dispatches in this section yet',
+                  description: 'Try another category or view Top Global Headlines.',
+                  actionLabel: 'Back to Top Stories',
+                  onAction: () => vm.setSelectedCategory('top'),
+                ),
               const FDSizedBox(height: 32),
               WeatherSidebarWidget(vm: vm),
               const FDSizedBox(height: 20),
@@ -149,10 +175,12 @@ class HeadlinesView extends StatelessWidget {
       case 'top':
         return '✦';
       case 'for_you':
+      case 'for-you':
         return '❖';
       case 'local':
         return '§';
       case 'world':
+      case 'international':
         return '⊕';
       case 'tech':
         return '⚙';

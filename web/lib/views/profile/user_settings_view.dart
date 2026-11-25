@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/widgets/app_text_field.dart';
 import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
@@ -34,7 +35,19 @@ class _UserSettingsViewState extends State<UserSettingsView> {
   @override
   void initState() {
     super.initState();
-    _displayNameDraft = widget.vm.currentUser.displayName;
+    _displayNameDraft = widget.vm.isAuthenticated ? widget.vm.currentUser.displayName : '';
+  }
+
+  @override
+  void didUpdateWidget(UserSettingsView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.vm.isAuthenticated && _displayNameDraft.isEmpty) {
+      _displayNameDraft = widget.vm.currentUser.displayName;
+    } else if (!widget.vm.isAuthenticated) {
+      _displayNameDraft = '';
+      _currentPasswordDraft = '';
+      _newPasswordDraft = '';
+    }
   }
 
   @override
@@ -51,13 +64,15 @@ class _UserSettingsViewState extends State<UserSettingsView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SectionHeader(
-                  title: 'Profile & Intelligence Settings',
+                  title: vm.isAuthenticated ? 'Profile & Intelligence Settings' : 'Guest Reader Desk',
                   isDarkMode: vm.isDarkMode,
                 ),
                 const FDSizedBox(height: 4),
-                const FDText(
-                  'Manage your personalized topics, reading streaks, Pro subscription, and ad publishing.',
-                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                FDText(
+                  vm.isAuthenticated
+                      ? 'Manage your personalized topics, reading streaks, Pro subscription, and ad publishing.'
+                      : 'Sign in or register to unlock synced reading streaks, saved archives, and subscriber preferences.',
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -84,29 +99,149 @@ class _UserSettingsViewState extends State<UserSettingsView> {
         ),
         const FDSizedBox(height: 24),
 
-        // Section 1: User Identity & Reading Analytics
+        // Section 1: User Identity & Reading Analytics (or Clean Guest Sign-In Card)
         _buildUserProfileCard(context),
         const FDSizedBox(height: 24),
 
-        // Section 2: ReadMore Pro Membership Card
-        _buildProMembershipCard(context),
-        const FDSizedBox(height: 24),
-
-        // Section 3: Topic & Interest Personalization
+        // Section 2: Topic & Interest Personalization (available for customizing Curated feed)
         _buildTopicPersonalizationCard(context),
-        const FDSizedBox(height: 24),
 
-        // Section 4: Reading Experience & Audio Controls
-        _buildReadingPreferencesCard(context),
-        const FDSizedBox(height: 24),
+        if (vm.isAuthenticated) ...[
+          const FDSizedBox(height: 24),
 
-        // Section 5: Self-Serve Ads Publisher & Campaign Controls
-        _buildAdCampaignControlsCard(context),
+          // Section 3: ReadMore Pro Membership Card
+          _buildProMembershipCard(context),
+          const FDSizedBox(height: 24),
+
+          // Section 4: Reading Experience & Audio Controls
+          _buildReadingPreferencesCard(context),
+          const FDSizedBox(height: 24),
+
+          // Section 5: Self-Serve Ads Publisher & Campaign Controls (authenticated only)
+          _buildAdCampaignControlsCard(context),
+        ],
       ],
     );
   }
 
   Widget _buildUserProfileCard(BuildContext context) {
+    if (!vm.isAuthenticated) {
+      return FDContainer(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderRegular),
+        ),
+        child: FDRow(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FDRow(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                FDContainer(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: vm.isDarkMode ? const FlartColor('#242630') : const FlartColor('#E2DED2'),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.borderRegular, width: 1.5),
+                  ),
+                  child: FDCenter(
+                    child: FDText(
+                      'G',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Cinzel',
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                const FDSizedBox(width: 16),
+                FDColumn(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FDRow(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FDText(
+                          'Guest Reader',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
+                        ),
+                        const FDSizedBox(width: 8),
+                        FDContainer(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.borderSubtle,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const FDText(
+                            'Browsing as Guest',
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const FDSizedBox(height: 4),
+                    const FDText(
+                      'Sign in to track your reading streak, sync saved articles, and customize subscriber preferences.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            FDRow(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FDGestureDetector(
+                  onTap: () => vm.openAuthModal(tab: 'signin'),
+                  child: FDContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlue,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const FDText(
+                      'Sign In',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: FlartColors.white),
+                    ),
+                  ),
+                ),
+                const FDSizedBox(width: 8),
+                FDGestureDetector(
+                  onTap: () => vm.openAuthModal(tab: 'signup'),
+                  child: FDContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: AppColors.borderRegular),
+                    ),
+                    child: FDText(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
     final user = vm.currentUser;
 
     return FDContainer(
@@ -252,7 +387,12 @@ class _UserSettingsViewState extends State<UserSettingsView> {
           // Reading Metrics Stat Strip
           FDRow(
             children: [
-              _buildStatBox('Reading Streak', '${user.readingStreakDays} Days', '🔥', AppColors.accentAmber),
+              _buildStatBox(
+                'Reading Streak',
+                '${user.readingStreakDays} ${user.readingStreakDays == 1 ? 'Day' : 'Days'}',
+                '🔥',
+                AppColors.accentAmber,
+              ),
               const FDSizedBox(width: 12),
               _buildStatBox('Articles Read', '${user.articlesReadCount}', '📖', AppColors.primaryBlueLight),
               const FDSizedBox(width: 12),
@@ -288,8 +428,11 @@ class _UserSettingsViewState extends State<UserSettingsView> {
         FDRow(
           children: [
             Expanded(
-              child: FDTextField(
+              child: AppTextField(
+                key: const ValueKey('profile-display-name-input'),
+                value: _displayNameDraft,
                 placeholder: user.displayName,
+                ariaLabel: 'Display Name',
                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                 borderColor: AppColors.borderRegular,
                 borderRadius: 10,
@@ -363,8 +506,12 @@ class _UserSettingsViewState extends State<UserSettingsView> {
         FDRow(
           children: [
             Expanded(
-              child: FDTextField(
+              child: AppTextField(
+                key: const ValueKey('profile-current-password-input'),
+                value: _currentPasswordDraft,
                 placeholder: 'Current password',
+                ariaLabel: 'Current password',
+                obscureText: true,
                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                 borderColor: AppColors.borderRegular,
                 borderRadius: 10,
@@ -373,8 +520,12 @@ class _UserSettingsViewState extends State<UserSettingsView> {
             ),
             const FDSizedBox(width: 10),
             Expanded(
-              child: FDTextField(
+              child: AppTextField(
+                key: const ValueKey('profile-new-password-input'),
+                value: _newPasswordDraft,
                 placeholder: 'New password (6+ chars)',
+                ariaLabel: 'New password',
+                obscureText: true,
                 backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
                 borderColor: AppColors.borderRegular,
                 borderRadius: 10,

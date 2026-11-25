@@ -7,7 +7,7 @@ Response onRequest(RequestContext context) {
   }
 
   final container = context.read<AppContainer>();
-  final topics = container.widgetService.getTrendingTopics();
+  final topics = container.newsRepository.getDynamicTrendingTopics();
 
   return Response.json(body: {'trendingTopics': topics});
 }

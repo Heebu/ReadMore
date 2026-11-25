@@ -98,11 +98,11 @@ class BreakingTicker extends StatelessWidget {
               ),
             ),
 
-            // Full Coverage Link
+            // Read Dispatch Link
             if (!isMobile) ...[
               const FDSizedBox(width: 16),
               FDContainer(
-                onClick: () => vm.openFullCoverage(),
+                onClick: () => vm.openArticleReader(breakingArticle),
                 cssStyle: const {
                   'flex-shrink': '0',
                   'cursor': 'pointer',

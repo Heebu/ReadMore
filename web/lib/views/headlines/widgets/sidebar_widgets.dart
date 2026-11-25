@@ -1,4 +1,5 @@
 import 'package:flartdart/flartdart.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/filter_chip_pill.dart';
 import '../../../core/widgets/ranked_article_tile.dart';
 import '../../../viewmodels/news_app_viewmodel.dart';
@@ -435,7 +436,7 @@ class MorningBriefingPromoWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FDIcon(
-                    icon: vm.isBriefingPlaying ? FDIcons.close : FDIcons.play_arrow,
+                    icon: vm.isBriefingPlaying ? FDIcons.pause : FDIcons.play_arrow,
                     size: 14,
                     color: FlartColors.black,
                   ),
@@ -461,8 +462,33 @@ class MorningBriefingPromoWidget extends StatelessWidget {
 }
 
 /// Sidebar Widget: Executive Daily Newsletter subscribe form in editorial broadsheet styling.
-class NewsletterWidget extends StatelessWidget {
+class NewsletterWidget extends StatefulWidget {
   const NewsletterWidget({super.key});
+
+  @override
+  State<NewsletterWidget> createState() => _NewsletterWidgetState();
+}
+
+class _NewsletterWidgetState extends State<NewsletterWidget> {
+  String _email = '';
+  String? _status;
+  bool _isError = false;
+
+  void _submit() {
+    final trimmed = _email.trim();
+    if (trimmed.isEmpty || !trimmed.contains('@') || !trimmed.contains('.')) {
+      setState(() {
+        _isError = true;
+        _status = 'Please enter a valid email address.';
+      });
+      return;
+    }
+    setState(() {
+      _isError = false;
+      _status = '✓ Subscribed $trimmed to the Daily Gazette.';
+      _email = '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -500,16 +526,22 @@ class NewsletterWidget extends StatelessWidget {
           FDRow(
             children: [
               Expanded(
-                child: FDTextField(
+                child: AppTextField(
+                  key: const ValueKey('newsletter-email-input'),
+                  value: _email,
                   placeholder: 'Your email address...',
+                  keyboardType: TextInputType.email,
                   backgroundColor: const FlartColor('rgba(255, 255, 255, 0.08)'),
                   borderColor: const FlartColor('#444444'),
                   borderRadius: 2,
+                  style: const TextStyle(fontSize: 13, color: FlartColors.white),
+                  onChanged: (val) => _email = val,
+                  onSubmitted: (_) => _submit(),
                 ),
               ),
               const FDSizedBox(width: 8),
               FDElevatedButton(
-                onPressed: () {},
+                onPressed: _submit,
                 style: FDElevatedButton.styleFrom(
                   backgroundColor: FlartColors.white,
                   shape: BorderRadius.circular(2),
@@ -528,6 +560,17 @@ class NewsletterWidget extends StatelessWidget {
               ),
             ],
           ),
+          if (_status != null) ...[
+            const FDSizedBox(height: 8),
+            FDText(
+              _status!,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _isError ? const FlartColor('#EF4444') : const FlartColor('#10B981'),
+              ),
+            ),
+          ],
         ],
       ),
     );

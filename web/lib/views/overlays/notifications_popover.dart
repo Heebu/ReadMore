@@ -47,13 +47,10 @@ class NotificationsPopover extends StatelessWidget {
             FDColumn(
               children: vm.notifications.map((n) {
                 return FDGestureDetector(
+                  key: ValueKey('notif-${n.id}'),
                   onTap: () {
                     vm.toggleNotificationsModal();
-                    final art = vm.sampleArticles.firstWhere(
-                      (a) => a.id == n.articleId,
-                      orElse: () => vm.sampleArticles.first,
-                    );
-                    vm.openArticleReader(art);
+                    vm.openArticleById(n.articleId);
                   },
                   child: FDContainer(
                     margin: const EdgeInsets.only(bottom: 10),

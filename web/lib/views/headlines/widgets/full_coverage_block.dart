@@ -66,7 +66,9 @@ class FullCoverageBlock extends StatelessWidget {
               FDGestureDetector(
                 onTap: () => vm.openFullCoverage(),
                 child: FDText(
-                  'VIEW ALL 4 PERSPECTIVES →',
+                  cluster.alternativePerspectives.isNotEmpty
+                      ? 'VIEW ALL ${1 + cluster.alternativePerspectives.length} PERSPECTIVES →'
+                      : 'VIEW FULL COVERAGE →',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,

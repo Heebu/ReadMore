@@ -67,6 +67,7 @@ class ApiNewsService implements NewsService {
     _authToken = null;
     removeStoredValue(_tokenKey);
     writeStoredValue(_signedOutKey, 'true');
+    _cachedForYouArticles = [];
   }
 
   Map<String, String> _headers({bool jsonContent = true}) {
@@ -118,7 +119,7 @@ class ApiNewsService implements NewsService {
   List<Article> getArticles({String? category, String? city, String? query, String? source, String? sortBy}) {
     if (query != null && query.trim().isNotEmpty) {
       final qKey = '${query.trim().toLowerCase()}|${source ?? 'all'}|${sortBy ?? 'latest'}';
-      if (_lastSearchQueryKey == qKey && _cachedSearchArticles.isNotEmpty) {
+      if (_lastSearchQueryKey == qKey) {
         return _cachedSearchArticles;
       }
     }
@@ -138,21 +139,39 @@ class ApiNewsService implements NewsService {
 
     if (city != null && city.isNotEmpty) {
       final c = city.toLowerCase();
+      final wordRegex = RegExp('\\b${RegExp.escape(c)}\\b', caseSensitive: false);
       list = list.where((a) {
         return (a.city?.toLowerCase() == c) ||
             a.tags.any((t) => t.toLowerCase() == c) ||
-            a.title.toLowerCase().contains(c) ||
-            a.summary.toLowerCase().contains(c);
+            wordRegex.hasMatch(a.title) ||
+            wordRegex.hasMatch(a.summary);
       }).toList();
     }
 
     if (query != null && query.trim().isNotEmpty) {
-      final q = query.toLowerCase().trim();
+      final cleaned = query.trim().replaceAll('#', '');
+      final q = cleaned.toLowerCase();
+      final qCompact = q.replaceAll(RegExp(r'[^a-z0-9]'), '');
+      final tokens = cleaned
+          .replaceAllMapped(RegExp(r'([A-Z]+)([A-Z][a-z])'), (m) => '${m.group(1)} ${m.group(2)}')
+          .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m.group(1)} ${m.group(2)}')
+          .replaceAllMapped(RegExp(r'([A-Za-z])(\d)'), (m) => '${m.group(1)} ${m.group(2)}')
+          .toLowerCase()
+          .split(RegExp(r'[^a-z0-9]+'))
+          .where((t) => t.length >= 2)
+          .toList();
       list = list.where((a) {
-        return a.title.toLowerCase().contains(q) ||
-            a.summary.toLowerCase().contains(q) ||
-            a.tags.any((t) => t.toLowerCase().contains(q)) ||
-            a.source.name.toLowerCase().contains(q);
+        final haystack =
+            '${a.title} ${a.summary} ${a.subcategory ?? ''} ${a.tags.join(' ')} ${a.source.name}'.toLowerCase();
+        if (haystack.contains(q)) return true;
+        if (qCompact.length >= 3 &&
+            haystack.replaceAll(RegExp(r'[^a-z0-9]'), '').contains(qCompact)) {
+          return true;
+        }
+        if (tokens.length > 1) {
+          return tokens.every((tok) => haystack.contains(tok));
+        }
+        return false;
       }).toList();
     }
 
@@ -178,17 +197,17 @@ class ApiNewsService implements NewsService {
   @override
   List<Article> getLocalArticles({String? city}) {
     final key = (city ?? 'New York').toLowerCase();
-    if (_cachedLocalByCity.containsKey(key) && _cachedLocalByCity[key]!.isNotEmpty) {
+    if (_cachedLocalByCity.containsKey(key)) {
       return _cachedLocalByCity[key]!;
     }
     final fromCache = _cachedArticles.where((a) {
       if (city != null && city.isNotEmpty) {
         final c = city.toLowerCase();
-        return a.category == 'local' &&
-            ((a.city?.toLowerCase() == c) ||
-                a.tags.any((t) => t.toLowerCase() == c) ||
-                a.title.toLowerCase().contains(c) ||
-                a.summary.toLowerCase().contains(c));
+        final wordRegex = RegExp('\\b${RegExp.escape(c)}\\b', caseSensitive: false);
+        return (a.city?.toLowerCase() == c) ||
+            a.tags.any((t) => t.toLowerCase() == c) ||
+            wordRegex.hasMatch(a.title) ||
+            wordRegex.hasMatch(a.summary);
       }
       return a.category == 'local';
     }).toList();
@@ -219,7 +238,7 @@ class ApiNewsService implements NewsService {
 
   @override
   List<TimelineEvent> getClusterTimeline() {
-    if (_cachedCluster != null && _cachedCluster!.timeline.isNotEmpty) {
+    if (_cachedCluster != null) {
       return _cachedCluster!.timeline;
     }
     return _cachedTimeline ?? _fallback.getClusterTimeline();
@@ -258,12 +277,18 @@ class ApiNewsService implements NewsService {
   @override
   List<ArticleComment> getComments(String articleId) {
     if (_cachedCommentsByArticle.containsKey(articleId)) {
-      return _cachedCommentsByArticle[articleId]!;
+      return List<ArticleComment>.from(_cachedCommentsByArticle[articleId]!);
     }
-    if (_cachedCommentsByArticle.containsKey('default')) {
-      return _cachedCommentsByArticle['default']!;
+    if (articleId == 'default' || articleId == 'seed-top-1' || articleId == 'art-hero-1') {
+      if (_cachedCommentsByArticle.containsKey('seed-top-1')) {
+        return List<ArticleComment>.from(_cachedCommentsByArticle['seed-top-1']!);
+      }
+      if (_cachedCommentsByArticle.containsKey('default')) {
+        return List<ArticleComment>.from(_cachedCommentsByArticle['default']!);
+      }
+      return _fallback.getComments(articleId);
     }
-    return _fallback.getComments(articleId);
+    return const [];
   }
 
   @override
@@ -370,7 +395,8 @@ class ApiNewsService implements NewsService {
   /// Fetches single article (and increments backend views) via GET /api/news/$id.
   Future<Article?> fetchArticleByIdAsync(String id) async {
     try {
-      final uri = Uri.parse('$baseUrl/news/$id');
+      final encodedId = Uri.encodeComponent(id);
+      final uri = Uri.parse('$baseUrl/news/$encodedId');
       final response = await _client.get(uri, headers: _headers(jsonContent: false)).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
@@ -698,7 +724,8 @@ class ApiNewsService implements NewsService {
   /// Note: Backend responds with { "articleId": id, "count": n, "comments": [ ... ] }.
   Future<List<ArticleComment>> fetchCommentsAsync(String articleId) async {
     try {
-      final uri = Uri.parse('$baseUrl/news/$articleId/comments');
+      final encodedId = Uri.encodeComponent(articleId);
+      final uri = Uri.parse('$baseUrl/news/$encodedId/comments');
       final response = await _client.get(uri, headers: _headers(jsonContent: false)).timeout(const Duration(seconds: 3));
 
       if (response.statusCode == 200) {
@@ -706,8 +733,10 @@ class ApiNewsService implements NewsService {
         final data = jsonDecode(response.body);
         final rawList = data is Map<String, dynamic> ? data['comments'] : data;
         if (rawList is List) {
+          final seen = <String>{};
           final comments = rawList
               .map((c) => ArticleComment.fromJson(c as Map<String, dynamic>))
+              .where((c) => seen.add(c.id))
               .toList();
           _cachedCommentsByArticle[articleId] = comments;
           return comments;
@@ -726,7 +755,8 @@ class ApiNewsService implements NewsService {
     required String text,
   }) async {
     try {
-      final uri = Uri.parse('$baseUrl/news/$articleId/comments');
+      final encodedId = Uri.encodeComponent(articleId);
+      final uri = Uri.parse('$baseUrl/news/$encodedId/comments');
       final response = await _client
           .post(
             uri,
@@ -744,6 +774,7 @@ class ApiNewsService implements NewsService {
         final rawComment = (data['comment'] as Map<String, dynamic>?) ?? data;
         final newComment = ArticleComment.fromJson(rawComment);
         final list = _cachedCommentsByArticle.putIfAbsent(articleId, () => []);
+        list.removeWhere((c) => c.id == newComment.id);
         list.insert(0, newComment);
         return newComment;
       }

@@ -1,6 +1,8 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../constants/app_colors.dart';
+import '../utils/time_formatter.dart';
+import '../utils/web_dom_helper.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 import 'article_meta_bar.dart';
 import 'interaction_pill.dart';
@@ -130,7 +132,7 @@ class ArticleCard extends StatelessWidget {
                   // Publisher Meta Bar
                   ArticleMetaBar(
                     source: article.source,
-                    timestamp: '1h ago',
+                    timestamp: formatRelativeTime(article.publishedAt),
                     isDarkMode: vm.isDarkMode,
                     isCompact: true,
                   ),
@@ -193,28 +195,38 @@ class ArticleCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      FDGestureDetector(
-                        onTap: () => vm.toggleLike(article.id),
-                        child: FDRow(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            FDText(
-                              '${article.likeCount + (isLiked ? 1 : 0)}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                      FDElement(
+                        tag: 'div',
+                        attributes: const {'role': 'button', 'tabindex': '0'},
+                        styles: const {'display': 'inline-block', 'cursor': 'pointer'},
+                        events: {
+                          'click': (dynamic e) {
+                            stopEventPropagation(e);
+                            vm.toggleLike(article.id);
+                          },
+                        },
+                        children: [
+                          FDRow(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FDText(
+                                '${article.likeCount + (isLiked ? 1 : 0)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isLiked ? FlartColors.amber : FlartColors.grey,
+                                ),
+                              ),
+                              const FDSizedBox(width: 4),
+                              FDIcon(
+                                icon: FDIcons.star,
+                                size: 14,
                                 color: isLiked ? FlartColors.amber : FlartColors.grey,
                               ),
-                            ),
-                            const FDSizedBox(width: 4),
-                            FDIcon(
-                              icon: FDIcons.star,
-                              size: 14,
-                              color: isLiked ? FlartColors.amber : FlartColors.grey,
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
