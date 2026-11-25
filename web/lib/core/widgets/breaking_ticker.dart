@@ -15,9 +15,11 @@ class BreakingTicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final breakingArticle = vm.headlinesArticles.isNotEmpty
-        ? vm.headlinesArticles.first
-        : vm.exploreArticles.first;
+    final breakingArticle = vm.breakingArticles.isNotEmpty
+        ? vm.breakingArticles.first
+        : vm.headlinesArticles.isNotEmpty
+            ? vm.headlinesArticles.first
+            : vm.exploreArticles.first;
 
     return FDContainer(
       width: double.infinity,

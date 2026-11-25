@@ -19,12 +19,7 @@ class ForYouView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final personalizedArticles = vm.sampleArticles.where((a) {
-      return a.tags.any((t) => vm.userInterests.any((ui) => ui.toLowerCase().contains(t.toLowerCase()))) ||
-          vm.userInterests.any((ui) => a.category.toLowerCase().contains(ui.toLowerCase()));
-    }).toList();
-
-    final articlesToShow = personalizedArticles.isNotEmpty ? personalizedArticles : vm.sampleArticles;
+    final articlesToShow = vm.personalizedArticles;
 
     return FDColumn(
       crossAxisAlignment: CrossAxisAlignment.stretch,

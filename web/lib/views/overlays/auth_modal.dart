@@ -19,9 +19,9 @@ class AuthModal extends StatefulWidget {
 
 class _AuthModalState extends State<AuthModal> {
   late String _activeTab;
-  String _email = 'alex.rivera@readmore.org';
-  String _password = '••••••••••••';
-  String _displayName = 'Alex Rivera';
+  String _email = 'demo@readmore.com';
+  String _password = 'Password123!';
+  String _displayName = 'News Reader';
 
   @override
   void initState() {

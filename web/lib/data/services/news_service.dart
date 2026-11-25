@@ -4,7 +4,12 @@ export 'api_news_service.dart';
 
 /// Contract for the News data service layer.
 abstract class NewsService {
-  List<Article> getArticles({String? category, String? city, String? query});
+  List<Article> getArticles({String? category, String? city, String? query, String? source, String? sortBy});
+  List<Article> getForYouArticles({Set<String>? interests});
+  List<Article> getLocalArticles({String? city});
+  List<Article> getBreakingArticles();
+  List<Article> getTrendingArticles();
+  List<NewsCategory> getCategories();
   StoryCluster getFullCoverageCluster();
   List<TimelineEvent> getClusterTimeline();
   WeatherSnapshot getWeather(String city);
@@ -16,17 +21,17 @@ abstract class NewsService {
   List<SponsoredAd> getSponsoredAds({String? placement, String? category});
 }
 
-/// In-memory / Mock implementation for end-to-end self-contained testing.
+/// In-memory / Mock implementation for end-to-end self-contained fallback & tests.
 class MockNewsService implements NewsService {
   @override
-  List<Article> getArticles({String? category, String? city, String? query}) {
+  List<Article> getArticles({String? category, String? city, String? query, String? source, String? sortBy}) {
     var list = WebMockData.sampleArticles;
 
     if (category != null && category != 'top' && category != 'all') {
       list = list.where((a) => a.category.toLowerCase() == category.toLowerCase()).toList();
     }
 
-    if (city != null) {
+    if (city != null && city.isNotEmpty) {
       list = list.where((a) {
         return a.category == 'local' &&
             (a.tags.any((t) => t.toLowerCase() == city.toLowerCase()) ||
@@ -45,8 +50,48 @@ class MockNewsService implements NewsService {
       }).toList();
     }
 
+    if (source != null && source != 'all') {
+      list = list.where((a) => a.source.slug == source).toList();
+    }
+
+    if (sortBy == 'most_read' || sortBy == 'popular') {
+      list = List.from(list)..sort((a, b) => b.likeCount.compareTo(a.likeCount));
+    }
+
     return list;
   }
+
+  @override
+  List<Article> getForYouArticles({Set<String>? interests}) {
+    final all = WebMockData.sampleArticles;
+    if (interests == null || interests.isEmpty) return all;
+    final matched = all.where((a) {
+      return a.tags.any((t) => interests.any((ui) => ui.toLowerCase().contains(t.toLowerCase()))) ||
+          interests.any((ui) => a.category.toLowerCase().contains(ui.toLowerCase()));
+    }).toList();
+    return matched.isNotEmpty ? matched : all;
+  }
+
+  @override
+  List<Article> getLocalArticles({String? city}) {
+    final matched = getArticles(city: city);
+    if (matched.isNotEmpty) return matched;
+    return WebMockData.sampleArticles.where((a) => a.category == 'local').toList();
+  }
+
+  @override
+  List<Article> getBreakingArticles() {
+    return WebMockData.sampleArticles.where((a) => a.isBreaking).toList();
+  }
+
+  @override
+  List<Article> getTrendingArticles() {
+    return List.from(WebMockData.sampleArticles)
+      ..sort((a, b) => (b.viewCount + b.likeCount).compareTo(a.viewCount + a.likeCount));
+  }
+
+  @override
+  List<NewsCategory> getCategories() => NewsCategory.allCategories;
 
   @override
   StoryCluster getFullCoverageCluster() => WebMockData.fullCoverageCluster;

@@ -89,11 +89,14 @@ class WeatherSidebarWidget extends StatelessWidget {
           const FDSizedBox(height: 10),
           FDRow(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildForecastDay('Tue', '☀️', '24°C', vm.isDarkMode),
-              _buildForecastDay('Wed', '🌧️', '19°C', vm.isDarkMode),
-              _buildForecastDay('Thu', '⛅', '21°C', vm.isDarkMode),
-            ],
+            children: weather.forecast.map((f) {
+              return _buildForecastDay(
+                f.day,
+                f.iconCode,
+                '${f.temperatureC.toInt()}°C',
+                vm.isDarkMode,
+              );
+            }).toList(),
           ),
         ],
       ),
@@ -326,7 +329,9 @@ class TopReadLeaderboardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topStories = vm.headlinesArticles.take(4).toList();
+    final topStories = (vm.trendingArticles.isNotEmpty ? vm.trendingArticles : vm.headlinesArticles)
+        .take(4)
+        .toList();
 
     return FDContainer(
       decoration: BoxDecoration(

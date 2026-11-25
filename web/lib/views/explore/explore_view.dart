@@ -21,25 +21,7 @@ class ExploreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var results = vm.sampleArticles;
-
-    if (vm.searchQuery.trim().isNotEmpty) {
-      final q = vm.searchQuery.toLowerCase().trim();
-      results = results.where((a) {
-        return a.title.toLowerCase().contains(q) ||
-            a.summary.toLowerCase().contains(q) ||
-            a.tags.any((t) => t.toLowerCase().contains(q)) ||
-            a.source.name.toLowerCase().contains(q);
-      }).toList();
-    }
-
-    if (vm.selectedSourceFilter != 'all') {
-      results = results.where((a) => a.source.slug == vm.selectedSourceFilter).toList();
-    }
-
-    if (vm.sortBy == 'most_read') {
-      results = List.from(results)..sort((a, b) => b.likeCount.compareTo(a.likeCount));
-    }
+    final results = vm.exploreArticles;
 
     return FDColumn(
       crossAxisAlignment: CrossAxisAlignment.stretch,

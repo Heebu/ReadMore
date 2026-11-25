@@ -236,8 +236,11 @@ class WidgetService {
     if (sector == null || sector.isEmpty || sector.toLowerCase() == 'all') {
       return _allMarketTickers;
     }
+    var normalized = sector.trim().toLowerCase();
+    if (normalized == 'tech equities') normalized = 'tech';
+    if (normalized == 'commodities') normalized = 'energy';
     final filtered = _allMarketTickers
-        .where((m) => m.sector.toLowerCase() == sector.toLowerCase())
+        .where((m) => m.sector.toLowerCase() == normalized)
         .toList();
     return filtered.isNotEmpty ? filtered : _allMarketTickers;
   }

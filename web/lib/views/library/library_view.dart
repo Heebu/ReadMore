@@ -1,5 +1,4 @@
 import 'package:flartdart/flartdart.dart';
-import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/filter_chip_pill.dart';
@@ -28,14 +27,7 @@ class LibraryView extends StatelessWidget {
       {'id': 'history', 'name': 'Reading History', 'count': vm.readingHistoryIds.length, 'icon': '🕒'},
     ];
 
-    List<Article> displayed;
-    if (vm.libraryTab == 'bookmarks') {
-      displayed = vm.sampleArticles.where((a) => vm.bookmarkedIds.contains(a.id)).toList();
-    } else if (vm.libraryTab == 'read_later') {
-      displayed = vm.sampleArticles.where((a) => vm.readLaterIds.contains(a.id)).toList();
-    } else {
-      displayed = vm.sampleArticles.where((a) => vm.readingHistoryIds.contains(a.id)).toList();
-    }
+    final displayed = vm.libraryArticles;
 
     final totalReadingMinutes = displayed.fold<int>(0, (sum, a) => sum + a.readTimeMinutes);
 

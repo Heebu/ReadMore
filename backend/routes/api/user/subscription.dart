@@ -48,5 +48,16 @@ Future<Response> onRequest(RequestContext context) async {
     );
   }
 
+  // DELETE: Cancel Pro subscription
+  if (context.request.method == HttpMethod.delete) {
+    final updatedUser = container.authService.cancelSubscription(user.id);
+    return Response.json(
+      body: {
+        'message': 'Subscription canceled and reverted to Free tier',
+        'user': updatedUser.toJson(),
+      },
+    );
+  }
+
   return Response(statusCode: 405, body: 'Method Not Allowed.');
 }

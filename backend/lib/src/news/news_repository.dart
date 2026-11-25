@@ -118,6 +118,7 @@ class NewsRepository {
 
     // 6. Sorting
     switch (sortBy.toLowerCase()) {
+      case 'most_read':
       case 'popular':
       case 'views':
         list.sort((a, b) => b.viewCount.compareTo(a.viewCount));
@@ -182,15 +183,25 @@ class NewsRepository {
   }
 
   List<Article> getLocalNews({String? city, String? country, int limit = 15}) {
-    var list = _articles.values.where((a) {
-      if (city != null && a.city != null && a.city!.toLowerCase() == city.toLowerCase()) {
-        return true;
-      }
-      if (country != null && a.country != null && a.country!.toLowerCase() == country.toLowerCase()) {
-        return true;
-      }
-      return a.category == 'local';
-    }).toList();
+    var list = <Article>[];
+    if (city != null && city.isNotEmpty) {
+      final c = city.toLowerCase();
+      list = _articles.values.where((a) {
+        return a.city?.toLowerCase() == c ||
+            a.tags.any((t) => t.toLowerCase() == c) ||
+            a.title.toLowerCase().contains(c) ||
+            a.summary.toLowerCase().contains(c);
+      }).toList();
+    }
+
+    if (list.isEmpty) {
+      list = _articles.values.where((a) {
+        if (country != null && a.country != null && a.country!.toLowerCase() == country.toLowerCase()) {
+          return true;
+        }
+        return a.category == 'local';
+      }).toList();
+    }
 
     list.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
     if (list.isEmpty) {
@@ -240,7 +251,7 @@ class NewsRepository {
 
     if (sortBy == 'latest') {
       matches.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
-    } else if (sortBy == 'popular') {
+    } else if (sortBy == 'popular' || sortBy == 'most_read') {
       matches.sort((a, b) => b.viewCount.compareTo(a.viewCount));
     }
 

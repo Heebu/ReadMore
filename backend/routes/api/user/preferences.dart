@@ -29,21 +29,18 @@ Future<Response> onRequest(RequestContext context) async {
       followedTopics: (json['followedTopics'] as List<dynamic>?)?.map((e) => e as String).toList(),
       mutedTopics: (json['mutedTopics'] as List<dynamic>?)?.map((e) => e as String).toList(),
       blockedSources: (json['blockedSources'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      favoriteSources: (json['favoriteSources'] as List<dynamic>?)?.map((e) => e as String).toList(),
       locationCity: json['locationCity'] as String?,
       locationCountry: json['locationCountry'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       enableBreakingAlerts: json['enableBreakingAlerts'] as bool?,
       enableDailyBriefing: json['enableDailyBriefing'] as bool?,
+      audioAutoplay: json['audioAutoplay'] as bool?,
     );
 
-    final updatedUser = User(
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      avatarUrl: user.avatarUrl,
-      role: user.role,
-      createdAt: user.createdAt,
+    final updatedUser = user.copyWith(
+      displayName: json['displayName'] as String?,
       preferences: updatedPrefs,
     );
 
@@ -53,6 +50,7 @@ Future<Response> onRequest(RequestContext context) async {
       body: {
         'message': 'Preferences updated successfully',
         'preferences': updatedPrefs.toJson(),
+        'user': updatedUser.toJson(),
       },
     );
   }

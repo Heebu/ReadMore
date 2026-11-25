@@ -39,6 +39,15 @@ class AppContainer {
     final widgetService = WidgetService();
     final seoService = SeoService(newsRepo: newsRepository);
 
+    // Seed initial bookmarks & read-later queue for default demo user
+    final demoUser = authService.getUserByEmail('demo@readmore.com');
+    if (demoUser != null) {
+      engagementService.saveArticle(userId: demoUser.id, articleId: 'seed-top-1', isReadLater: false);
+      engagementService.saveArticle(userId: demoUser.id, articleId: 'seed-tech-1', isReadLater: false);
+      engagementService.saveArticle(userId: demoUser.id, articleId: 'seed-business-1', isReadLater: false);
+      engagementService.saveArticle(userId: demoUser.id, articleId: 'seed-science-1', isReadLater: true);
+    }
+
     // Start background RSS polling every 15 minutes
     newsRepository.startAutoPolling(interval: const Duration(minutes: 15));
 

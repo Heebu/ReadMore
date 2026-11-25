@@ -23,17 +23,7 @@ class LocalNewsView extends StatelessWidget {
     final cities = ['New York', 'London', 'Tokyo', 'Lagos', 'Paris', 'San Francisco'];
     final weather = vm.currentWeather;
 
-    // Filter local articles matching the selected city
-    final localArticles = vm.sampleArticles.where((a) {
-      return a.category == 'local' &&
-          (a.tags.any((t) => t.toLowerCase() == vm.selectedCity.toLowerCase()) ||
-              a.title.toLowerCase().contains(vm.selectedCity.toLowerCase()) ||
-              a.summary.toLowerCase().contains(vm.selectedCity.toLowerCase()));
-    }).toList();
-
-    final articlesToShow = localArticles.isNotEmpty
-        ? localArticles
-        : vm.sampleArticles.where((a) => a.category == 'local').toList();
+    final articlesToShow = vm.localArticles;
 
     return FDColumn(
       crossAxisAlignment: CrossAxisAlignment.stretch,

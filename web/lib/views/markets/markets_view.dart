@@ -22,7 +22,7 @@ class MarketsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sectorTabs = ['All', 'Indices', 'Crypto', 'Tech Equities', 'Commodities'];
+    final sectorTabs = ['All', 'Indices', 'Crypto', 'Tech Equities', 'Commodities', 'Currencies'];
     final items = vm.marketTickers;
 
     return FDColumn(
@@ -67,7 +67,7 @@ class MarketsView extends StatelessWidget {
         ),
         const FDSizedBox(height: 16),
         ArticlesGrid(
-          articles: vm.sampleArticles.where((a) => a.category == 'business' || a.category == 'tech').toList(),
+          articles: vm.marketArticles,
           columns: isMobile ? 1 : 2,
           vm: vm,
         ),

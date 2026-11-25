@@ -48,10 +48,18 @@ class RecommendationEngine {
 
       // 1. Topic Affinity Score (0.0 to 1.0)
       var topicScore = 0.2; // Baseline
-      if (followedTopics.contains(article.category.toLowerCase())) {
+      final catLower = article.category.toLowerCase();
+      final matchesFollowedTopic = followedTopics.contains(catLower) ||
+          followedTopics.any((topic) =>
+              catLower.contains(topic) ||
+              topic.contains(catLower) ||
+              article.tags.any((t) =>
+                  topic.contains(t.toLowerCase()) ||
+                  t.toLowerCase().contains(topic.replaceAll(' ', ''))));
+      if (matchesFollowedTopic) {
         topicScore = 1.0;
-      } else if (topicAffinities.containsKey(article.category.toLowerCase())) {
-        topicScore = (topicAffinities[article.category.toLowerCase()] ?? 0.2).clamp(0.0, 1.0);
+      } else if (topicAffinities.containsKey(catLower)) {
+        topicScore = (topicAffinities[catLower] ?? 0.2).clamp(0.0, 1.0);
       }
 
       // 2. Freshness Decay (Exponential decay over hours)

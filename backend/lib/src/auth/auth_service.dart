@@ -115,6 +115,35 @@ class AuthService {
     return updatedUser;
   }
 
+  /// Authenticate or register a Google OAuth reader and issue JWT token
+  ({User user, String token}) loginOrRegisterOAuth({
+    required String email,
+    required String displayName,
+    String? avatarUrl,
+  }) {
+    final normalizedEmail = email.trim().toLowerCase();
+    var user = getUserByEmail(normalizedEmail);
+    if (user == null) {
+      final userId = 'usr_oauth_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}';
+      user = User(
+        id: userId,
+        email: normalizedEmail,
+        displayName: displayName.trim().isNotEmpty ? displayName.trim() : 'Google Reader',
+        avatarUrl: avatarUrl,
+        role: 'user',
+        createdAt: DateTime.now(),
+        preferences: const UserPreferences(),
+      );
+      _usersById[userId] = user;
+      _emailToUserId[normalizedEmail] = userId;
+    } else if (avatarUrl != null && user.avatarUrl != avatarUrl) {
+      user = updateUser(user.copyWith(avatarUrl: avatarUrl));
+    }
+
+    final token = generateToken(user);
+    return (user: user, token: token);
+  }
+
   /// Upgrade user's subscription tier to 'pro' and enable ad-free mode
   User upgradeSubscription(String userId, {String plan = 'annual', String paymentMethod = 'stripe'}) {
     final user = getUserById(userId);
@@ -124,6 +153,19 @@ class AuthService {
     final updated = user.copyWith(
       subscriptionTier: 'pro',
       adFreeEnabled: true,
+    );
+    return updateUser(updated);
+  }
+
+  /// Cancel user's Pro subscription and revert to free tier
+  User cancelSubscription(String userId) {
+    final user = getUserById(userId);
+    if (user == null) {
+      throw Exception('User not found.');
+    }
+    final updated = user.copyWith(
+      subscriptionTier: 'free',
+      adFreeEnabled: false,
     );
     return updateUser(updated);
   }

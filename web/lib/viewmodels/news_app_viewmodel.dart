@@ -4,26 +4,119 @@ import '../data/mock_data.dart';
 import '../data/services/news_service.dart';
 
 /// Central ViewModel managing all ReadMore state, business logic,
-/// collection updates, and reactive notifications following MVVM.
+/// collection updates, backend synchronization, and reactive notifications following MVVM.
 class NewsAppViewModel extends ChangeNotifier {
   final NewsService _service;
 
   NewsAppViewModel({NewsService? service})
       : _service = service ?? ApiNewsService() {
     _comments = _service.getComments('default');
-    _currentUser = WebMockData.mockUser;
     _ads = _service.getSponsoredAds();
+    if (_service is ApiNewsService && (_service as ApiNewsService).wasExplicitlySignedOut) {
+      _currentUser = null;
+      _isAuthenticated = false;
+    } else {
+      _currentUser = WebMockData.mockUser;
+      _isAuthenticated = true;
+    }
     _initApiSync();
   }
 
+  bool get isBackendConnected =>
+      _service is ApiNewsService && (_service as ApiNewsService).isBackendConnected;
+
   void _initApiSync() {
+    if (_service is! ApiNewsService) return;
+    final api = _service as ApiNewsService;
+
+    // 1. Sync public feeds, widgets, clusters, ads, comments, notifications
+    api.syncAllAsync(city: _selectedCity, interests: _userInterests).then((_) {
+      _ads = _service.getSponsoredAds();
+      final activeId = _activeReadingArticle?.id ?? 'default';
+      _comments = _service.getComments(activeId);
+      _refreshUnreadBadge();
+      notifyListeners();
+    });
+
+    // 2. Restore existing session OR bootstrap seeded demo session with real JWT
+    _bootstrapAuthSession(api);
+  }
+
+  Future<void> _bootstrapAuthSession(ApiNewsService api) async {
+    User? user;
+    if (api.authToken != null && api.authToken!.isNotEmpty) {
+      user = await api.fetchCurrentUserAsync();
+    }
+
+    if (user == null && !api.wasExplicitlySignedOut) {
+      final res = await api.loginAsync('demo@readmore.com', 'Password123!');
+      if (res != null && res['user'] is Map<String, dynamic>) {
+        try {
+          user = User.fromJson(res['user'] as Map<String, dynamic>);
+        } catch (_) {}
+      }
+    }
+
+    if (user != null) {
+      _applyAuthenticatedUser(user);
+      await _syncUserCollections(api);
+    } else if (api.wasExplicitlySignedOut) {
+      _currentUser = null;
+      _isAuthenticated = false;
+      notifyListeners();
+    }
+  }
+
+  void _applyAuthenticatedUser(User user) {
+    _currentUser = user;
+    _isAuthenticated = true;
+    final city = user.preferences.locationCity;
+    if (city != null && city.isNotEmpty) {
+      _selectedCity = city;
+    }
+    final availableLower = {for (final i in availableInterests) i.toLowerCase(): i};
+    final matchedTopics = user.preferences.followedTopics
+        .map((t) => availableLower[t.toLowerCase()])
+        .whereType<String>()
+        .toSet();
+    if (matchedTopics.isNotEmpty) {
+      _userInterests
+        ..clear()
+        ..addAll(matchedTopics);
+    }
+    notifyListeners();
+  }
+
+  Future<void> _syncUserCollections(ApiNewsService api) async {
+    final results = await Future.wait([
+      api.fetchBookmarksAsync(),
+      api.fetchReadLaterAsync(),
+    ]);
+    final bookmarks = results[0];
+    final readLater = results[1];
+    if (bookmarks != null) {
+      _bookmarkedIds
+        ..clear()
+        ..addAll(bookmarks.map((a) => a.id));
+    }
+    if (readLater != null) {
+      _readLaterIds
+        ..clear()
+        ..addAll(readLater.map((a) => a.id));
+    }
+    notifyListeners();
+  }
+
+  void _refreshUnreadBadge() {
+    _hasUnreadNotifications = notifications.any((n) => !n.isRead);
+  }
+
+  Future<void> refreshAllFeeds() async {
     if (_service is ApiNewsService) {
       final api = _service as ApiNewsService;
-      api.syncAllAsync().then((_) {
-        _ads = _service.getSponsoredAds();
-        _comments = _service.getComments('default');
-        notifyListeners();
-      });
+      await api.refreshFeedsAsync();
+      _ads = _service.getSponsoredAds();
+      notifyListeners();
     }
   }
 
@@ -52,10 +145,48 @@ class NewsAppViewModel extends ChangeNotifier {
         _selectedCategory = 'top';
       }
       notifyListeners();
+      if (_service is ApiNewsService) {
+        final api = _service as ApiNewsService;
+        if (screen == 'for_you') {
+          api
+              .fetchForYouAsync(
+                topics: _userInterests,
+                city: _selectedCity,
+                country: _selectedEdition,
+              )
+              .then((_) => notifyListeners());
+        } else if (screen == 'local') {
+          api.fetchLocalNewsAsync(city: _selectedCity).then((_) => notifyListeners());
+        } else if (screen == 'markets') {
+          api.fetchMarketTickersAsync(sector: _selectedMarketSector).then((_) => notifyListeners());
+        } else if (screen == 'library') {
+          _syncUserCollections(api);
+        }
+      }
     }
   }
 
   void setCategory(String category) {
+    if (category == 'for_you') {
+      _activeScreen = 'for_you';
+      notifyListeners();
+      if (_service is ApiNewsService) {
+        (_service as ApiNewsService)
+            .fetchForYouAsync(topics: _userInterests, city: _selectedCity)
+            .then((_) => notifyListeners());
+      }
+      return;
+    }
+    if (category == 'local') {
+      _activeScreen = 'local';
+      notifyListeners();
+      if (_service is ApiNewsService) {
+        (_service as ApiNewsService)
+            .fetchLocalNewsAsync(city: _selectedCity)
+            .then((_) => notifyListeners());
+      }
+      return;
+    }
     _selectedCategory = category;
     notifyListeners();
     if (_service is ApiNewsService) {
@@ -73,7 +204,7 @@ class NewsAppViewModel extends ChangeNotifier {
       final api = _service as ApiNewsService;
       Future.wait([
         api.fetchWeatherAsync(city),
-        api.fetchArticlesAsync(city: city),
+        api.fetchLocalNewsAsync(city: city),
       ]).then((_) {
         notifyListeners();
       });
@@ -115,10 +246,14 @@ class NewsAppViewModel extends ChangeNotifier {
       _activeScreen = 'explore';
     }
     notifyListeners();
-    if (_service is ApiNewsService && query.trim().isNotEmpty) {
-      (_service as ApiNewsService).fetchArticlesAsync(query: query, sortBy: _sortBy).then((_) {
-        notifyListeners();
-      });
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService)
+          .fetchArticlesAsync(
+            query: query.trim().isNotEmpty ? query : null,
+            source: _selectedSourceFilter,
+            sortBy: _sortBy,
+          )
+          .then((_) => notifyListeners());
     }
   }
 
@@ -126,19 +261,30 @@ class NewsAppViewModel extends ChangeNotifier {
     _sortBy = sort;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).fetchArticlesAsync(
-        category: _selectedCategory,
-        query: _searchQuery.isNotEmpty ? _searchQuery : null,
-        sortBy: sort,
-      ).then((_) {
-        notifyListeners();
-      });
+      (_service as ApiNewsService)
+          .fetchArticlesAsync(
+            category: _activeScreen == 'explore' ? null : _selectedCategory,
+            query: _searchQuery.trim().isNotEmpty ? _searchQuery : null,
+            source: _selectedSourceFilter,
+            sortBy: sort,
+          )
+          .then((_) => notifyListeners());
     }
   }
 
   void setSourceFilter(String source) {
     _selectedSourceFilter = source;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService)
+          .fetchArticlesAsync(
+            category: _activeScreen == 'explore' ? null : _selectedCategory,
+            query: _searchQuery.trim().isNotEmpty ? _searchQuery : null,
+            source: source,
+            sortBy: _sortBy,
+          )
+          .then((_) => notifyListeners());
+    }
   }
 
   // ==========================================
@@ -159,6 +305,24 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api
+          .loginWithGoogleAsync(
+            email: 'alex.rivera@readmore.org',
+            displayName: 'Alex Rivera',
+            avatarUrl: WebMockData.mockUser.avatarUrl,
+          )
+          .then((res) {
+        if (res != null && res['user'] is Map<String, dynamic>) {
+          try {
+            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+            _syncUserCollections(api);
+          } catch (_) {}
+        }
+      });
+    }
   }
 
   void signInWithEmail(String email, String password) {
@@ -178,11 +342,12 @@ class NewsAppViewModel extends ChangeNotifier {
     _showAuthModal = false;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).loginAsync(email, password).then((res) {
-        if (res != null && res['user'] != null) {
+      final api = _service as ApiNewsService;
+      api.loginAsync(email, password).then((res) {
+        if (res != null && res['user'] is Map<String, dynamic>) {
           try {
-            _currentUser = User.fromJson(res['user'] as Map<String, dynamic>);
-            notifyListeners();
+            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+            _syncUserCollections(api);
           } catch (_) {}
         }
       });
@@ -205,11 +370,12 @@ class NewsAppViewModel extends ChangeNotifier {
     _showAuthModal = false;
     notifyListeners();
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).registerAsync(email, password, name).then((res) {
-        if (res != null && res['user'] != null) {
+      final api = _service as ApiNewsService;
+      api.registerAsync(email, password, name).then((res) {
+        if (res != null && res['user'] is Map<String, dynamic>) {
           try {
-            _currentUser = User.fromJson(res['user'] as Map<String, dynamic>);
-            notifyListeners();
+            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+            _syncUserCollections(api);
           } catch (_) {}
         }
       });
@@ -219,6 +385,9 @@ class NewsAppViewModel extends ChangeNotifier {
   void signOut() {
     _isAuthenticated = false;
     _currentUser = null;
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).markSignedOut();
+    }
     notifyListeners();
   }
 
@@ -241,7 +410,32 @@ class NewsAppViewModel extends ChangeNotifier {
       displayName: displayName,
       preferences: updatedPrefs,
     );
+    if (locationCity != null && locationCity.isNotEmpty) {
+      _selectedCity = locationCity;
+    }
     notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api
+          .updatePreferencesAsync(
+            displayName: displayName,
+            locationCity: locationCity,
+            audioAutoplay: audioAutoplay,
+            enableBreakingAlerts: breakingAlerts,
+            enableDailyBriefing: dailyBriefing,
+          )
+          .then((serverUser) {
+        if (serverUser != null) {
+          _currentUser = serverUser;
+          notifyListeners();
+        }
+      });
+      if (locationCity != null && locationCity.isNotEmpty) {
+        api.fetchWeatherAsync(locationCity).then((_) => notifyListeners());
+        api.fetchForYouAsync(topics: _userInterests, city: locationCity).then((_) => notifyListeners());
+      }
+    }
   }
 
   // ==========================================
@@ -269,6 +463,9 @@ class NewsAppViewModel extends ChangeNotifier {
       adFreeEnabled: false,
     );
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).cancelSubscriptionAsync();
+    }
   }
 
   void toggleAdFree() {
@@ -409,21 +606,27 @@ class NewsAppViewModel extends ChangeNotifier {
       _userInterests.add(interest);
     }
     notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api.updatePreferencesAsync(followedTopics: _userInterests.toList());
+      api.fetchForYouAsync(topics: _userInterests, city: _selectedCity).then((_) => notifyListeners());
+    }
   }
 
   // ==========================================
   // USER COLLECTIONS (END-TO-END REACTIVE STATE)
   // ==========================================
-  final Set<String> _bookmarkedIds = {'art-hero-1', 'art-tech-1', 'art-bus-1'};
+  final Set<String> _bookmarkedIds = {'seed-top-1', 'seed-tech-1', 'seed-business-1', 'art-hero-1', 'art-tech-1', 'art-bus-1'};
   Set<String> get bookmarkedIds => Set.unmodifiable(_bookmarkedIds);
 
-  final Set<String> _readLaterIds = {'art-sci-1', 'art-food-1'};
+  final Set<String> _readLaterIds = {'seed-science-1', 'art-sci-1', 'art-food-1'};
   Set<String> get readLaterIds => Set.unmodifiable(_readLaterIds);
 
-  final Set<String> _likedIds = {'art-tech-1', 'art-hero-1'};
+  final Set<String> _likedIds = {'seed-tech-1', 'seed-top-1', 'art-tech-1', 'art-hero-1'};
   Set<String> get likedIds => Set.unmodifiable(_likedIds);
 
-  final List<String> _readingHistoryIds = ['art-hero-1', 'art-tech-1'];
+  final List<String> _readingHistoryIds = ['seed-top-1', 'seed-tech-1', 'art-hero-1', 'art-tech-1'];
   List<String> get readingHistoryIds => List.unmodifiable(_readingHistoryIds);
 
   final Set<String> _marketWatchlist = {'BTC/USD', 'NVDA', 'AAPL'};
@@ -435,30 +638,52 @@ class NewsAppViewModel extends ChangeNotifier {
   bool isWatched(String symbol) => _marketWatchlist.contains(symbol);
 
   void toggleBookmark(String id) {
-    if (_bookmarkedIds.contains(id)) {
+    final wasBookmarked = _bookmarkedIds.contains(id);
+    if (wasBookmarked) {
       _bookmarkedIds.remove(id);
     } else {
       _bookmarkedIds.add(id);
     }
     notifyListeners();
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      if (wasBookmarked) {
+        api.removeBookmarkAsync(id);
+      } else {
+        api.saveBookmarkAsync(id);
+      }
+    }
   }
 
   void toggleReadLater(String id) {
-    if (_readLaterIds.contains(id)) {
+    final wasInQueue = _readLaterIds.contains(id);
+    if (wasInQueue) {
       _readLaterIds.remove(id);
     } else {
       _readLaterIds.add(id);
     }
     notifyListeners();
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      if (wasInQueue) {
+        api.removeReadLaterAsync(id);
+      } else {
+        api.saveReadLaterAsync(id);
+      }
+    }
   }
 
   void toggleLike(String id) {
-    if (_likedIds.contains(id)) {
-      _likedIds.remove(id);
-    } else {
+    final isNowLiked = !_likedIds.contains(id);
+    if (isNowLiked) {
       _likedIds.add(id);
+    } else {
+      _likedIds.remove(id);
     }
     notifyListeners();
+    if (_service is ApiNewsService && isNowLiked) {
+      (_service as ApiNewsService).recordInteractionAsync(id, 'like');
+    }
   }
 
   void toggleWatchlist(String symbol) {
@@ -503,7 +728,25 @@ class NewsAppViewModel extends ChangeNotifier {
     if (!_readingHistoryIds.contains(article.id)) {
       _readingHistoryIds.insert(0, article.id);
     }
+    _comments = _service.getComments(article.id);
     notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api.recordInteractionAsync(article.id, 'click', dwellTimeSeconds: 30);
+      api.fetchArticleByIdAsync(article.id).then((fresh) {
+        if (fresh != null && _activeReadingArticle?.id == article.id) {
+          _activeReadingArticle = fresh;
+          notifyListeners();
+        }
+      });
+      api.fetchCommentsAsync(article.id).then((fetchedComments) {
+        if (_activeReadingArticle?.id == article.id) {
+          _comments = fetchedComments;
+          notifyListeners();
+        }
+      });
+    }
   }
 
   void closeArticleReader() {
@@ -575,6 +818,7 @@ class NewsAppViewModel extends ChangeNotifier {
 
     final localComment = ArticleComment(
       id: 'c-${DateTime.now().millisecondsSinceEpoch}',
+      articleId: articleId,
       author: authorName,
       avatarUrl: avatar,
       text: text.trim(),
@@ -584,12 +828,22 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
 
     if (_service is ApiNewsService) {
-      (_service as ApiNewsService).postCommentAsync(
-        articleId,
-        author: authorName,
-        avatarUrl: avatar,
-        text: text.trim(),
-      );
+      (_service as ApiNewsService)
+          .postCommentAsync(
+            articleId,
+            author: authorName,
+            avatarUrl: avatar,
+            text: text.trim(),
+          )
+          .then((saved) {
+        if (saved != null) {
+          final idx = _comments.indexWhere((c) => c.id == localComment.id);
+          if (idx != -1) {
+            _comments[idx] = saved;
+            notifyListeners();
+          }
+        }
+      });
     }
   }
 
@@ -630,6 +884,9 @@ class NewsAppViewModel extends ChangeNotifier {
   void openFullCoverage() {
     _showFullCoverageModal = true;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).fetchClustersAsync().then((_) => notifyListeners());
+    }
   }
   void openFullCoverageModal() => openFullCoverage();
 
@@ -677,6 +934,11 @@ class NewsAppViewModel extends ChangeNotifier {
     _selectedEdition = edition;
     _showEditionModal = false;
     notifyListeners();
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      api.updatePreferencesAsync(locationCountry: edition);
+      api.fetchForYouAsync(topics: _userInterests, city: _selectedCity, country: edition).then((_) => notifyListeners());
+    }
   }
   void setSelectedEdition(String edition) => setEdition(edition);
 
@@ -742,25 +1004,22 @@ class NewsAppViewModel extends ChangeNotifier {
   List<String> get availableInterests => _service.getAvailableInterests();
   List<String> get allAvailableInterests => availableInterests;
 
-  List<NewsCategory> get categories => NewsCategory.allCategories;
+  List<NewsCategory> get categories => _service.getCategories();
   List<Article> get sampleArticles => _service.getArticles();
   List<Article> get filteredArticles => headlinesArticles;
+  List<Article> get breakingArticles => _service.getBreakingArticles();
+  List<Article> get trendingArticles => _service.getTrendingArticles();
 
   List<Article> get headlinesArticles {
     return _service.getArticles(category: _selectedCategory);
   }
 
   List<Article> get personalizedArticles {
-    final all = _service.getArticles();
-    final matched = all.where((a) {
-      return a.tags.any((t) => _userInterests.any((ui) => ui.toLowerCase().contains(t.toLowerCase()))) ||
-          _userInterests.any((ui) => a.category.toLowerCase().contains(ui.toLowerCase()));
-    }).toList();
-    return matched.isNotEmpty ? matched : all;
+    return _service.getForYouArticles(interests: _userInterests);
   }
 
   List<Article> get localArticles {
-    return _service.getArticles(city: _selectedCity);
+    return _service.getLocalArticles(city: _selectedCity);
   }
 
   List<Article> get marketArticles {
@@ -769,14 +1028,21 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   List<Article> get libraryArticles {
+    final ids = _libraryTab == 'bookmarks'
+        ? _bookmarkedIds
+        : _libraryTab == 'read_later'
+            ? _readLaterIds
+            : _readingHistoryIds;
     final all = _service.getArticles();
-    if (_libraryTab == 'bookmarks') {
-      return all.where((a) => _bookmarkedIds.contains(a.id)).toList();
-    } else if (_libraryTab == 'read_later') {
-      return all.where((a) => _readLaterIds.contains(a.id)).toList();
-    } else {
-      return all.where((a) => _readingHistoryIds.contains(a.id)).toList();
+    final map = <String, Article>{for (final a in all) a.id: a};
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      for (final id in ids) {
+        final cached = api.getCachedArticleById(id);
+        if (cached != null) map[id] = cached;
+      }
     }
+    return ids.map((id) => map[id]).whereType<Article>().toList();
   }
 
   int get totalQueueReadingMinutes {
@@ -784,13 +1050,10 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   List<Article> get exploreArticles {
-    var list = _service.getArticles(query: _searchQuery);
-    if (_selectedSourceFilter != 'all') {
-      list = list.where((a) => a.source.slug == _selectedSourceFilter).toList();
-    }
-    if (_sortBy == 'most_read') {
-      list = List.from(list)..sort((a, b) => b.likeCount.compareTo(a.likeCount));
-    }
-    return list;
+    return _service.getArticles(
+      query: _searchQuery,
+      source: _selectedSourceFilter,
+      sortBy: _sortBy,
+    );
   }
 }
