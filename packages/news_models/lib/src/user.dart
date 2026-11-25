@@ -12,6 +12,7 @@ class UserPreferences {
   final bool enableBreakingAlerts;
   final bool enableDailyBriefing;
   final bool audioAutoplay;
+  final bool darkMode;
 
   const UserPreferences({
     this.followedTopics = const ['top', 'tech', 'business'],
@@ -26,6 +27,7 @@ class UserPreferences {
     this.enableBreakingAlerts = true,
     this.enableDailyBriefing = true,
     this.audioAutoplay = true,
+    this.darkMode = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -41,6 +43,7 @@ class UserPreferences {
         'enableBreakingAlerts': enableBreakingAlerts,
         'enableDailyBriefing': enableDailyBriefing,
         'audioAutoplay': audioAutoplay,
+        'darkMode': darkMode,
       };
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) => UserPreferences(
@@ -56,6 +59,7 @@ class UserPreferences {
         enableBreakingAlerts: json['enableBreakingAlerts'] as bool? ?? true,
         enableDailyBriefing: json['enableDailyBriefing'] as bool? ?? true,
         audioAutoplay: json['audioAutoplay'] as bool? ?? true,
+        darkMode: json['darkMode'] as bool? ?? true,
       );
 
   UserPreferences copyWith({
@@ -71,6 +75,7 @@ class UserPreferences {
     bool? enableBreakingAlerts,
     bool? enableDailyBriefing,
     bool? audioAutoplay,
+    bool? darkMode,
   }) {
     return UserPreferences(
       followedTopics: followedTopics ?? this.followedTopics,
@@ -85,6 +90,7 @@ class UserPreferences {
       enableBreakingAlerts: enableBreakingAlerts ?? this.enableBreakingAlerts,
       enableDailyBriefing: enableDailyBriefing ?? this.enableDailyBriefing,
       audioAutoplay: audioAutoplay ?? this.audioAutoplay,
+      darkMode: darkMode ?? this.darkMode,
     );
   }
 }

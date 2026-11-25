@@ -120,5 +120,37 @@ void main() {
       expect(res, isNotNull);
       expect(res!['token'], isNotEmpty);
     });
+
+    test('validates invalid login, password reset flow, darkMode sync, and read count tracking', () async {
+      final badLogin = await service.loginAsync('demo@readmore.com', 'WrongPass!');
+      expect(badLogin, isNotNull);
+      expect(badLogin!['error'], isNotNull);
+
+      final regEmail = 'reset_${DateTime.now().millisecondsSinceEpoch}@readmore.com';
+      final reg = await service.registerAsync(regEmail, 'StartPass1!', 'Reset Tester');
+      expect(reg, isNotNull);
+      expect(reg!['token'], isNotEmpty);
+
+      final resetReq = await service.requestPasswordResetAsync(regEmail);
+      expect(resetReq, isNotNull);
+      expect(resetReq!['devResetCode'], isNotNull);
+
+      final resetConfirm = await service.resetPasswordAsync(
+        token: resetReq['devResetCode'] as String,
+        newPassword: 'UpdatedPass2!',
+      );
+      expect(resetConfirm?['error'], isNull);
+
+      final loginNew = await service.loginAsync(regEmail, 'UpdatedPass2!');
+      expect(loginNew?['token'], isNotEmpty);
+
+      final updatedUser = await service.updatePreferencesAsync(darkMode: false);
+      expect(updatedUser, isNotNull);
+      expect(updatedUser!.preferences.darkMode, isFalse);
+
+      final afterRead = await service.recordInteractionAsync('seed-top-1', 'click');
+      expect(afterRead, isNotNull);
+      expect(afterRead!.articlesReadCount, greaterThanOrEqualTo(1));
+    });
   });
 }

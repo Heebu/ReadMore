@@ -13,16 +13,14 @@ Future<Response> onRequest(RequestContext context) async {
         ? jsonDecode(bodyStr) as Map<String, dynamic>
         : <String, dynamic>{};
 
-    final email = (json['email'] as String?)?.trim().isNotEmpty == true
-        ? (json['email'] as String).trim()
-        : 'alex.rivera@readmore.org';
-    final displayName = (json['displayName'] as String?)?.trim().isNotEmpty == true
-        ? (json['displayName'] as String).trim()
-        : 'Alex Rivera';
+    final idToken = json['idToken'] as String?;
+    final email = json['email'] as String?;
+    final displayName = json['displayName'] as String?;
     final avatarUrl = json['avatarUrl'] as String?;
 
     final container = context.read<AppContainer>();
-    final result = container.authService.loginOrRegisterOAuth(
+    final result = await container.authService.verifyAndLoginWithGoogle(
+      idToken: idToken,
       email: email,
       displayName: displayName,
       avatarUrl: avatarUrl,
@@ -32,11 +30,12 @@ Future<Response> onRequest(RequestContext context) async {
       body: {
         'token': result.token,
         'user': result.user.toJson(),
+        'verifiedByGoogle': result.verifiedByGoogle,
       },
     );
   } catch (e) {
     return Response.json(
-      statusCode: 400,
+      statusCode: 401,
       body: {'error': e.toString().replaceAll('Exception: ', '')},
     );
   }

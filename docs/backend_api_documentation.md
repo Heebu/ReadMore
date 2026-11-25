@@ -48,10 +48,18 @@ flowchart TD
 
 ---
 
-## 2. Server Configuration & Middleware
+## 2. Server Configuration, Persistence & Security
 
 - **Backend Port:** `8085` (avoids common Windows `svchost` bindings on `:8080`; CORS enabled for `*`, supporting `localhost:8081`).
 - **Base URI:** `http://localhost:8085/api`
+- **Database Persistence (`DatabaseService` / SQLite):**
+  - Stored in `backend/data/readmore.db` (configurable via `READMORE_DB_PATH`).
+  - Persists `users`, salted SHA-256 `password_hash`, `preferences_json` (including `darkMode`), `subscription_tier`, `ad_free_enabled`, `reading_streak_days`, `articles_read_count`, `saved_articles` (bookmarks & read later), `user_interactions`, `article_comments`, `sponsored_ads`, and `password_reset_tokens` across server restarts.
+- **Environment Variables:**
+  - `READMORE_JWT_SECRET`: HMAC-SHA256 signing key for 7-day JWTs.
+  - `GOOGLE_CLIENT_ID`: Optional OAuth 2.0 Web Client ID; when set on both server and `<meta name="google-signin-client_id">` in `web/web/index.html`, `/api/auth/google` enforces live Google ID token verification against `oauth2.googleapis.com/tokeninfo`.
+  - `READMORE_DB_PATH`: Custom SQLite database file location.
+  - `READMORE_ENV`: Set to `production` to suppress dev reset-code hints in password-reset responses.
 - **Authentication Scheme:** Bearer Token via standard HTTP header:
   ```http
   Authorization: Bearer <jwt_token>
@@ -118,7 +126,10 @@ flowchart TD
 |---|---|---|---|
 | `POST /api/auth/register` | No | `{ "email", "password", "displayName", "avatarUrl"? }` | `201`: `{ "message", "token", "user" }` |
 | `POST /api/auth/login` | No | `{ "email", "password" }` | `{ "token", "user" }` |
-| `POST /api/auth/google` | No | `{ "email"?, "displayName"?, "avatarUrl"? }` | `{ "token", "user" }` |
+| `POST /api/auth/google` | No | `{ "idToken"?, "email"?, "displayName"?, "avatarUrl"? }` | `{ "token", "user", "verifiedByGoogle": bool }` |
+| `POST /api/auth/forgot_password` | No | `{ "email" }` | `{ "message", "devResetCode"? }` |
+| `POST /api/auth/reset_password` | No | `{ "token" (or "code"), "newPassword" }` | `{ "message" }` |
+| `POST /api/auth/change_password` | Yes (Bearer JWT) | `{ "currentPassword", "newPassword" }` | `{ "message" }` |
 | `GET /api/auth/me` | Yes (Bearer JWT) | — | `{ "user": {...} }` |
 | `GET /api/user/bookmarks` | Yes (Bearer JWT) | `limit`, `offset` | `{ "count": int, "bookmarks": [...] }` |
 | `POST /api/user/bookmarks` | Yes (Bearer JWT) | `{ "articleId": ... }` | `201`: `{ "message", "item" }` |

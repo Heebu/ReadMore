@@ -5,8 +5,8 @@ import '../../core/widgets/section_header.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
 /// Comprehensive Personalized User Settings, Reading Analytics,
-/// Pro Subscription Management, and Self-Serve Ad Campaign Controls.
-class UserSettingsView extends StatelessWidget {
+/// Profile Editor, Security Controls, Pro Subscription Management, and Self-Serve Ad Controls.
+class UserSettingsView extends StatefulWidget {
   final NewsAppViewModel vm;
   final bool isMobile;
   final bool isTablet;
@@ -17,6 +17,25 @@ class UserSettingsView extends StatelessWidget {
     required this.isTablet,
     super.key,
   });
+
+  @override
+  State<UserSettingsView> createState() => _UserSettingsViewState();
+}
+
+class _UserSettingsViewState extends State<UserSettingsView> {
+  String _displayNameDraft = '';
+  String _currentPasswordDraft = '';
+  String _newPasswordDraft = '';
+
+  NewsAppViewModel get vm => widget.vm;
+  bool get isMobile => widget.isMobile;
+  bool get isTablet => widget.isTablet;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayNameDraft = widget.vm.currentUser.displayName;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,8 +261,158 @@ class UserSettingsView extends StatelessWidget {
               _buildStatBox('Saved in Library', '${vm.bookmarkedIds.length + vm.readLaterIds.length}', '🔖', AppColors.accentPurple),
             ],
           ),
+
+          if (vm.isAuthenticated) ...[
+            const FDSizedBox(height: 20),
+            const FDDivider(color: AppColors.borderSubtle),
+            const FDSizedBox(height: 16),
+            _buildAccountEditorSection(context, user),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildAccountEditorSection(BuildContext context, User user) {
+    final cities = ['New York', 'London', 'Tokyo', 'Paris', 'Lagos', 'San Francisco'];
+    final activeCity = user.preferences.locationCity ?? vm.selectedCity;
+
+    return FDColumn(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const FDText(
+          'Edit Profile & Home Dispatch City',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+        ),
+        const FDSizedBox(height: 10),
+        FDRow(
+          children: [
+            Expanded(
+              child: FDTextField(
+                placeholder: user.displayName,
+                backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                borderColor: AppColors.borderRegular,
+                borderRadius: 10,
+                onChanged: (val) => _displayNameDraft = val,
+              ),
+            ),
+            const FDSizedBox(width: 10),
+            FDGestureDetector(
+              onTap: () {
+                final nextName = _displayNameDraft.trim().isNotEmpty
+                    ? _displayNameDraft.trim()
+                    : user.displayName;
+                vm.updateUserProfile(displayName: nextName, locationCity: activeCity);
+              },
+              child: FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: FDText(
+                  'SAVE PROFILE',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Space Grotesk',
+                    color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const FDSizedBox(height: 12),
+        FDWrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: cities.map((city) {
+            final selected = activeCity.toLowerCase() == city.toLowerCase();
+            return FDGestureDetector(
+              onTap: () => vm.updateUserProfile(locationCity: city),
+              child: FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? (vm.isDarkMode ? FlartColors.white : FlartColors.black)
+                      : (vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderRegular),
+                ),
+                child: FDText(
+                  '📍 $city',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color: selected
+                        ? (vm.isDarkMode ? FlartColors.black : FlartColors.white)
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const FDSizedBox(height: 18),
+        const FDText(
+          'Security & Passphrase',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+        ),
+        const FDSizedBox(height: 10),
+        FDRow(
+          children: [
+            Expanded(
+              child: FDTextField(
+                placeholder: 'Current password',
+                backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                borderColor: AppColors.borderRegular,
+                borderRadius: 10,
+                onChanged: (val) => _currentPasswordDraft = val,
+              ),
+            ),
+            const FDSizedBox(width: 10),
+            Expanded(
+              child: FDTextField(
+                placeholder: 'New password (6+ chars)',
+                backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                borderColor: AppColors.borderRegular,
+                borderRadius: 10,
+                onChanged: (val) => _newPasswordDraft = val,
+              ),
+            ),
+            const FDSizedBox(width: 10),
+            FDGestureDetector(
+              onTap: () => vm.changePassword(_currentPasswordDraft, _newPasswordDraft),
+              child: FDContainer(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                decoration: BoxDecoration(
+                  color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.borderRegular),
+                ),
+                child: const FDText(
+                  'UPDATE PASSWORD',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, fontFamily: 'Space Grotesk'),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (vm.profileStatusMessage != null) ...[
+          const FDSizedBox(height: 10),
+          FDText(
+            vm.profileStatusMessage!,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: vm.profileStatusMessage!.startsWith('Error:')
+                  ? const FlartColor('#EF4444')
+                  : const FlartColor('#10B981'),
+            ),
+          ),
+        ],
+      ],
     );
   }
 

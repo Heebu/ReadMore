@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:backend/backend.dart';
 import 'package:news_models/news_models.dart';
 import 'package:test/test.dart';
@@ -132,6 +133,53 @@ void main() {
       final metaTags = seo.generateMetaTags(article);
       expect(metaTags, contains('max-image-preview:large'));
       expect(metaTags, contains('og:title'));
+    });
+
+    test('SQLite DatabaseService persists users, bookmarks, password resets, and read counts across restarts', () {
+      final tempDir = Directory.systemTemp.createTempSync('readmore_db_test_');
+      final dbPath = '${tempDir.path}${Platform.pathSeparator}test.db';
+
+      try {
+        // Instance 1: register user, bookmark article, upgrade subscription, increment read count
+        final db1 = DatabaseService.open(dbPath: dbPath);
+        final auth1 = AuthService(db: db1);
+        final repo1 = NewsRepository(db: db1);
+        final engage1 = EngagementService(newsRepo: repo1, db: db1, authService: auth1);
+
+        final registered = auth1.register(
+          email: 'persistent@readmore.com',
+          password: 'InitialPassword1!',
+          displayName: 'Persistent Reader',
+        );
+        engage1.saveArticle(userId: registered.id, articleId: 'seed-tech-1', isReadLater: false);
+        engage1.recordInteraction(
+          userId: registered.id,
+          articleId: 'seed-tech-1',
+          type: InteractionType.click,
+        );
+        auth1.upgradeSubscription(registered.id);
+
+        final resetCode = auth1.requestPasswordReset('persistent@readmore.com');
+        auth1.resetPassword(token: resetCode, newPassword: 'NewPassword2!');
+        db1.dispose();
+
+        // Instance 2: reopen database from disk and verify full persistence
+        final db2 = DatabaseService.open(dbPath: dbPath);
+        final auth2 = AuthService(db: db2);
+        final repo2 = NewsRepository(db: db2);
+        final engage2 = EngagementService(newsRepo: repo2, db: db2, authService: auth2);
+
+        final loginRes = auth2.login(email: 'persistent@readmore.com', password: 'NewPassword2!');
+        expect(loginRes.user.displayName, equals('Persistent Reader'));
+        expect(loginRes.user.isPro, isTrue);
+        expect(loginRes.user.articlesReadCount, greaterThanOrEqualTo(1));
+
+        final saved = engage2.getSavedArticles(userId: loginRes.user.id, isReadLater: false);
+        expect(saved.any((a) => a.id == 'seed-tech-1'), isTrue);
+        db2.dispose();
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
     });
   });
 }

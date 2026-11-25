@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:news_models/news_models.dart';
+import '../storage/database_service.dart';
 import 'feed_catalog.dart';
 import 'rss_parser.dart';
 
 /// Central store for news articles, clusters, comments, ads, notifications, and background ingestion
 class NewsRepository {
   final RssParser _parser;
+  final DatabaseService? _db;
   final Map<String, Article> _articles = {};
   final Map<String, StoryCluster> _clusters = {};
   final Map<String, List<ArticleComment>> _comments = {};
@@ -15,7 +17,9 @@ class NewsRepository {
   Timer? _pollingTimer;
   bool _isIngesting = false;
 
-  NewsRepository({RssParser? parser}) : _parser = parser ?? RssParser() {
+  NewsRepository({RssParser? parser, DatabaseService? db})
+      : _parser = parser ?? RssParser(),
+        _db = db {
     _seedDefaultArticles();
     _seedDefaultComments();
     _seedDefaultAds();
@@ -294,6 +298,15 @@ class NewsRepository {
   // ==========================================
 
   List<ArticleComment> getComments(String articleId) {
+    if (_db != null) {
+      final dbList = _db.getComments(articleId);
+      if (dbList.isNotEmpty) {
+        _comments[articleId] = dbList;
+        return dbList;
+      }
+      final fallback = _db.getComments('default');
+      if (fallback.isNotEmpty) return fallback;
+    }
     return _comments[articleId] ?? _comments['default'] ?? [];
   }
 
@@ -316,6 +329,7 @@ class NewsRepository {
       isLiked: false,
     );
     list.insert(0, comment);
+    _db?.insertComment(comment);
     return comment;
   }
 
@@ -326,6 +340,7 @@ class NewsRepository {
           final c = list[i];
           c.isLiked = !c.isLiked;
           c.likes += c.isLiked ? 1 : -1;
+          _db?.updateCommentLikes(commentId, c.likes);
           return c.isLiked;
         }
       }
@@ -359,20 +374,25 @@ class NewsRepository {
 
   SponsoredAd createSponsoredAd(SponsoredAd ad) {
     _ads[ad.id] = ad;
+    _db?.upsertAd(ad);
     return ad;
   }
 
   void recordAdClick(String adId) {
     final ad = _ads[adId];
     if (ad != null) {
-      _ads[adId] = ad.copyWith(clicks: ad.clicks + 1);
+      final updated = ad.copyWith(clicks: ad.clicks + 1);
+      _ads[adId] = updated;
+      _db?.upsertAd(updated);
     }
   }
 
   void recordAdImpression(String adId) {
     final ad = _ads[adId];
     if (ad != null) {
-      _ads[adId] = ad.copyWith(impressions: ad.impressions + 1);
+      final updated = ad.copyWith(impressions: ad.impressions + 1);
+      _ads[adId] = updated;
+      _db?.upsertAd(updated);
     }
   }
 
@@ -656,6 +676,14 @@ class NewsRepository {
   }
 
   void _seedDefaultComments() {
+    if (_db != null && _db.getCommentCount() > 0) {
+      final dbDefault = _db.getComments('default');
+      if (dbDefault.isNotEmpty) {
+        _comments['default'] = dbDefault;
+      }
+      return;
+    }
+
     final commentsList = [
       ArticleComment(
         id: 'cmt-1',
@@ -686,9 +714,22 @@ class NewsRepository {
       ),
     ];
     _comments['default'] = commentsList;
+    for (final c in commentsList) {
+      _db?.insertComment(c);
+    }
   }
 
   void _seedDefaultAds() {
+    if (_db != null) {
+      final existing = _db.getAds();
+      if (existing.isNotEmpty) {
+        for (final ad in existing) {
+          _ads[ad.id] = ad;
+        }
+        return;
+      }
+    }
+
     final now = DateTime.now();
     final sampleAds = [
       SponsoredAd(
@@ -746,6 +787,7 @@ class NewsRepository {
 
     for (final ad in sampleAds) {
       _ads[ad.id] = ad;
+      _db?.upsertAd(ad);
     }
   }
 

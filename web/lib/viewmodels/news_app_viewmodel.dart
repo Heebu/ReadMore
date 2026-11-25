@@ -70,6 +70,7 @@ class NewsAppViewModel extends ChangeNotifier {
   void _applyAuthenticatedUser(User user) {
     _currentUser = user;
     _isAuthenticated = true;
+    _isDarkMode = user.preferences.darkMode;
     final city = user.preferences.locationCity;
     if (city != null && city.isNotEmpty) {
       _selectedCity = city;
@@ -292,11 +293,58 @@ class NewsAppViewModel extends ChangeNotifier {
   // ==========================================
   User? _currentUser;
   bool _isAuthenticated = true;
+  bool _isAuthLoading = false;
+  String? _authError;
+  String? _authSuccessMessage;
+  String? _devResetCodeHint;
+  String? _profileStatusMessage;
 
   bool get isAuthenticated => _isAuthenticated && _currentUser != null;
   User get currentUser => _currentUser ?? WebMockData.mockUser;
+  bool get isAuthLoading => _isAuthLoading;
+  String? get authError => _authError;
+  String? get authSuccessMessage => _authSuccessMessage;
+  String? get devResetCodeHint => _devResetCodeHint;
+  String? get profileStatusMessage => _profileStatusMessage;
 
-  void signInWithGoogle() {
+  void clearAuthFeedback() {
+    _authError = null;
+    _authSuccessMessage = null;
+    _devResetCodeHint = null;
+    notifyListeners();
+  }
+
+  Future<void> signInWithGoogle() async {
+    _isAuthLoading = true;
+    _authError = null;
+    _authSuccessMessage = null;
+    notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      final res = await api.loginWithGoogleAsync(
+        email: 'alex.rivera@readmore.org',
+        displayName: 'Alex Rivera',
+        avatarUrl: WebMockData.mockUser.avatarUrl,
+      );
+      _isAuthLoading = false;
+      if (res != null && res['error'] != null) {
+        _authError = res['error'] as String;
+        notifyListeners();
+        return;
+      }
+      if (res != null && res['user'] is Map<String, dynamic>) {
+        try {
+          _showAuthModal = false;
+          _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+          await _syncUserCollections(api);
+          return;
+        } catch (_) {}
+      }
+    }
+
+    // Offline fallback
+    _isAuthLoading = false;
     _currentUser = WebMockData.mockUser.copyWith(
       displayName: 'Alex Rivera',
       email: 'alex.rivera@readmore.org',
@@ -305,31 +353,52 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
+  }
+
+  Future<void> signInWithEmail(String email, String password) async {
+    if (email.trim().isEmpty || !email.contains('@')) {
+      _authError = 'Please enter a valid email address.';
+      notifyListeners();
+      return;
+    }
+    if (password.isEmpty) {
+      _authError = 'Please enter your password.';
+      notifyListeners();
+      return;
+    }
+
+    _isAuthLoading = true;
+    _authError = null;
+    _authSuccessMessage = null;
+    notifyListeners();
 
     if (_service is ApiNewsService) {
       final api = _service as ApiNewsService;
-      api
-          .loginWithGoogleAsync(
-            email: 'alex.rivera@readmore.org',
-            displayName: 'Alex Rivera',
-            avatarUrl: WebMockData.mockUser.avatarUrl,
-          )
-          .then((res) {
-        if (res != null && res['user'] is Map<String, dynamic>) {
-          try {
-            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
-            _syncUserCollections(api);
-          } catch (_) {}
-        }
-      });
-    }
-  }
+      final res = await api.loginAsync(email.trim(), password);
+      _isAuthLoading = false;
 
-  void signInWithEmail(String email, String password) {
+      if (res != null && res['error'] != null) {
+        _authError = res['error'] as String;
+        notifyListeners();
+        return;
+      }
+
+      if (res != null && res['user'] is Map<String, dynamic>) {
+        try {
+          _showAuthModal = false;
+          _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+          await _syncUserCollections(api);
+          return;
+        } catch (_) {}
+      }
+    }
+
+    // Offline fallback when backend is unreachable
+    _isAuthLoading = false;
     final name = email.contains('@') ? email.split('@').first : 'Reader';
     _currentUser = User(
       id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
-      email: email,
+      email: email.trim(),
       displayName: name.isNotEmpty ? name[0].toUpperCase() + name.substring(1) : 'Reader',
       role: 'user',
       createdAt: DateTime.now(),
@@ -341,23 +410,56 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
-    if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
-      api.loginAsync(email, password).then((res) {
-        if (res != null && res['user'] is Map<String, dynamic>) {
-          try {
-            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
-            _syncUserCollections(api);
-          } catch (_) {}
-        }
-      });
-    }
   }
 
-  void signUp(String name, String email, String password) {
+  Future<void> signUp(String name, String email, String password) async {
+    if (name.trim().isEmpty) {
+      _authError = 'Please enter your full name.';
+      notifyListeners();
+      return;
+    }
+    if (email.trim().isEmpty || !email.contains('@')) {
+      _authError = 'Please enter a valid email address.';
+      notifyListeners();
+      return;
+    }
+    if (password.length < 6) {
+      _authError = 'Password must be at least 6 characters long.';
+      notifyListeners();
+      return;
+    }
+
+    _isAuthLoading = true;
+    _authError = null;
+    _authSuccessMessage = null;
+    notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final api = _service as ApiNewsService;
+      final res = await api.registerAsync(email.trim(), password, name.trim());
+      _isAuthLoading = false;
+
+      if (res != null && res['error'] != null) {
+        _authError = res['error'] as String;
+        notifyListeners();
+        return;
+      }
+
+      if (res != null && res['user'] is Map<String, dynamic>) {
+        try {
+          _showAuthModal = false;
+          _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
+          await _syncUserCollections(api);
+          return;
+        } catch (_) {}
+      }
+    }
+
+    // Offline fallback
+    _isAuthLoading = false;
     _currentUser = User(
       id: 'usr-${DateTime.now().millisecondsSinceEpoch}',
-      email: email,
+      email: email.trim(),
       displayName: name.isNotEmpty ? name : 'New Reader',
       role: 'user',
       createdAt: DateTime.now(),
@@ -369,22 +471,112 @@ class NewsAppViewModel extends ChangeNotifier {
     _isAuthenticated = true;
     _showAuthModal = false;
     notifyListeners();
+  }
+
+  Future<bool> requestPasswordReset(String email) async {
+    if (email.trim().isEmpty || !email.contains('@')) {
+      _authError = 'Please enter a valid account email address.';
+      notifyListeners();
+      return false;
+    }
+
+    _isAuthLoading = true;
+    _authError = null;
+    _authSuccessMessage = null;
+    _devResetCodeHint = null;
+    notifyListeners();
+
     if (_service is ApiNewsService) {
-      final api = _service as ApiNewsService;
-      api.registerAsync(email, password, name).then((res) {
-        if (res != null && res['user'] is Map<String, dynamic>) {
-          try {
-            _applyAuthenticatedUser(User.fromJson(res['user'] as Map<String, dynamic>));
-            _syncUserCollections(api);
-          } catch (_) {}
-        }
-      });
+      final res = await (_service as ApiNewsService).requestPasswordResetAsync(email.trim());
+      _isAuthLoading = false;
+      if (res == null) {
+        _authError = 'Backend unreachable. Start server on port 8085 to reset password.';
+        notifyListeners();
+        return false;
+      }
+      if (res['error'] != null) {
+        _authError = res['error'] as String;
+        notifyListeners();
+        return false;
+      }
+      _authSuccessMessage = res['message'] as String? ?? 'Reset code issued.';
+      _devResetCodeHint = res['devResetCode'] as String?;
+      notifyListeners();
+      return true;
+    }
+
+    _isAuthLoading = false;
+    _authError = 'Password reset requires active backend connection.';
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> confirmPasswordReset(String code, String newPassword) async {
+    if (code.trim().isEmpty || newPassword.length < 6) {
+      _authError = 'Enter your 6-digit code and a new password (6+ characters).';
+      notifyListeners();
+      return false;
+    }
+
+    _isAuthLoading = true;
+    _authError = null;
+    _authSuccessMessage = null;
+    notifyListeners();
+
+    if (_service is ApiNewsService) {
+      final res = await (_service as ApiNewsService).resetPasswordAsync(
+        token: code.trim(),
+        newPassword: newPassword,
+      );
+      _isAuthLoading = false;
+      if (res == null) {
+        _authError = 'Backend unreachable.';
+        notifyListeners();
+        return false;
+      }
+      if (res['error'] != null) {
+        _authError = res['error'] as String;
+        notifyListeners();
+        return false;
+      }
+      _authSuccessMessage = res['message'] as String? ?? 'Password reset! Please sign in.';
+      _devResetCodeHint = null;
+      notifyListeners();
+      return true;
+    }
+
+    _isAuthLoading = false;
+    return false;
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    if (newPassword.length < 6) {
+      _profileStatusMessage = 'Error: New password must be at least 6 characters.';
+      notifyListeners();
+      return;
+    }
+    if (_service is ApiNewsService) {
+      final res = await (_service as ApiNewsService).changePasswordAsync(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      if (res == null) {
+        _profileStatusMessage = 'Error: Could not reach backend server.';
+      } else if (res['error'] != null) {
+        _profileStatusMessage = 'Error: ${res['error']}';
+      } else {
+        _profileStatusMessage = '✓ ${res['message'] ?? 'Password updated cleanly.'}';
+      }
+      notifyListeners();
     }
   }
 
   void signOut() {
     _isAuthenticated = false;
     _currentUser = null;
+    _bookmarkedIds.clear();
+    _readLaterIds.clear();
+    _profileStatusMessage = null;
     if (_service is ApiNewsService) {
       (_service as ApiNewsService).markSignedOut();
     }
@@ -412,6 +604,9 @@ class NewsAppViewModel extends ChangeNotifier {
     );
     if (locationCity != null && locationCity.isNotEmpty) {
       _selectedCity = locationCity;
+    }
+    if (displayName != null) {
+      _profileStatusMessage = '✓ Profile & preferences saved to SQLite.';
     }
     notifyListeners();
 
@@ -549,12 +744,18 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void openAuthModal({String tab = 'signin'}) {
     _authModalTab = tab;
+    _authError = null;
+    _authSuccessMessage = null;
+    _devResetCodeHint = null;
     _showAuthModal = true;
     notifyListeners();
   }
 
   void closeAuthModal() {
     _showAuthModal = false;
+    _authError = null;
+    _authSuccessMessage = null;
+    _devResetCodeHint = null;
     notifyListeners();
   }
 
@@ -733,7 +934,12 @@ class NewsAppViewModel extends ChangeNotifier {
 
     if (_service is ApiNewsService) {
       final api = _service as ApiNewsService;
-      api.recordInteractionAsync(article.id, 'click', dwellTimeSeconds: 30);
+      api.recordInteractionAsync(article.id, 'click', dwellTimeSeconds: 30).then((updatedUser) {
+        if (updatedUser != null && _currentUser != null) {
+          _currentUser = updatedUser;
+          notifyListeners();
+        }
+      });
       api.fetchArticleByIdAsync(article.id).then((fresh) {
         if (fresh != null && _activeReadingArticle?.id == article.id) {
           _activeReadingArticle = fresh;
@@ -989,7 +1195,15 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void toggleDarkMode() {
     _isDarkMode = !_isDarkMode;
+    if (_currentUser != null) {
+      _currentUser = _currentUser!.copyWith(
+        preferences: _currentUser!.preferences.copyWith(darkMode: _isDarkMode),
+      );
+    }
     notifyListeners();
+    if (_service is ApiNewsService) {
+      (_service as ApiNewsService).updatePreferencesAsync(darkMode: _isDarkMode);
+    }
   }
 
   // ==========================================

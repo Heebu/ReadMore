@@ -1,13 +1,22 @@
 import 'package:news_models/news_models.dart';
+import '../auth/auth_service.dart';
 import '../news/news_repository.dart';
+import '../storage/database_service.dart';
 
-/// Tracks user bookmarks, read later queue, and implicit topic affinities
+/// Tracks user bookmarks, read later queue, reading progress, and implicit topic affinities
+/// persisted in SQLite.
 class EngagementService {
   final NewsRepository _newsRepo;
-  final Map<String, List<SavedArticleItem>> _userSavedItems = {}; // userId -> list
-  final Map<String, List<UserInteraction>> _userInteractions = {}; // userId -> list
+  final DatabaseService _db;
+  final AuthService? _authService;
 
-  EngagementService({required NewsRepository newsRepo}) : _newsRepo = newsRepo;
+  EngagementService({
+    required NewsRepository newsRepo,
+    DatabaseService? db,
+    AuthService? authService,
+  })  : _newsRepo = newsRepo,
+        _db = db ?? DatabaseService.inMemory(),
+        _authService = authService;
 
   // --- Bookmarks & Read Later ---
 
@@ -16,28 +25,22 @@ class EngagementService {
     required String articleId,
     bool isReadLater = false,
   }) {
-    final list = _userSavedItems.putIfAbsent(userId, () => []);
-    
-    // Check if already saved
-    final existingIndex = list.indexWhere((item) => item.articleId == articleId && item.isReadLater == isReadLater);
-    if (existingIndex != -1) {
-      return list[existingIndex];
+    final existing = _db.getSavedArticles(userId, isReadLater: isReadLater);
+    for (final item in existing) {
+      if (item.articleId == articleId) return item;
     }
 
     final item = SavedArticleItem(
-      id: 'saved_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'saved_${DateTime.now().millisecondsSinceEpoch}_${articleId.hashCode}',
       userId: userId,
       articleId: articleId,
       isReadLater: isReadLater,
       savedAt: DateTime.now(),
     );
 
-    list.insert(0, item);
-
-    // Update article metrics
+    _db.upsertSavedArticle(item);
     _newsRepo.incrementLikes(articleId);
 
-    // Record interaction
     recordInteraction(
       userId: userId,
       articleId: articleId,
@@ -52,12 +55,11 @@ class EngagementService {
     required String articleId,
     bool isReadLater = false,
   }) {
-    final list = _userSavedItems[userId];
-    if (list == null) return false;
-
-    final initialLen = list.length;
-    list.removeWhere((item) => item.articleId == articleId && item.isReadLater == isReadLater);
-    return list.length < initialLen;
+    return _db.deleteSavedArticle(
+      userId: userId,
+      articleId: articleId,
+      isReadLater: isReadLater,
+    );
   }
 
   List<Article> getSavedArticles({
@@ -66,9 +68,7 @@ class EngagementService {
     int limit = 20,
     int offset = 0,
   }) {
-    final list = _userSavedItems[userId] ?? [];
-    final filtered = list.where((item) => item.isReadLater == isReadLater).toList();
-
+    final filtered = _db.getSavedArticles(userId, isReadLater: isReadLater);
     final articles = <Article>[];
     for (final item in filtered) {
       final art = _newsRepo.getArticleById(item.articleId);
@@ -82,32 +82,39 @@ class EngagementService {
 
   // --- Interaction Telemetry ---
 
-  void recordInteraction({
+  User? recordInteraction({
     required String userId,
     required String articleId,
     required InteractionType type,
     int dwellTimeSeconds = 0,
   }) {
-    final list = _userInteractions.putIfAbsent(userId, () => []);
-    list.add(UserInteraction(
-      id: 'act_${DateTime.now().millisecondsSinceEpoch}',
-      userId: userId,
-      articleId: articleId,
-      type: type,
-      dwellTimeSeconds: dwellTimeSeconds,
-      createdAt: DateTime.now(),
-    ));
+    _db.insertInteraction(
+      UserInteraction(
+        id: 'act_${DateTime.now().microsecondsSinceEpoch}',
+        userId: userId,
+        articleId: articleId,
+        type: type,
+        dwellTimeSeconds: dwellTimeSeconds,
+        createdAt: DateTime.now(),
+      ),
+    );
 
+    User? updatedUser;
     if (type == InteractionType.click) {
       _newsRepo.incrementViews(articleId);
+      if (userId != 'guest' && _authService != null) {
+        updatedUser = _authService.recordArticleRead(userId);
+      }
+    } else if (type == InteractionType.dwell30s && userId != 'guest' && _authService != null) {
+      updatedUser = _authService.recordArticleRead(userId);
     }
+    return updatedUser;
   }
 
   /// Calculates user implicit topic affinity weights (0.0 to 1.0)
-  /// Articles where dwell >= 30s give high signal
   Map<String, double> calculateTopicAffinities(String userId) {
-    final interactions = _userInteractions[userId];
-    if (interactions == null || interactions.isEmpty) return {};
+    final interactions = _db.getInteractions(userId);
+    if (interactions.isEmpty) return {};
 
     final categoryPoints = <String, double>{};
     var totalPoints = 0.0;
@@ -116,13 +123,13 @@ class EngagementService {
       final article = _newsRepo.getArticleById(interaction.articleId);
       if (article == null) continue;
 
-      var points = 1.0; // Click
+      var points = 1.0;
       if (interaction.type == InteractionType.dwell30s || interaction.dwellTimeSeconds >= 30) {
-        points = 3.0; // Deep read
+        points = 3.0;
       } else if (interaction.type == InteractionType.like || interaction.type == InteractionType.bookmark) {
-        points = 4.0; // High intent
+        points = 4.0;
       } else if (interaction.type == InteractionType.fewerStoriesLikeThis) {
-        points = -5.0; // Negative feedback
+        points = -5.0;
       }
 
       final cat = article.category.toLowerCase();

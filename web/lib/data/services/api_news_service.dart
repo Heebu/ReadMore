@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:news_models/news_models.dart';
+import 'google_oauth_helper.dart';
 import 'news_service.dart';
 import 'token_storage.dart';
 
@@ -845,7 +846,8 @@ class ApiNewsService implements NewsService {
     return null;
   }
 
-  /// Authenticates user via POST /api/auth/login
+  /// Authenticates user via POST /api/auth/login.
+  /// Returns {token, user} on success, {error} on 4xx rejection, or null on network error.
   Future<Map<String, dynamic>?> loginAsync(String email, String password) async {
     try {
       final uri = Uri.parse('$baseUrl/auth/login');
@@ -857,47 +859,56 @@ class ApiNewsService implements NewsService {
           )
           .timeout(const Duration(seconds: 4));
 
-      if (response.statusCode == 200) {
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 200 && data != null) {
         _isBackendConnected = true;
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
         setAuthToken(data['token'] as String?);
         return data;
       }
-    } catch (_) {}
-    return null;
+      return {'error': data?['error'] ?? 'Invalid email or password.'};
+    } catch (_) {
+      return null;
+    }
   }
 
-  /// Authenticates / registers via Google 1-Tap OAuth endpoint POST /api/auth/google
+  /// Authenticates / registers via Google 1-Tap OAuth endpoint POST /api/auth/google.
+  /// Automatically requests a real Google ID token via Google Identity Services if configured.
   Future<Map<String, dynamic>?> loginWithGoogleAsync({
+    String? idToken,
     String email = 'alex.rivera@readmore.org',
     String displayName = 'Alex Rivera',
     String? avatarUrl,
   }) async {
     try {
+      final resolvedToken = idToken ?? await requestGoogleIdToken();
       final uri = Uri.parse('$baseUrl/auth/google');
       final response = await _client
           .post(
             uri,
             headers: _headers(),
             body: jsonEncode({
+              if (resolvedToken != null) 'idToken': resolvedToken,
               'email': email,
               'displayName': displayName,
               if (avatarUrl != null) 'avatarUrl': avatarUrl,
             }),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 5));
 
-      if (response.statusCode == 200) {
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 200 && data != null) {
         _isBackendConnected = true;
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
         setAuthToken(data['token'] as String?);
         return data;
       }
-    } catch (_) {}
-    return null;
+      return {'error': data?['error'] ?? 'Google Sign-In failed.'};
+    } catch (_) {
+      return null;
+    }
   }
 
-  /// Registers user via POST /api/auth/register
+  /// Registers user via POST /api/auth/register.
+  /// Returns {token, user} on 201, {error} on 4xx validation error, or null on network error.
   Future<Map<String, dynamic>?> registerAsync(
     String email,
     String password,
@@ -917,14 +928,97 @@ class ApiNewsService implements NewsService {
           )
           .timeout(const Duration(seconds: 4));
 
-      if (response.statusCode == 201) {
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 201 && data != null) {
         _isBackendConnected = true;
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
         setAuthToken(data['token'] as String?);
         return data;
       }
-    } catch (_) {}
-    return null;
+      return {'error': data?['error'] ?? 'Registration failed.'};
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Requests a 6-digit password reset code via POST /api/auth/forgot_password.
+  Future<Map<String, dynamic>?> requestPasswordResetAsync(String email) async {
+    try {
+      final uri = Uri.parse('$baseUrl/auth/forgot_password');
+      final response = await _client
+          .post(uri, headers: _headers(), body: jsonEncode({'email': email}))
+          .timeout(const Duration(seconds: 4));
+
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 200 && data != null) {
+        return data;
+      }
+      return {'error': data?['error'] ?? 'Unable to issue reset code.'};
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Resets password using reset code via POST /api/auth/reset_password.
+  Future<Map<String, dynamic>?> resetPasswordAsync({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      final uri = Uri.parse('$baseUrl/auth/reset_password');
+      final response = await _client
+          .post(
+            uri,
+            headers: _headers(),
+            body: jsonEncode({'token': token, 'newPassword': newPassword}),
+          )
+          .timeout(const Duration(seconds: 4));
+
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 200 && data != null) {
+        return data;
+      }
+      return {'error': data?['error'] ?? 'Password reset failed.'};
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Changes password for authenticated user via POST /api/auth/change_password.
+  Future<Map<String, dynamic>?> changePasswordAsync({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    if (_authToken == null) return {'error': 'Please sign in first.'};
+    try {
+      final uri = Uri.parse('$baseUrl/auth/change_password');
+      final response = await _client
+          .post(
+            uri,
+            headers: _headers(),
+            body: jsonEncode({
+              'currentPassword': currentPassword,
+              'newPassword': newPassword,
+            }),
+          )
+          .timeout(const Duration(seconds: 4));
+
+      final data = _tryDecodeMap(response.body);
+      if (response.statusCode == 200 && data != null) {
+        return data;
+      }
+      return {'error': data?['error'] ?? 'Unable to update password.'};
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _tryDecodeMap(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Fetches saved bookmarks via GET /api/user/bookmarks
@@ -1010,7 +1104,7 @@ class ApiNewsService implements NewsService {
   }
 
   /// Records user telemetry interaction via POST /api/user/interaction
-  Future<bool> recordInteractionAsync(
+  Future<User?> recordInteractionAsync(
     String articleId,
     String type, {
     int dwellTimeSeconds = 0,
@@ -1028,32 +1122,41 @@ class ApiNewsService implements NewsService {
             }),
           )
           .timeout(const Duration(seconds: 3));
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        final data = _tryDecodeMap(response.body);
+        if (data?['user'] is Map<String, dynamic>) {
+          return User.fromJson(data!['user'] as Map<String, dynamic>);
+        }
+      }
     } catch (_) {}
-    return false;
+    return null;
   }
 
   /// Updates user preferences and/or displayName via PUT /api/user/preferences
   Future<User?> updatePreferencesAsync({
     String? displayName,
+    String? avatarUrl,
     List<String>? followedTopics,
     String? locationCity,
     String? locationCountry,
     bool? enableBreakingAlerts,
     bool? enableDailyBriefing,
     bool? audioAutoplay,
+    bool? darkMode,
   }) async {
     if (_authToken == null) return null;
     try {
       final uri = Uri.parse('$baseUrl/user/preferences');
       final body = <String, dynamic>{};
       if (displayName != null) body['displayName'] = displayName;
+      if (avatarUrl != null) body['avatarUrl'] = avatarUrl;
       if (followedTopics != null) body['followedTopics'] = followedTopics;
       if (locationCity != null) body['locationCity'] = locationCity;
       if (locationCountry != null) body['locationCountry'] = locationCountry;
       if (enableBreakingAlerts != null) body['enableBreakingAlerts'] = enableBreakingAlerts;
       if (enableDailyBriefing != null) body['enableDailyBriefing'] = enableDailyBriefing;
       if (audioAutoplay != null) body['audioAutoplay'] = audioAutoplay;
+      if (darkMode != null) body['darkMode'] = darkMode;
 
       final response = await _client
           .put(uri, headers: _headers(), body: jsonEncode(body))

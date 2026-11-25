@@ -27,7 +27,7 @@ Future<Response> onRequest(RequestContext context) async {
   final userId = user?.id ?? json['guestId'] as String? ?? 'guest';
 
   final container = context.read<AppContainer>();
-  container.engagementService.recordInteraction(
+  final updatedUser = container.engagementService.recordInteraction(
     userId: userId,
     articleId: articleId,
     type: type,
@@ -40,6 +40,7 @@ Future<Response> onRequest(RequestContext context) async {
       'articleId': articleId,
       'type': type.name,
       'dwellTimeSeconds': dwellTimeSeconds,
+      if (updatedUser != null) 'user': updatedUser.toJson(),
     },
   );
 }

@@ -37,10 +37,12 @@ Future<Response> onRequest(RequestContext context) async {
       enableBreakingAlerts: json['enableBreakingAlerts'] as bool?,
       enableDailyBriefing: json['enableDailyBriefing'] as bool?,
       audioAutoplay: json['audioAutoplay'] as bool?,
+      darkMode: json['darkMode'] as bool?,
     );
 
     final updatedUser = user.copyWith(
       displayName: json['displayName'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
       preferences: updatedPrefs,
     );
 
