@@ -57,6 +57,7 @@ class AppTextField extends StatefulWidget {
 class _AppTextFieldState extends State<AppTextField> {
   static int _idCounter = 0;
   late final String _inputId;
+  late final String _initialMountValue;
   late String _value;
 
   @override
@@ -64,7 +65,8 @@ class _AppTextFieldState extends State<AppTextField> {
     super.initState();
     _idCounter++;
     _inputId = 'app_input_${_idCounter}_${DateTime.now().microsecondsSinceEpoch}';
-    _value = widget.value ?? widget.initialValue ?? '';
+    _initialMountValue = widget.value ?? widget.initialValue ?? '';
+    _value = _initialMountValue;
   }
 
   @override
@@ -131,7 +133,7 @@ class _AppTextFieldState extends State<AppTextField> {
       key: ValueKey(_inputId),
       attributes: attributes,
       styles: inputStyles,
-      textContent: isMultiline ? _value : null,
+      textContent: isMultiline ? _initialMountValue : null,
       events: {
         'input': (dynamic e) {
           final nextVal = extractInputValue(e, elementId: _inputId);

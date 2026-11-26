@@ -161,8 +161,9 @@ class ApiNewsService implements NewsService {
           .where((t) => t.length >= 2)
           .toList();
       list = list.where((a) {
+        final catTerms = _categorySearchTerms(a.category);
         final haystack =
-            '${a.title} ${a.summary} ${a.subcategory ?? ''} ${a.tags.join(' ')} ${a.source.name}'.toLowerCase();
+            '${a.title} ${a.summary} $catTerms ${a.subcategory ?? ''} ${a.tags.join(' ')} ${a.source.name}'.toLowerCase();
         if (haystack.contains(q)) return true;
         if (qCompact.length >= 3 &&
             haystack.replaceAll(RegExp(r'[^a-z0-9]'), '').contains(qCompact)) {
@@ -184,6 +185,25 @@ class ApiNewsService implements NewsService {
     }
 
     return list;
+  }
+
+  static String _categorySearchTerms(String category) {
+    switch (category.toLowerCase()) {
+      case 'tech':
+        return 'tech technology';
+      case 'sci':
+      case 'science':
+        return 'science sci environment';
+      case 'business':
+        return 'business finance markets';
+      case 'ent':
+      case 'entertainment':
+        return 'entertainment cinema film music';
+      case 'international':
+        return 'international world global';
+      default:
+        return category.toLowerCase();
+    }
   }
 
   @override

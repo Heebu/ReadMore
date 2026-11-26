@@ -142,10 +142,27 @@ void main() {
         content:
             'First full paragraph explaining the quantum breakthrough in detail with more than enough context.\n\n'
             'Second full paragraph covering error correction rates across cryogenic cooling stages and benchmark verification.\n\n'
-            'Third full paragraph detailing commercial roadmap and materials discovery simulations over the coming years.',
+            'Third full paragraph detailing commercial roadmap and materials discovery simulations over the coming years.\n\n'
+            'Fourth paragraph providing industrial deployment timelines and long-term superconducting material impact across laboratories.',
       );
       expect(isArticleExcerpt(fullArticle), isFalse);
-      expect(splitArticleParagraphs(fullArticle).length, equals(3));
+      expect(splitArticleParagraphs(fullArticle).length, equals(4));
+
+      // Quoted sentences must never be split inside quotation marks
+      final quotedArticle = techArticle.copyWith(
+        summary: '“We fight to end FGM because it is a human rights violation. We are not fighting culture.” Caroline Lagat discusses the challenges.',
+        content: '“We fight to end FGM because it is a human rights violation. We are not fighting culture.” Caroline Lagat discusses the challenges.',
+      );
+      final quotedTakeaways = buildArticleTakeaways(quotedArticle);
+      expect(
+        quotedTakeaways.first,
+        equals('“We fight to end FGM because it is a human rights violation. We are not fighting culture.” Caroline Lagat discusses the challenges.'),
+      );
+      expect(isArticleExcerpt(quotedArticle), isTrue);
+
+      // Category search works for #Tech
+      final service = MockNewsService();
+      expect(service.getArticles(query: 'Tech').length, greaterThanOrEqualTo(2));
     });
 
     test('time_formatter formats relative timestamps and masthead dates accurately', () {

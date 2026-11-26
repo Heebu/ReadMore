@@ -250,9 +250,12 @@ class NewsRepository {
   }
 
   List<Article> getTrending({int limit = 10}) {
-    final list = _articles.values.toList()
+    final list = _articles.values
+        .where((a) => !_isShoppingOrDealTitle(a.title))
+        .toList()
       ..sort((a, b) => (b.viewCount + b.likeCount * 3).compareTo(a.viewCount + a.likeCount * 3));
-    return list.take(limit).toList();
+    final seen = <String>{};
+    return list.where((a) => seen.add(_normalizeTitle(a.title))).take(limit).toList();
   }
 
   bool _matchesCity(Article a, String city) {
@@ -323,18 +326,20 @@ class NewsRepository {
     var matches = _articles.values.where((a) {
       final titleLower = a.title.toLowerCase();
       final summaryLower = a.summary.toLowerCase();
+      final catLower = _categorySearchTerms(a.category);
       final subLower = (a.subcategory ?? '').toLowerCase();
       final sourceLower = a.source.name.toLowerCase();
       final tagsLower = a.tags.map((t) => t.toLowerCase()).toList();
 
       var matchesQuery = titleLower.contains(q) ||
           summaryLower.contains(q) ||
+          catLower.contains(q) ||
           subLower.contains(q) ||
           tagsLower.any((t) => t.contains(q)) ||
           sourceLower.contains(q);
 
       if (!matchesQuery && qCompact.length >= 3) {
-        final combinedCompact = '${a.title} ${a.summary} ${a.subcategory ?? ''} ${a.tags.join(' ')}'
+        final combinedCompact = '${a.title} ${a.summary} $catLower ${a.subcategory ?? ''} ${a.tags.join(' ')}'
             .toLowerCase()
             .replaceAll(RegExp(r'[^a-z0-9]'), '');
         if (combinedCompact.contains(qCompact)) {
@@ -343,7 +348,7 @@ class NewsRepository {
       }
 
       if (!matchesQuery && tokens.length > 1) {
-        final haystack = '$titleLower $summaryLower $subLower ${tagsLower.join(' ')} $sourceLower';
+        final haystack = '$titleLower $summaryLower $catLower $subLower ${tagsLower.join(' ')} $sourceLower';
         matchesQuery = tokens.every((tok) => haystack.contains(tok));
       }
 
@@ -373,6 +378,9 @@ class NewsRepository {
       matches.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
     }
 
+    final seenTitles = <String>{};
+    matches = matches.where((a) => seenTitles.add(_normalizeTitle(a.title))).toList();
+
     final total = matches.length;
     if (offset >= matches.length) {
       return (articles: <Article>[], total: total);
@@ -381,9 +389,36 @@ class NewsRepository {
     return (articles: matches.sublist(offset, end), total: total);
   }
 
+  static String _categorySearchTerms(String category) {
+    final c = category.toLowerCase();
+    switch (c) {
+      case 'tech':
+        return 'tech technology';
+      case 'sci':
+      case 'science':
+        return 'science sci environment';
+      case 'business':
+        return 'business finance markets';
+      case 'ent':
+      case 'entertainment':
+        return 'entertainment cinema film music';
+      case 'international':
+        return 'international world global';
+      default:
+        return c;
+    }
+  }
+
   List<Article> search(String query, {int limit = 20}) {
     return searchWithTotal(query, limit: limit).articles;
   }
+
+  static const Set<String> _ignoredTrendingTokens = {
+    'showtypes', 'uncategorized', 'sponsored', 'shopping', 'homepage',
+    'newsletter', 'podcast', 'video', 'videos', 'live', 'updates', 'latest',
+    'features', 'sections', 'misc', 'general', 'articles', 'archive', 'blog',
+    'more', 'read', 'global', 'world', 'top', 'feed', 'rss', 'post', 'posts',
+  };
 
   /// Dynamically extracts trending hashtags from real articles in the repository
   /// so clicking any tag in Search/Explore always resolves to real stories.
@@ -391,15 +426,23 @@ class NewsRepository {
     final counts = <String, int>{};
     final displayLabels = <String, String>{};
 
-    // 1. Prefer explicit article tags first (excluding city names unless meaningful)
+    bool isUsableToken(String token) {
+      if (token.length < 2 || token.length > 26) return false;
+      if (RegExp(r'^\d+$').hasMatch(token)) return false;
+      final lower = token.toLowerCase();
+      if (_stopAndPromoWords.contains(lower) || _ignoredTrendingTokens.contains(lower)) {
+        return false;
+      }
+      return true;
+    }
+
+    // 1. Prefer explicit article tags first
     for (final article in _articles.values) {
       for (final tag in article.tags) {
         final clean = tag.replaceAll('#', '').trim();
-        if (clean.length < 2) continue;
-        final formatted = clean.replaceAll(RegExp(r'\s+'), '');
-        if (formatted.length < 2 || formatted.length > 26) continue;
+        final formatted = clean.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+        if (!isUsableToken(formatted)) continue;
         final key = formatted.toLowerCase();
-        if (_stopAndPromoWords.contains(key)) continue;
         counts[key] = (counts[key] ?? 0) + 3;
         displayLabels.putIfAbsent(key, () => '#$formatted');
       }
@@ -407,7 +450,7 @@ class NewsRepository {
       // 2. Also mine strong headline terms from recent articles
       final words = article.title
           .split(RegExp(r'[^A-Za-z0-9]+'))
-          .where((w) => w.length >= 4 && !_stopAndPromoWords.contains(w.toLowerCase()));
+          .where((w) => w.length >= 4 && isUsableToken(w));
       for (final w in words) {
         final key = w.toLowerCase();
         counts[key] = (counts[key] ?? 0) + 1;
@@ -420,13 +463,22 @@ class NewsRepository {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final result = <String>[];
+    final singleMatchFallback = <String>[];
     for (final entry in sorted) {
       final tag = displayLabels[entry.key]!;
       final queryTerm = tag.replaceAll('#', '');
-      if (searchWithTotal(queryTerm, limit: 1).total > 0) {
+      final total = searchWithTotal(queryTerm, limit: 2).total;
+      if (total >= 2) {
         result.add(tag);
         if (result.length >= limit) break;
+      } else if (total == 1 && singleMatchFallback.length < limit) {
+        singleMatchFallback.add(tag);
       }
+    }
+
+    for (final tag in singleMatchFallback) {
+      if (result.length >= limit) break;
+      result.add(tag);
     }
 
     return result.isNotEmpty

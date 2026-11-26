@@ -47,6 +47,8 @@ class ReadMoreApp extends StatelessWidget {
 
         return FDMaterialApp(
           title: 'ReadMore — Global News & Intelligence',
+          favicon:
+              'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23111111"/><text x="16" y="22" text-anchor="middle" fill="%23F4F3EE" font-size="18" font-family="Georgia,serif" font-weight="bold">R</text></svg>',
           debugShowCheckedModeBanner: false,
           home: FDScaffold(
             cssStyle: {

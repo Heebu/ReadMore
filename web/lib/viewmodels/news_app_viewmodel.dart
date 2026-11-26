@@ -1011,8 +1011,10 @@ class NewsAppViewModel extends ChangeNotifier {
       });
       api.fetchCommentsAsync(article.id).then((fetchedComments) {
         if (_activeReadingArticle?.id == article.id) {
-          final pendingLocal = _comments.where((c) => c.id.startsWith('c-')).toList();
-          _comments = _dedupeComments([...pendingLocal, ...fetchedComments]);
+          final sessionPosted = _comments
+              .where((c) => c.id.startsWith('c-') || c.id.startsWith('cmt_'))
+              .toList();
+          _comments = _dedupeComments([...sessionPosted, ...fetchedComments]);
           notifyListeners();
         }
       });

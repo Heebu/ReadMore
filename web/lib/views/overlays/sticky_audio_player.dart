@@ -21,6 +21,7 @@ class StickyAudioPlayer extends StatelessWidget {
       left: 0,
       right: 0,
       child: FDContainer(
+        id: 'sticky-audio-player',
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkRibbon : AppColors.lightCard,
           border: const Border(top: BorderSide(color: AppColors.primaryBlueLight, width: 1.5)),
@@ -35,6 +36,7 @@ class StickyAudioPlayer extends StatelessWidget {
             FDRow(
               children: [
                 FDGestureDetector(
+                  key: const ValueKey('sticky-briefing-toggle'),
                   onTap: () => vm.toggleBriefingPlaying(),
                   child: FDContainer(
                     width: 40,
@@ -48,6 +50,7 @@ class StickyAudioPlayer extends StatelessWidget {
                         icon: vm.isBriefingPlaying ? FDIcons.pause : FDIcons.play_arrow,
                         size: 20,
                         color: FlartColors.white,
+                        semanticLabel: vm.isBriefingPlaying ? 'Pause morning briefing' : 'Play morning briefing',
                       ),
                     ),
                   ),
@@ -55,12 +58,16 @@ class StickyAudioPlayer extends StatelessWidget {
                 const FDSizedBox(width: 14),
                 FDColumn(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     FDText(
                       'ReadMore Morning Intelligence Briefing',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                      ),
                     ),
-                    FDText(
+                    const FDText(
                       'Episode #142 • 5 mins • AI Voice Synthesized',
                       style: TextStyle(fontSize: 11, color: FlartColors.grey),
                     ),
@@ -82,7 +89,9 @@ class StickyAudioPlayer extends StatelessWidget {
                     width: 220,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const FlartColor('rgba(255, 255, 255, 0.2)'),
+                      color: vm.isDarkMode
+                          ? const FlartColor('rgba(255, 255, 255, 0.2)')
+                          : const FlartColor('rgba(0, 0, 0, 0.14)'),
                       borderRadius: BorderRadius.circular(2),
                     ),
                     child: FDAlign(
@@ -105,8 +114,14 @@ class StickyAudioPlayer extends StatelessWidget {
                 ],
               ),
             FDGestureDetector(
+              key: const ValueKey('sticky-briefing-close'),
               onTap: () => vm.closeBottomBriefing(),
-              child: const FDIcon(icon: FDIcons.close, size: 20, color: FlartColors.grey),
+              child: const FDIcon(
+                icon: FDIcons.close,
+                size: 20,
+                color: FlartColors.grey,
+                semanticLabel: 'Close morning briefing',
+              ),
             ),
           ],
         ),

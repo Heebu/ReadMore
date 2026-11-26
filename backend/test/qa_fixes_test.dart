@@ -27,6 +27,40 @@ void main() {
       final dWithComment = RssParser.parseDate('Mon, 23 Nov 2026 09:30:00 EST (Eastern Standard Time)');
       expect(dWithComment.year, equals(2026));
       expect(dWithComment.month, equals(11));
+
+      final dTextual = RssParser.parseDate('April 14, 2022');
+      expect(dTextual.year, equals(2022));
+      expect(dTextual.month, equals(4));
+      expect(dTextual.day, equals(14));
+    });
+
+    test('RssParser handles empty descriptions and NewsRepository filters junk trending tags and matches categories', () {
+      const xml = '''<?xml version="1.0" encoding="UTF-8" ?>
+      <rss version="2.0"><channel><title>Test</title>
+        <item>
+          <title>Surprise Eurostar strike cancels London and Paris trains</title>
+          <link>https://example.com/eurostar</link>
+          <description></description>
+          <category>ShowTypes</category>
+          <category>2026</category>
+          <pubDate>Wed, 25 Nov 2026 10:00:00 +0000</pubDate>
+        </item>
+      </channel></rss>''';
+      final parsed = RssParser().parseXml(
+        xml,
+        const FeedDefinition(id: 'test-feed', name: 'TestWire', url: 'https://example.com/rss', category: 'international', domain: 'example.com'),
+      );
+      expect(parsed.length, equals(1));
+      expect(parsed.first.summary, isNotEmpty);
+
+      final repo = NewsRepository();
+      final topics = repo.getDynamicTrendingTopics();
+      expect(topics.any((t) => RegExp(r'^#\d+$').hasMatch(t)), isFalse);
+      expect(topics.any((t) => t.toLowerCase() == '#showtypes'), isFalse);
+
+      // Searching 'Tech' matches tech category articles
+      final techHits = repo.searchWithTotal('Tech', limit: 20);
+      expect(techHits.total, greaterThanOrEqualTo(2));
     });
 
     test('NewsRepository resolves all seeded/mock IDs without 404 and deprioritizes shopping deals', () {

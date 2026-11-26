@@ -72,10 +72,16 @@ class RssParser {
 
     final rawDesc = _getElementText(item, 'description');
     final contentEncoded = _getElementText(item, 'content:encoded');
-    final summaryText = _cleanHtml(rawDesc.isNotEmpty ? rawDesc : contentEncoded);
-    final contentText = contentEncoded.isNotEmpty
+    var summaryText = _cleanHtml(rawDesc.isNotEmpty ? rawDesc : contentEncoded);
+    var contentText = contentEncoded.isNotEmpty
         ? _cleanHtml(contentEncoded, preserveParagraphs: true)
         : _cleanHtml(rawDesc, preserveParagraphs: true);
+    if (summaryText.isEmpty) {
+      summaryText = '$title — Syndicated dispatch from ${feed.name}.';
+    }
+    if (contentText.isEmpty) {
+      contentText = summaryText;
+    }
 
     final pubDateStr = _getElementText(item, 'pubDate');
     final dcDateStr = _getElementText(item, 'dc:date');
@@ -124,10 +130,16 @@ class RssParser {
 
     final summaryRaw = _getElementText(entry, 'summary');
     final contentRaw = _getElementText(entry, 'content');
-    final summaryText = _cleanHtml(summaryRaw.isNotEmpty ? summaryRaw : contentRaw);
-    final contentText = contentRaw.isNotEmpty
+    var summaryText = _cleanHtml(summaryRaw.isNotEmpty ? summaryRaw : contentRaw);
+    var contentText = contentRaw.isNotEmpty
         ? _cleanHtml(contentRaw, preserveParagraphs: true)
         : _cleanHtml(summaryRaw, preserveParagraphs: true);
+    if (summaryText.isEmpty) {
+      summaryText = '$title — Syndicated dispatch from ${feed.name}.';
+    }
+    if (contentText.isEmpty) {
+      contentText = summaryText;
+    }
 
     final updatedStr = _getElementText(entry, 'updated');
     final publishedStr = _getElementText(entry, 'published');
@@ -461,7 +473,37 @@ class RssParser {
     final rfc = _tryParseRfc822(raw);
     if (rfc != null) return rfc.toLocal();
 
+    // 3. Common textual dates (e.g. "April 14, 2022" or "2022/04/14")
+    final textual = _tryParseTextualDate(raw);
+    if (textual != null) return textual.toLocal();
+
     return DateTime.now();
+  }
+
+  static DateTime? _tryParseTextualDate(String input) {
+    const months = <String, int>{
+      'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+      'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    };
+    final slash = RegExp(r'^(\d{4})/(\d{1,2})/(\d{1,2})').firstMatch(input);
+    if (slash != null) {
+      final y = int.tryParse(slash.group(1)!);
+      final m = int.tryParse(slash.group(2)!);
+      final d = int.tryParse(slash.group(3)!);
+      if (y != null && m != null && d != null) {
+        return DateTime.utc(y, m, d);
+      }
+    }
+    final monthFirst = RegExp(r'^([A-Za-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})').firstMatch(input);
+    if (monthFirst != null) {
+      final m = months[monthFirst.group(1)!.toLowerCase().substring(0, 3)];
+      final d = int.tryParse(monthFirst.group(2)!);
+      final y = int.tryParse(monthFirst.group(3)!);
+      if (y != null && m != null && d != null) {
+        return DateTime.utc(y, m, d);
+      }
+    }
+    return null;
   }
 
   static DateTime? _tryParseRfc822(String input) {
