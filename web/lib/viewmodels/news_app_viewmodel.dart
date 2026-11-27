@@ -29,7 +29,10 @@ class NewsAppViewModel extends ChangeNotifier {
     api.syncAllAsync(city: _selectedCity, interests: _userInterests).then((_) {
       _ads = _service.getSponsoredAds();
       final activeId = _activeReadingArticle?.id ?? 'default';
-      _comments = _dedupeComments(_service.getComments(activeId));
+      final sessionPosted = _comments
+          .where((c) => c.articleId == activeId && (c.id.startsWith('c-') || c.id.startsWith('cmt_')))
+          .toList();
+      _comments = _dedupeComments([...sessionPosted, ..._service.getComments(activeId)]);
       _refreshUnreadBadge();
       notifyListeners();
     });
@@ -68,6 +71,10 @@ class NewsAppViewModel extends ChangeNotifier {
     final city = user.preferences.locationCity;
     if (city != null && city.isNotEmpty) {
       _selectedCity = city;
+      final syncedEdition = _editionForCity(city);
+      if (syncedEdition != null) {
+        _selectedEdition = syncedEdition;
+      }
     }
     final availableLower = {for (final i in availableInterests) i.toLowerCase(): i};
     final matchedTopics = user.preferences.followedTopics
@@ -133,14 +140,38 @@ class NewsAppViewModel extends ChangeNotifier {
   String _libraryTab = 'bookmarks';
   String get libraryTab => _libraryTab;
 
+  static String? _editionForCity(String city) {
+    switch (city.trim().toLowerCase()) {
+      case 'new york':
+      case 'san francisco':
+        return 'United States';
+      case 'london':
+        return 'United Kingdom';
+      case 'lagos':
+        return 'Nigeria';
+      case 'tokyo':
+        return 'Japan';
+      case 'paris':
+        return 'European Union';
+      default:
+        return null;
+    }
+  }
+
   void setActiveScreen(String screen) {
-    if (_activeScreen != screen) {
+    final screenChanged = _activeScreen != screen;
+    final clearingFrontPageSearch = screen == 'headlines' && _searchQuery.isNotEmpty;
+    if (screenChanged || clearingFrontPageSearch) {
       _activeScreen = screen;
       if (screen == 'headlines') {
         _selectedCategory = 'top';
+        if (_searchQuery.isNotEmpty) {
+          _searchQuery = '';
+          _searchRequestSeq++;
+        }
       }
       notifyListeners();
-      if (_service is ApiNewsService) {
+      if (screenChanged && _service is ApiNewsService) {
         final api = _service;
         if (screen == 'for_you') {
           api
@@ -199,6 +230,10 @@ class NewsAppViewModel extends ChangeNotifier {
 
   void setCity(String city) {
     _selectedCity = city;
+    final syncedEdition = _editionForCity(city);
+    if (syncedEdition != null) {
+      _selectedEdition = syncedEdition;
+    }
     notifyListeners();
     if (_service is ApiNewsService) {
       final api = _service;
@@ -621,6 +656,10 @@ class NewsAppViewModel extends ChangeNotifier {
     );
     if (locationCity != null && locationCity.isNotEmpty) {
       _selectedCity = locationCity;
+      final syncedEdition = _editionForCity(locationCity);
+      if (syncedEdition != null) {
+        _selectedEdition = syncedEdition;
+      }
     }
     if (displayName != null) {
       _profileStatusMessage = '✓ Profile & preferences saved.';
@@ -629,10 +668,14 @@ class NewsAppViewModel extends ChangeNotifier {
 
     if (_service is ApiNewsService) {
       final api = _service;
+      final syncedEdition = (locationCity != null && locationCity.isNotEmpty)
+          ? _editionForCity(locationCity)
+          : null;
       api
           .updatePreferencesAsync(
             displayName: displayName,
             locationCity: locationCity,
+            locationCountry: syncedEdition,
             audioAutoplay: audioAutoplay,
             enableBreakingAlerts: breakingAlerts,
             enableDailyBriefing: dailyBriefing,
@@ -645,7 +688,13 @@ class NewsAppViewModel extends ChangeNotifier {
       });
       if (locationCity != null && locationCity.isNotEmpty) {
         api.fetchWeatherAsync(locationCity).then((_) => notifyListeners());
-        api.fetchForYouAsync(topics: _userInterests, city: locationCity).then((_) => notifyListeners());
+        api
+            .fetchForYouAsync(
+              topics: _userInterests,
+              city: locationCity,
+              country: _selectedEdition,
+            )
+            .then((_) => notifyListeners());
       }
     }
   }
@@ -758,12 +807,55 @@ class NewsAppViewModel extends ChangeNotifier {
   // ==========================================
   // MODALS & OVERLAYS CONTROLS
   // ==========================================
+  void _closeActiveOverlays({
+    bool keepReader = false,
+    bool keepFullCoverage = false,
+    bool keepAuth = false,
+    bool keepSubscription = false,
+    bool keepAdPublisher = false,
+    bool keepInterests = false,
+    bool keepEdition = false,
+    bool keepNotifications = false,
+  }) {
+    if (!keepReader) {
+      _activeReadingArticle = null;
+      _isAudioPlaying = false;
+      _newCommentDraft = '';
+      _stopAudioTimer();
+    }
+    if (!keepFullCoverage) {
+      _showFullCoverageModal = false;
+    }
+    if (!keepAuth) {
+      _showAuthModal = false;
+      _authError = null;
+      _authSuccessMessage = null;
+      _devResetCodeHint = null;
+    }
+    if (!keepSubscription) {
+      _showSubscriptionModal = false;
+    }
+    if (!keepAdPublisher) {
+      _showAdPublisherModal = false;
+    }
+    if (!keepInterests) {
+      _showInterestsModal = false;
+    }
+    if (!keepEdition) {
+      _showEditionModal = false;
+    }
+    if (!keepNotifications) {
+      _showNotificationsModal = false;
+    }
+  }
+
   bool _showAuthModal = false;
   String _authModalTab = 'signin';
   bool get showAuthModal => _showAuthModal;
   String get authModalTab => _authModalTab;
 
   void openAuthModal({String tab = 'signin'}) {
+    _closeActiveOverlays(keepAuth: true);
     _authModalTab = tab;
     _authError = null;
     _authSuccessMessage = null;
@@ -784,6 +876,7 @@ class NewsAppViewModel extends ChangeNotifier {
   bool get showSubscriptionModal => _showSubscriptionModal;
 
   void openSubscriptionModal() {
+    _closeActiveOverlays(keepSubscription: true);
     _showSubscriptionModal = true;
     notifyListeners();
   }
@@ -797,6 +890,7 @@ class NewsAppViewModel extends ChangeNotifier {
   bool get showAdPublisherModal => _showAdPublisherModal;
 
   void openAdPublisherModal() {
+    _closeActiveOverlays(keepAdPublisher: true);
     _showAdPublisherModal = true;
     notifyListeners();
   }
@@ -981,6 +1075,7 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   void openArticleReader(Article article) {
+    _closeActiveOverlays(keepReader: true);
     _activeReadingArticle = article;
     _audioProgress = 0.0;
     _newCommentDraft = '';
@@ -1012,7 +1107,7 @@ class NewsAppViewModel extends ChangeNotifier {
       api.fetchCommentsAsync(article.id).then((fetchedComments) {
         if (_activeReadingArticle?.id == article.id) {
           final sessionPosted = _comments
-              .where((c) => c.id.startsWith('c-') || c.id.startsWith('cmt_'))
+              .where((c) => c.articleId == article.id && (c.id.startsWith('c-') || c.id.startsWith('cmt_')))
               .toList();
           _comments = _dedupeComments([...sessionPosted, ...fetchedComments]);
           notifyListeners();
@@ -1192,6 +1287,7 @@ class NewsAppViewModel extends ChangeNotifier {
   bool get hasUnreadNotifications => _hasUnreadNotifications;
 
   void openFullCoverage() {
+    _closeActiveOverlays(keepFullCoverage: true);
     _showFullCoverageModal = true;
     notifyListeners();
     if (_service is ApiNewsService) {
@@ -1207,6 +1303,7 @@ class NewsAppViewModel extends ChangeNotifier {
   void closeFullCoverageModal() => closeFullCoverage();
 
   void openInterestsModal() {
+    _closeActiveOverlays(keepInterests: true);
     _showInterestsModal = true;
     notifyListeners();
   }
@@ -1217,8 +1314,10 @@ class NewsAppViewModel extends ChangeNotifier {
   }
 
   void toggleNotificationsModal() {
-    _showNotificationsModal = !_showNotificationsModal;
-    if (_showNotificationsModal) {
+    final willOpen = !_showNotificationsModal;
+    if (willOpen) {
+      _closeActiveOverlays(keepNotifications: true);
+      _showNotificationsModal = true;
       _hasUnreadNotifications = false;
       if (_service is ApiNewsService) {
         final api = _service;
@@ -1226,11 +1325,21 @@ class NewsAppViewModel extends ChangeNotifier {
           api.markNotificationReadAsync(n.id);
         }
       }
+    } else {
+      _showNotificationsModal = false;
     }
     notifyListeners();
   }
 
+  void closeNotificationsModal() {
+    if (_showNotificationsModal) {
+      _showNotificationsModal = false;
+      notifyListeners();
+    }
+  }
+
   void openEditionModal() {
+    _closeActiveOverlays(keepEdition: true);
     _showEditionModal = true;
     notifyListeners();
   }
@@ -1315,8 +1424,18 @@ class NewsAppViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isDisposed = false;
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
+    _isDisposed = true;
     _stopAudioTimer();
     _stopBriefingTimer();
     super.dispose();

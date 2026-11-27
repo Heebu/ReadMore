@@ -49,11 +49,12 @@ class MarketsView extends StatelessWidget {
         FDWrap(
           spacing: 16,
           runSpacing: 16,
+          cssStyle: const {'width': '100%', 'max-width': '100%'},
           children: items.map((m) {
             return MarketQuoteCard(
               item: m,
               vm: vm,
-              width: isMobile ? 320 : (isTablet ? 280 : 320),
+              width: isMobile ? null : (isTablet ? 280 : 320),
             );
           }).toList(),
         ),

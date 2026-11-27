@@ -96,20 +96,32 @@ void main() {
 
       final canceled = await service.cancelSubscriptionAsync();
       expect(canceled, isTrue);
+
+      final restoredUser = await service.updatePreferencesAsync(
+        displayName: 'News Reader',
+        locationCity: 'New York',
+      );
+      expect(restoredUser, isNotNull);
+      expect(restoredUser!.displayName, 'News Reader');
     });
 
-    test('posts comment and toggles comment like', () async {
-      final comments = await service.fetchCommentsAsync('seed-top-1');
-      expect(comments, isNotEmpty);
+    test('posts comment to dedicated test article and toggles comment like without polluting seed-top-1', () async {
+      final seedComments = await service.fetchCommentsAsync('seed-top-1');
+      expect(seedComments, isNotEmpty);
 
+      const testArticleId = 'integration-test-comments';
       final created = await service.postCommentAsync(
-        'seed-top-1',
+        testArticleId,
         author: 'Integration Tester',
         avatarUrl: 'https://example.com/a.png',
         text: 'Live backend comment verification!',
       );
       expect(created, isNotNull);
-      expect(created!.text, 'Live backend comment verification!');
+      expect(created!.articleId, testArticleId);
+      expect(created.text, 'Live backend comment verification!');
+
+      final fetched = await service.fetchCommentsAsync(testArticleId);
+      expect(fetched.any((c) => c.id == created.id), isTrue);
 
       final liked = await service.toggleCommentLikeAsync(created.id);
       expect(liked, isTrue);

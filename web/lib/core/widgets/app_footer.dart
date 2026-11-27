@@ -31,39 +31,47 @@ class AppFooter extends StatelessWidget {
         child: FDColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FDRow(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            FDWrap(
+              alignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 16,
+              cssStyle: const {'width': '100%', 'max-width': '100%'},
               children: [
-                FDColumn(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FDText(
-                      'ReadMore',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Cinzel',
-                        letterSpacing: 0.04,
-                        color: isDarkMode ? FlartColors.white : FlartColors.black,
+                FDContainer(
+                  cssStyle: const {'max-width': '100%', 'min-width': '0'},
+                  child: FDColumn(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FDText(
+                        'ReadMore',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Cinzel',
+                          letterSpacing: 0.04,
+                          color: isDarkMode ? FlartColors.white : FlartColors.black,
+                        ),
                       ),
-                    ),
-                    const FDSizedBox(height: 4),
-                    const FDText(
-                      'THE DAILY CHRONICLE OF WORLD AFFAIRS & REAL-TIME DISPATCHES',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Space Grotesk',
-                        letterSpacing: 0.1,
-                        color: AppColors.textMuted,
+                      const FDSizedBox(height: 4),
+                      const FDText(
+                        'THE DAILY CHRONICLE OF WORLD AFFAIRS & REAL-TIME DISPATCHES',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Space Grotesk',
+                          letterSpacing: 0.1,
+                          color: AppColors.textMuted,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                FDRow(
-                  mainAxisSize: MainAxisSize.min,
+                FDWrap(
+                  spacing: 14,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     FDLinkText(
                       text: 'ARCHIVE INDEX',
@@ -76,7 +84,6 @@ class AppFooter extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const FDSizedBox(width: 16),
                     FDLinkText(
                       text: 'WIRE SYNDICATION',
                       url: '/sitemap_news.xml',
@@ -88,7 +95,6 @@ class AppFooter extends StatelessWidget {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const FDSizedBox(width: 16),
                     FDLinkText(
                       text: 'TELEGRAPH FEED',
                       url: '/rss.xml',

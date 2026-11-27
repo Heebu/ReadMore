@@ -43,6 +43,10 @@ class InFeedNativeAdCard extends StatelessWidget {
           ],
         ),
         cssStyle: const {
+          'width': '100%',
+          'max-width': '100%',
+          'min-width': '0',
+          'box-sizing': 'border-box',
           'transition': 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
           'cursor': 'pointer',
         },
@@ -126,9 +130,12 @@ class InFeedNativeAdCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Sponsor Byline
-                  FDRow(
+                  FDWrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (ad.sponsorLogoUrl != null) ...[
+                      if (ad.sponsorLogoUrl != null)
                         FDContainer(
                           width: 18,
                           height: 18,
@@ -148,8 +155,6 @@ class InFeedNativeAdCard extends StatelessWidget {
                             },
                           ),
                         ),
-                        const FDSizedBox(width: 6),
-                      ],
                       FDText(
                         ad.sponsorName,
                         style: const TextStyle(
@@ -158,7 +163,6 @@ class InFeedNativeAdCard extends StatelessWidget {
                           color: AppColors.primaryBlueLight,
                         ),
                       ),
-                      const FDSizedBox(width: 8),
                       const FDText(
                         '● Promoted Story',
                         style: TextStyle(
@@ -200,8 +204,12 @@ class InFeedNativeAdCard extends StatelessWidget {
                   const FDSizedBox(height: 14),
 
                   // CTA Button Bar
-                  FDRow(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  FDWrap(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    cssStyle: const {'width': '100%', 'max-width': '100%'},
                     children: [
                       FDContainer(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -27,9 +27,12 @@ class WeatherSidebarWidget extends StatelessWidget {
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
               FDText(
                 'LOCAL WEATHER DISPATCH',
@@ -154,9 +157,12 @@ class MarketWatchSidebarWidget extends StatelessWidget {
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
               FDText(
                 'FINANCIAL BOURSE & TRADE',

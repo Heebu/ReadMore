@@ -23,6 +23,7 @@ class MarketQuoteCard extends StatelessWidget {
     return FDContainer(
       width: width,
       padding: const EdgeInsets.all(18),
+      cssStyle: width == null ? const {'width': '100%', 'max-width': '100%', 'box-sizing': 'border-box'} : null,
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),

@@ -1,4 +1,5 @@
 import 'package:flartdart/flartdart.dart';
+import 'package:read_more_web/core/utils/web_dom_helper.dart';
 import 'package:read_more_web/core/widgets/app_footer.dart';
 import 'package:read_more_web/core/widgets/app_header.dart';
 import 'package:read_more_web/core/widgets/breaking_ticker.dart';
@@ -34,14 +35,44 @@ void main() {
 }
 
 /// Clean Flutter MVVM Root Application Widget
-class ReadMoreApp extends StatelessWidget {
+class ReadMoreApp extends StatefulWidget {
   const ReadMoreApp({super.key});
+
+  @override
+  State<ReadMoreApp> createState() => _ReadMoreAppState();
+}
+
+class _ReadMoreAppState extends State<ReadMoreApp> {
+  Object? _resizeSub;
+  num? _lastWidth;
+
+  @override
+  void initState() {
+    super.initState();
+    _resizeSub = addWindowResizeListener(() {
+      final w = MediaQuery.of(context).width;
+      if (_lastWidth == null || (_lastWidth! < 600) != (w < 600) || (_lastWidth! < 1024) != (w < 1024)) {
+        _lastWidth = w;
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    removeWindowResizeListener(_resizeSub);
+    _resizeSub = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FDConsumer<NewsAppViewModel>(
       builder: (context, vm, _) {
         final media = MediaQuery.of(context);
+        _lastWidth = media.width;
         final isMobile = media.isSmall;
         final isTablet = media.isMedium;
 
@@ -54,6 +85,8 @@ class ReadMoreApp extends StatelessWidget {
             cssStyle: {
               'background': vm.isDarkMode ? '#0D0E11' : '#F7F5F0',
               'color': vm.isDarkMode ? '#F4F3EE' : '#111111',
+              'width': '100%',
+              'max-width': '100%',
             },
             body: FDStack(
               children: [
@@ -61,7 +94,7 @@ class ReadMoreApp extends StatelessWidget {
                 FDSingleChildScrollView(
                   child: FDColumn(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    cssStyle: const {'width': '100%'},
+                    cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                     children: [
                       // 1. MSN-Style Utility Ribbon
                       UtilityRibbon(vm: vm, isMobile: isMobile, isTablet: isTablet),
@@ -101,28 +134,60 @@ class ReadMoreApp extends StatelessWidget {
 
                 // Modal Overlays
                 if (vm.activeReadingArticle != null)
-                  ReaderViewModal(vm: vm, isMobile: isMobile),
+                  ReaderViewModal(
+                    key: const ValueKey('overlay-reader'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showFullCoverageModal)
-                  FullCoverageModal(vm: vm, isMobile: isMobile),
+                  FullCoverageModal(
+                    key: const ValueKey('overlay-full-coverage'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showInterestsModal)
-                  InterestsModal(vm: vm, isMobile: isMobile),
+                  InterestsModal(
+                    key: const ValueKey('overlay-interests'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showNotificationsModal)
-                  NotificationsPopover(vm: vm, isMobile: isMobile),
+                  NotificationsPopover(
+                    key: const ValueKey('overlay-notifications'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showEditionModal)
-                  EditionModal(vm: vm, isMobile: isMobile),
+                  EditionModal(
+                    key: const ValueKey('overlay-edition'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showAuthModal)
-                  AuthModal(vm: vm, isMobile: isMobile),
+                  AuthModal(
+                    key: const ValueKey('overlay-auth'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showSubscriptionModal)
-                  SubscriptionModal(vm: vm, isMobile: isMobile),
+                  SubscriptionModal(
+                    key: const ValueKey('overlay-subscription'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
 
                 if (vm.showAdPublisherModal)
-                  AdPublisherModal(vm: vm, isMobile: isMobile),
+                  AdPublisherModal(
+                    key: const ValueKey('overlay-ad-publisher'),
+                    vm: vm,
+                    isMobile: isMobile,
+                  ),
               ],
             ),
           ),

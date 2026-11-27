@@ -13,9 +13,11 @@ class FullCoverageBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).isSmall;
     final cluster = vm.fullCoverageCluster;
 
     return FDContainer(
+      id: 'full-coverage-block',
       decoration: BoxDecoration(
         color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#EFECE4'),
         borderRadius: BorderRadius.circular(3),
@@ -24,15 +26,27 @@ class FullCoverageBlock extends StatelessWidget {
           width: 1,
         ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      cssStyle: const {
+        'width': '100%',
+        'max-width': '100%',
+        'min-width': '0',
+        'box-sizing': 'border-box',
+        'overflow-wrap': 'break-word',
+      },
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
               FDRow(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   FDContainer(

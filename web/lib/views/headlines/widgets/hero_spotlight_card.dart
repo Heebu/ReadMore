@@ -19,6 +19,7 @@ class HeroSpotlightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).isSmall;
     final isBookmarked = vm.isBookmarked(article.id);
     final isReadLater = vm.isReadLater(article.id);
 
@@ -38,53 +39,63 @@ class HeroSpotlightCard extends StatelessWidget {
           ],
         ),
         cssStyle: const {
+          'width': '100%',
+          'max-width': '100%',
+          'min-width': '0',
+          'box-sizing': 'border-box',
+          'overflow-wrap': 'break-word',
           'transition': 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease',
           'cursor': 'pointer',
         },
         child: FDColumn(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
           children: [
             if (article.imageUrl != null)
               FDContainer(
                 width: double.infinity,
                 cssStyle: const {
                   'width': '100%',
-                  'min-width': '100%',
+                  'max-width': '100%',
                   'display': 'block',
                 },
                 child: FDStack(
                   children: [
                     FDContainer(
-                      height: 340,
+                      height: isMobile ? 220 : 340,
                       width: double.infinity,
                       clipBehavior: Clip.antiAlias,
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.vertical(top: 4),
                       ),
-                      cssStyle: const {
+                      cssStyle: {
                         'width': '100%',
-                        'min-width': '100%',
-                        'height': '340px',
+                        'max-width': '100%',
+                        'height': '${isMobile ? 220 : 340}px',
                         'display': 'block',
                       },
                       child: FDImage.network(
                         article.imageUrl!,
-                        height: 340,
+                        height: isMobile ? 220 : 340,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        cssStyle: const {
+                        cssStyle: {
                           'width': '100%',
-                          'min-width': '100%',
-                          'height': '340px',
+                          'max-width': '100%',
+                          'height': '${isMobile ? 220 : 340}px',
                           'object-fit': 'cover',
                           'display': 'block',
                         },
                       ),
                     ),
                     FDPositioned(
-                      top: 16,
-                      left: 16,
-                      child: FDRow(
+                      top: isMobile ? 12 : 16,
+                      left: isMobile ? 12 : 16,
+                      right: isMobile ? 12 : 16,
+                      child: FDWrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           FDContainer(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -107,7 +118,6 @@ class HeroSpotlightCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const FDSizedBox(width: 8),
                           FDContainer(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
@@ -138,9 +148,17 @@ class HeroSpotlightCard extends StatelessWidget {
                 ),
               ),
             FDContainer(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isMobile ? 16 : 24),
+              cssStyle: const {
+                'width': '100%',
+                'max-width': '100%',
+                'min-width': '0',
+                'box-sizing': 'border-box',
+                'overflow-wrap': 'break-word',
+              },
               child: FDColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                 children: [
                   ArticleMetaBar(
                     source: article.source,
@@ -151,7 +169,7 @@ class HeroSpotlightCard extends StatelessWidget {
                   FDText(
                     article.title,
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: isMobile ? 21 : 26,
                       fontWeight: FontWeight.w900,
                       fontFamily: 'Playfair Display',
                       height: 1.2,
@@ -163,17 +181,23 @@ class HeroSpotlightCard extends StatelessWidget {
                   FDText(
                     article.summary,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: isMobile ? 13.5 : 14,
                       fontFamily: 'Newsreader',
                       height: 1.5,
                       color: vm.isDarkMode ? const FlartColor('#A2A098') : const FlartColor('#4A4842'),
                     ),
                   ),
                   const FDSizedBox(height: 18),
-                  FDRow(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  FDWrap(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 10,
+                    runSpacing: 10,
+                    cssStyle: const {'width': '100%', 'max-width': '100%'},
                     children: [
-                      FDRow(
+                      FDWrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                           InteractionPill(
                             icon: FDIcons.favorite,
@@ -182,7 +206,6 @@ class HeroSpotlightCard extends StatelessWidget {
                             onTap: () => vm.toggleBookmark(article.id),
                             isDarkMode: vm.isDarkMode,
                           ),
-                          const FDSizedBox(width: 8),
                           InteractionPill(
                             icon: FDIcons.hourglass,
                             label: isReadLater ? 'In Queue' : 'Read Later',
@@ -193,6 +216,7 @@ class HeroSpotlightCard extends StatelessWidget {
                         ],
                       ),
                       FDRow(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           FDText(
                             'READ DISPATCH',

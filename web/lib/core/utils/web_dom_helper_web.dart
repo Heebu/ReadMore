@@ -54,6 +54,24 @@ void removeWindowKeyDownListener(Object? subscription) {
   } catch (_) {}
 }
 
+Object? addWindowResizeListener(void Function() onResize) {
+  try {
+    return web.EventStreamProviders.resizeEvent.forTarget(web.window).listen((_) {
+      onResize();
+    });
+  } catch (_) {
+    return null;
+  }
+}
+
+void removeWindowResizeListener(Object? subscription) {
+  try {
+    if (subscription is StreamSubscription) {
+      subscription.cancel();
+    }
+  } catch (_) {}
+}
+
 String? extractInputValue(dynamic event, {String? elementId}) {
   try {
     if (elementId != null) {

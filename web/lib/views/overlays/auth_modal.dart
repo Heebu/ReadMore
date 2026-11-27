@@ -92,10 +92,25 @@ class _AuthModalState extends State<AuthModal> {
     final isForgot = _activeTab == 'forgot';
 
     return FDContainer(
+      onClick: () => vm.closeAuthModal(),
       decoration: const BoxDecoration(
         color: FlartColor('rgba(0, 0, 0, 0.85)'),
       ),
+      cssStyle: const {
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'right': '0',
+        'bottom': '0',
+        'z-index': '1000',
+        'overflow-y': 'auto',
+      },
       child: FDCenter(
+        cssStyle: const {
+          'height': 'auto',
+          'min-height': '100%',
+          'align-items': 'safe center',
+        },
         child: FDElement(
           tag: 'div',
           id: 'auth-modal-dialog',
@@ -108,9 +123,19 @@ class _AuthModalState extends State<AuthModal> {
                     ? 'Sign In to ReadMore'
                     : 'Subscriber Registration',
           },
+          styles: {
+            'box-sizing': 'border-box',
+            'width': widget.isMobile ? 'calc(100% - 16px)' : 'min(460px, calc(100% - 40px))',
+            'max-width': 'calc(100vw - 16px)',
+            'min-width': '0',
+            'margin': widget.isMobile ? '8px auto' : '20px auto',
+            'cursor': 'default',
+          },
+          events: {
+            'click': (dynamic e) => stopEventPropagation(e),
+          },
           children: [
             FDContainer(
-              margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: vm.isDarkMode ? const FlartColor('#111217') : const FlartColor('#F7F5F0'),
                 borderRadius: BorderRadius.circular(4),
@@ -126,57 +151,81 @@ class _AuthModalState extends State<AuthModal> {
                   ),
                 ],
               ),
+              cssStyle: const {
+                'width': '100%',
+                'max-width': '100%',
+                'min-width': '0',
+                'box-sizing': 'border-box',
+              },
               child: FDConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 460),
+                cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0'},
                 child: FDSingleChildScrollView(
+                  cssStyle: {
+                    'max-height': widget.isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 48px)',
+                  },
                   child: FDContainer(
-                    padding: const EdgeInsets.all(28),
+                    padding: EdgeInsets.all(widget.isMobile ? 16 : 28),
+                    cssStyle: const {
+                      'width': '100%',
+                      'max-width': '100%',
+                      'min-width': '0',
+                      'box-sizing': 'border-box',
+                      'overflow-wrap': 'break-word',
+                    },
                     child: FDColumn(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
+                      cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                       children: [
                         // Header Bar with Close Button
                         FDRow(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            FDRow(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FDContainer(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: FDCenter(
-                                    child: FDText(
-                                      'R',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        fontFamily: 'Cinzel',
-                                        color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                            Expanded(
+                              child: FDRow(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  FDContainer(
+                                    width: 32,
+                                    height: 32,
+                                    cssStyle: const {'flex-shrink': '0'},
+                                    decoration: BoxDecoration(
+                                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: FDCenter(
+                                      child: FDText(
+                                        'R',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                          fontFamily: 'Cinzel',
+                                          color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                const FDSizedBox(width: 10),
-                                FDText(
-                                  isForgot
-                                      ? 'Recover Subscriber Access'
-                                      : isSignIn
-                                          ? 'Sign In to ReadMore'
-                                          : 'Subscriber Registration',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    fontFamily: 'Playfair Display',
-                                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                  const FDSizedBox(width: 10),
+                                  Expanded(
+                                    child: FDText(
+                                      isForgot
+                                          ? 'Recover Subscriber Access'
+                                          : isSignIn
+                                              ? 'Sign In to ReadMore'
+                                              : 'Subscriber Registration',
+                                      style: TextStyle(
+                                        fontSize: widget.isMobile ? 16 : 18,
+                                        fontWeight: FontWeight.w900,
+                                        fontFamily: 'Playfair Display',
+                                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            const FDSizedBox(width: 8),
                             FDGestureDetector(
                               key: const ValueKey('auth-close-btn'),
                               onTap: () => vm.closeAuthModal(),
@@ -427,8 +476,12 @@ class _AuthModalState extends State<AuthModal> {
                           ],
 
                           // Email Field
-                          FDRow(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          FDWrap(
+                            alignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
+                            cssStyle: const {'width': '100%', 'max-width': '100%'},
                             children: [
                               const FDText(
                                 'Email Address',
@@ -466,8 +519,12 @@ class _AuthModalState extends State<AuthModal> {
                           const FDSizedBox(height: 12),
 
                           // Password Field
-                          FDRow(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          FDWrap(
+                            alignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
+                            cssStyle: const {'width': '100%', 'max-width': '100%'},
                             children: [
                               const FDText(
                                 'Password',

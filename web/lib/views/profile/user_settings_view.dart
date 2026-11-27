@@ -56,25 +56,32 @@ class _UserSettingsViewState extends State<UserSettingsView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Page Title & Back to Headlines
-        FDRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        FDWrap(
+          alignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 12,
+          runSpacing: 12,
+          cssStyle: const {'width': '100%', 'max-width': '100%'},
           children: [
-            FDColumn(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionHeader(
-                  title: vm.isAuthenticated ? 'Profile & Intelligence Settings' : 'Guest Reader Desk',
-                  isDarkMode: vm.isDarkMode,
-                ),
-                const FDSizedBox(height: 4),
-                FDText(
-                  vm.isAuthenticated
-                      ? 'Manage your personalized topics, reading streaks, Pro subscription, and ad publishing.'
-                      : 'Sign in or register to unlock synced reading streaks, saved archives, and subscriber preferences.',
-                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-                ),
-              ],
+            FDContainer(
+              cssStyle: const {'min-width': '0', 'max-width': '100%'},
+              child: FDColumn(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                cssStyle: const {'min-width': '0', 'max-width': '100%'},
+                children: [
+                  SectionHeader(
+                    title: vm.isAuthenticated ? 'Profile & Intelligence Settings' : 'Guest Reader Desk',
+                    isDarkMode: vm.isDarkMode,
+                  ),
+                  const FDSizedBox(height: 4),
+                  FDText(
+                    vm.isAuthenticated
+                        ? 'Manage your personalized topics, reading streaks, Pro subscription, and ad publishing.'
+                        : 'Sign in or register to unlock synced reading streaks, saved archives, and subscriber preferences.',
+                    style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
             FDGestureDetector(
               onTap: () => vm.setActiveScreen('headlines'),
@@ -127,22 +134,28 @@ class _UserSettingsViewState extends State<UserSettingsView> {
   Widget _buildUserProfileCard(BuildContext context) {
     if (!vm.isAuthenticated) {
       return FDContainer(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(isMobile ? 16 : 24),
         decoration: BoxDecoration(
           color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.borderRegular),
         ),
-        child: FDRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
+        child: FDWrap(
+          alignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 16,
+          runSpacing: 16,
+          cssStyle: const {'width': '100%', 'max-width': '100%'},
           children: [
             FDRow(
               crossAxisAlignment: CrossAxisAlignment.center,
+              cssStyle: const {'max-width': '100%', 'min-width': '0'},
               children: [
                 FDContainer(
                   width: 52,
                   height: 52,
+                  cssStyle: const {'flex-shrink': '0'},
                   decoration: BoxDecoration(
                     color: vm.isDarkMode ? const FlartColor('#242630') : const FlartColor('#E2DED2'),
                     shape: BoxShape.circle,
@@ -160,46 +173,50 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                     ),
                   ),
                 ),
-                const FDSizedBox(width: 16),
-                FDColumn(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FDRow(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FDText(
-                          'Guest Reader',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                const FDSizedBox(width: 14),
+                Expanded(
+                  child: FDColumn(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FDWrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          FDText(
+                            'Guest Reader',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            ),
                           ),
-                        ),
-                        const FDSizedBox(width: 8),
-                        FDContainer(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.borderSubtle,
-                            borderRadius: BorderRadius.circular(6),
+                          FDContainer(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.borderSubtle,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const FDText(
+                              'Browsing as Guest',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
+                            ),
                           ),
-                          child: const FDText(
-                            'Browsing as Guest',
-                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const FDSizedBox(height: 4),
-                    const FDText(
-                      'Sign in to track your reading streak, sync saved articles, and customize subscriber preferences.',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const FDSizedBox(height: 4),
+                      const FDText(
+                        'Sign in to track your reading streak, sync saved articles, and customize subscriber preferences.',
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            FDRow(
-              mainAxisSize: MainAxisSize.min,
+            FDWrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 FDGestureDetector(
                   onTap: () => vm.openAuthModal(tab: 'signin'),
@@ -225,46 +242,52 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: AppColors.borderRegular),
                     ),
-                    child: FDText(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                      ),
+                  child: FDText(
+                    'Create Account',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
     final user = vm.currentUser;
 
     return FDContainer(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(isMobile ? 16 : 22),
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderRegular),
       ),
+      cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
               FDRow(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                cssStyle: const {'max-width': '100%', 'min-width': '0'},
                 children: [
                   // User Avatar Monogram Seal
                   FDContainer(
                     width: 52,
                     height: 52,
+                    cssStyle: const {'flex-shrink': '0'},
                     decoration: BoxDecoration(
                       color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                       shape: BoxShape.circle,
@@ -285,59 +308,62 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                       ),
                     ),
                   ),
-                  const FDSizedBox(width: 16),
-                  FDColumn(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FDRow(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FDText(
-                            user.displayName,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                            ),
-                          ),
-                          const FDSizedBox(width: 8),
-                          if (user.isPro)
-                            FDContainer(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
+                  const FDSizedBox(width: 14),
+                  Expanded(
+                    child: FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FDWrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            FDText(
+                              user.displayName,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
                                 color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                                borderRadius: BorderRadius.circular(2),
                               ),
-                              child: FDText(
-                                'PRO ✦',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Space Grotesk',
-                                  color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                            ),
+                            if (user.isPro)
+                              FDContainer(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: FDText(
+                                  'PRO ✦',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    fontFamily: 'Space Grotesk',
+                                    color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                                  ),
+                                ),
+                              )
+                            else
+                              FDContainer(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.borderSubtle,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const FDText(
+                                  'Free Reader',
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
                                 ),
                               ),
-                            )
-                          else
-                            FDContainer(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.borderSubtle,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const FDText(
-                                'Free Reader',
-                                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textMuted),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const FDSizedBox(height: 4),
-                      FDText(
-                        user.email,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      ),
-                    ],
+                          ],
+                        ),
+                        const FDSizedBox(height: 4),
+                        FDText(
+                          user.email,
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -385,22 +411,48 @@ class _UserSettingsViewState extends State<UserSettingsView> {
           const FDSizedBox(height: 16),
 
           // Reading Metrics Stat Strip
-          FDRow(
-            children: [
-              _buildStatBox(
-                'Reading Streak',
-                '${user.readingStreakDays} ${user.readingStreakDays == 1 ? 'Day' : 'Days'}',
-                '🔥',
-                AppColors.accentAmber,
-              ),
-              const FDSizedBox(width: 12),
-              _buildStatBox('Articles Read', '${user.articlesReadCount}', '📖', AppColors.primaryBlueLight),
-              const FDSizedBox(width: 12),
-              _buildStatBox('Time Invested', '${user.articlesReadCount * 4}m', '⏱️', AppColors.accentEmerald),
-              const FDSizedBox(width: 12),
-              _buildStatBox('Saved in Library', '${vm.bookmarkedIds.length + vm.readLaterIds.length}', '🔖', AppColors.accentPurple),
-            ],
-          ),
+          if (isMobile)
+            FDColumn(
+              spacing: 10,
+              children: [
+                FDRow(
+                  children: [
+                    _buildStatBox(
+                      'Reading Streak',
+                      '${user.readingStreakDays} ${user.readingStreakDays == 1 ? 'Day' : 'Days'}',
+                      '🔥',
+                      AppColors.accentAmber,
+                    ),
+                    const FDSizedBox(width: 10),
+                    _buildStatBox('Articles Read', '${user.articlesReadCount}', '📖', AppColors.primaryBlueLight),
+                  ],
+                ),
+                FDRow(
+                  children: [
+                    _buildStatBox('Time Invested', '${user.articlesReadCount * 4}m', '⏱️', AppColors.accentEmerald),
+                    const FDSizedBox(width: 10),
+                    _buildStatBox('Saved in Library', '${vm.bookmarkedIds.length + vm.readLaterIds.length}', '🔖', AppColors.accentPurple),
+                  ],
+                ),
+              ],
+            )
+          else
+            FDRow(
+              children: [
+                _buildStatBox(
+                  'Reading Streak',
+                  '${user.readingStreakDays} ${user.readingStreakDays == 1 ? 'Day' : 'Days'}',
+                  '🔥',
+                  AppColors.accentAmber,
+                ),
+                const FDSizedBox(width: 12),
+                _buildStatBox('Articles Read', '${user.articlesReadCount}', '📖', AppColors.primaryBlueLight),
+                const FDSizedBox(width: 12),
+                _buildStatBox('Time Invested', '${user.articlesReadCount * 4}m', '⏱️', AppColors.accentEmerald),
+                const FDSizedBox(width: 12),
+                _buildStatBox('Saved in Library', '${vm.bookmarkedIds.length + vm.readLaterIds.length}', '🔖', AppColors.accentPurple),
+              ],
+            ),
 
           if (vm.isAuthenticated) ...[
             const FDSizedBox(height: 20),
@@ -503,10 +555,12 @@ class _UserSettingsViewState extends State<UserSettingsView> {
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
         ),
         const FDSizedBox(height: 10),
-        FDRow(
-          children: [
-            Expanded(
-              child: AppTextField(
+        if (isMobile)
+          FDColumn(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 10,
+            children: [
+              AppTextField(
                 key: const ValueKey('profile-current-password-input'),
                 value: _currentPasswordDraft,
                 placeholder: 'Current password',
@@ -517,10 +571,7 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                 borderRadius: 10,
                 onChanged: (val) => _currentPasswordDraft = val,
               ),
-            ),
-            const FDSizedBox(width: 10),
-            Expanded(
-              child: AppTextField(
+              AppTextField(
                 key: const ValueKey('profile-new-password-input'),
                 value: _newPasswordDraft,
                 placeholder: 'New password (6+ chars)',
@@ -531,25 +582,74 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                 borderRadius: 10,
                 onChanged: (val) => _newPasswordDraft = val,
               ),
-            ),
-            const FDSizedBox(width: 10),
-            FDGestureDetector(
-              onTap: () => vm.changePassword(_currentPasswordDraft, _newPasswordDraft),
-              child: FDContainer(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-                decoration: BoxDecoration(
-                  color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.borderRegular),
-                ),
-                child: const FDText(
-                  'UPDATE PASSWORD',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, fontFamily: 'Space Grotesk'),
+              FDGestureDetector(
+                onTap: () => vm.changePassword(_currentPasswordDraft, _newPasswordDraft),
+                child: FDContainer(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.borderRegular),
+                  ),
+                  child: const FDCenter(
+                    child: FDText(
+                      'UPDATE PASSWORD',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, fontFamily: 'Space Grotesk'),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          )
+        else
+          FDRow(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  key: const ValueKey('profile-current-password-input'),
+                  value: _currentPasswordDraft,
+                  placeholder: 'Current password',
+                  ariaLabel: 'Current password',
+                  obscureText: true,
+                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                  borderColor: AppColors.borderRegular,
+                  borderRadius: 10,
+                  onChanged: (val) => _currentPasswordDraft = val,
+                ),
+              ),
+              const FDSizedBox(width: 10),
+              Expanded(
+                child: AppTextField(
+                  key: const ValueKey('profile-new-password-input'),
+                  value: _newPasswordDraft,
+                  placeholder: 'New password (6+ chars)',
+                  ariaLabel: 'New password',
+                  obscureText: true,
+                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                  borderColor: AppColors.borderRegular,
+                  borderRadius: 10,
+                  onChanged: (val) => _newPasswordDraft = val,
+                ),
+              ),
+              const FDSizedBox(width: 10),
+              FDGestureDetector(
+                onTap: () => vm.changePassword(_currentPasswordDraft, _newPasswordDraft),
+                child: FDContainer(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.borderRegular),
+                  ),
+                  child: const FDText(
+                    'UPDATE PASSWORD',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, fontFamily: 'Space Grotesk'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         if (vm.profileStatusMessage != null) ...[
           const FDSizedBox(height: 10),
           FDText(
@@ -572,7 +672,7 @@ class _UserSettingsViewState extends State<UserSettingsView> {
     final isPro = user.isPro;
 
     return FDContainer(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(isMobile ? 16 : 22),
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
@@ -581,18 +681,24 @@ class _UserSettingsViewState extends State<UserSettingsView> {
           width: isPro ? 2 : 1,
         ),
       ),
+      cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
               FDRow(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                cssStyle: const {'max-width': '100%', 'min-width': '0'},
                 children: [
                   FDContainer(
                     padding: const EdgeInsets.all(10),
+                    cssStyle: const {'flex-shrink': '0'},
                     decoration: BoxDecoration(
                       color: isPro
                           ? const FlartColor('rgba(139, 92, 246, 0.2)')
@@ -602,44 +708,47 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                     child: FDText(isPro ? '👑' : '⚡', style: const TextStyle(fontSize: 22)),
                   ),
                   const FDSizedBox(width: 14),
-                  FDColumn(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FDRow(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FDText(
-                            isPro ? 'ReadMore Pro Membership' : 'ReadMore Pro',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                          ),
-                          const FDSizedBox(width: 8),
-                          FDContainer(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: isPro
-                                  ? const FlartColor('rgba(16, 185, 129, 0.2)')
-                                  : const FlartColor('rgba(245, 158, 11, 0.2)'),
-                              borderRadius: BorderRadius.circular(6),
+                  Expanded(
+                    child: FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FDWrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            FDText(
+                              isPro ? 'ReadMore Pro Membership' : 'ReadMore Pro',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                             ),
-                            child: FDText(
-                              isPro ? 'Active' : 'Upgrade Available',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: isPro ? AppColors.accentEmerald : AppColors.accentAmber,
+                            FDContainer(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: isPro
+                                    ? const FlartColor('rgba(16, 185, 129, 0.2)')
+                                    : const FlartColor('rgba(245, 158, 11, 0.2)'),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: FDText(
+                                isPro ? 'Active' : 'Upgrade Available',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: isPro ? AppColors.accentEmerald : AppColors.accentAmber,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const FDSizedBox(height: 4),
-                      FDText(
-                        isPro
-                            ? 'Renews automatically on November 20, 2027  ●  Annual Pro Plan'
-                            : 'Remove all ads, unlock neural AI audio voice briefings, and access deep market analytics.',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                      ),
-                    ],
+                          ],
+                        ),
+                        const FDSizedBox(height: 4),
+                        FDText(
+                          isPro
+                              ? 'Renews automatically on November 20, 2027  ●  Annual Pro Plan'
+                              : 'Remove all ads, unlock neural AI audio voice briefings, and access deep market analytics.',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -856,28 +965,36 @@ class _UserSettingsViewState extends State<UserSettingsView> {
     final avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0.0;
 
     return FDContainer(
-      padding: const EdgeInsets.all(22),
+      padding: EdgeInsets.all(isMobile ? 16 : 22),
       decoration: BoxDecoration(
         color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.borderRegular),
       ),
+      cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
       child: FDColumn(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
-              FDColumn(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  FDText('Sponsored Campaigns & Publisher Controls', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                  FDSizedBox(height: 4),
-                  FDText(
-                    'Deploy self-serve native in-feed stories and Google Ads directly to the live platform feed.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                  ),
-                ],
+              FDContainer(
+                cssStyle: const {'min-width': '0', 'max-width': '100%'},
+                child: FDColumn(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    FDText('Sponsored Campaigns & Publisher Controls', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                    FDSizedBox(height: 4),
+                    FDText(
+                      'Deploy self-serve native in-feed stories and Google Ads directly to the live platform feed.',
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
               FDGestureDetector(
                 onTap: () => vm.openAdPublisherModal(),
@@ -912,17 +1029,38 @@ class _UserSettingsViewState extends State<UserSettingsView> {
           const FDSizedBox(height: 20),
 
           // Publisher Metrics Bar
-          FDRow(
-            children: [
-              _buildPublisherStat('Active Campaigns', '${ads.length}', '📊'),
-              const FDSizedBox(width: 12),
-              _buildPublisherStat('Total Impressions', '$totalImpressions', '👁️'),
-              const FDSizedBox(width: 12),
-              _buildPublisherStat('Total Clicks', '$totalClicks', '🖱️'),
-              const FDSizedBox(width: 12),
-              _buildPublisherStat('Average CTR', '${avgCtr.toStringAsFixed(2)}%', '📈'),
-            ],
-          ),
+          if (isMobile)
+            FDColumn(
+              spacing: 10,
+              children: [
+                FDRow(
+                  children: [
+                    _buildPublisherStat('Active Campaigns', '${ads.length}', '📊'),
+                    const FDSizedBox(width: 10),
+                    _buildPublisherStat('Total Impressions', '$totalImpressions', '👁️'),
+                  ],
+                ),
+                FDRow(
+                  children: [
+                    _buildPublisherStat('Total Clicks', '$totalClicks', '🖱️'),
+                    const FDSizedBox(width: 10),
+                    _buildPublisherStat('Average CTR', '${avgCtr.toStringAsFixed(2)}%', '📈'),
+                  ],
+                ),
+              ],
+            )
+          else
+            FDRow(
+              children: [
+                _buildPublisherStat('Active Campaigns', '${ads.length}', '📊'),
+                const FDSizedBox(width: 12),
+                _buildPublisherStat('Total Impressions', '$totalImpressions', '👁️'),
+                const FDSizedBox(width: 12),
+                _buildPublisherStat('Total Clicks', '$totalClicks', '🖱️'),
+                const FDSizedBox(width: 12),
+                _buildPublisherStat('Average CTR', '${avgCtr.toStringAsFixed(2)}%', '📈'),
+              ],
+            ),
           const FDSizedBox(height: 20),
 
           // Active Campaigns List
@@ -936,13 +1074,19 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.borderSubtle),
                 ),
-                child: FDRow(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: FDWrap(
+                  alignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  runSpacing: 10,
+                  cssStyle: const {'width': '100%', 'max-width': '100%'},
                   children: [
                     FDRow(
+                      cssStyle: const {'max-width': '100%', 'min-width': '0'},
                       children: [
                         FDContainer(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          cssStyle: const {'flex-shrink': '0'},
                           decoration: BoxDecoration(
                             color: ad.format == AdFormat.googleAdSense
                                 ? const FlartColor('rgba(59, 130, 246, 0.15)')
@@ -959,37 +1103,35 @@ class _UserSettingsViewState extends State<UserSettingsView> {
                           ),
                         ),
                         const FDSizedBox(width: 12),
-                        FDColumn(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FDText(
-                              ad.title,
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FDText(
-                              'Sponsor: ${ad.sponsorName}  ●  Category: ${ad.targetCategory.toUpperCase()}',
-                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                            ),
-                          ],
+                        Expanded(
+                          child: FDColumn(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FDText(
+                                ad.title,
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              FDText(
+                                'Sponsor: ${ad.sponsorName}  ●  Category: ${ad.targetCategory.toUpperCase()}',
+                                style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    FDRow(
+                    FDColumn(
+                      crossAxisAlignment: isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                       children: [
-                        FDColumn(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            FDText(
-                              '${ad.impressions} impr  ●  ${ad.clicks} clicks',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                            ),
-                            FDText(
-                              'CTR: ${ad.clickThroughRate.toStringAsFixed(2)}%  ●  \$${ad.dailyBudget.toInt()}/day',
-                              style: const TextStyle(fontSize: 11, color: AppColors.accentEmerald),
-                            ),
-                          ],
+                        FDText(
+                          '${ad.impressions} impr  ●  ${ad.clicks} clicks',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        FDText(
+                          'CTR: ${ad.clickThroughRate.toStringAsFixed(2)}%  ●  \$${ad.dailyBudget.toInt()}/day',
+                          style: const TextStyle(fontSize: 11, color: AppColors.accentEmerald),
                         ),
                       ],
                     ),
@@ -1068,6 +1210,7 @@ class _UserSettingsViewState extends State<UserSettingsView> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: FDRow(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: FDColumn(
@@ -1079,6 +1222,7 @@ class _UserSettingsViewState extends State<UserSettingsView> {
               ],
             ),
           ),
+          const FDSizedBox(width: 10),
           FDGestureDetector(
             onTap: () => onChanged(!isEnabled),
             child: FDContainer(

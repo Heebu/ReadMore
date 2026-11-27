@@ -35,13 +35,17 @@ class SectionHeader extends StatelessWidget {
           ),
         ),
       ),
-      child: FDRow(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: FDWrap(
+        alignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 6,
+        cssStyle: const {'width': '100%', 'max-width': '100%'},
         children: [
           FDRow(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
+            cssStyle: const {'max-width': '100%', 'min-width': '0'},
             children: [
               FDText(
                 '✦ ',
@@ -53,6 +57,7 @@ class SectionHeader extends StatelessWidget {
               FDColumn(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
+                cssStyle: const {'max-width': '100%', 'min-width': '0'},
                 children: [
                   FDText(
                     title.toUpperCase(),

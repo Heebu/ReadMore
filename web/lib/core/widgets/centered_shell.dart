@@ -21,6 +21,7 @@ class CenteredShell extends StatelessWidget {
       cssStyle: {
         'width': '100%',
         'max-width': '${maxWidth.toInt()}px',
+        'min-width': '0',
         'margin-left': 'auto',
         'margin-right': 'auto',
         'box-sizing': 'border-box',

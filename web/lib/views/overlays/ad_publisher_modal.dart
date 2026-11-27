@@ -1,6 +1,7 @@
 import 'package:flartdart/flartdart.dart';
 import 'package:news_models/news_models.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/web_dom_helper.dart';
 import '../../core/widgets/app_text_field.dart';
 import '../../viewmodels/news_app_viewmodel.dart';
 
@@ -30,78 +31,154 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
   String _targetCategory = 'tech';
   double _dailyBudget = 100.0;
   String _imageUrl = 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop&q=80';
+  Object? _keySub;
+
+  @override
+  void initState() {
+    super.initState();
+    _keySub = addWindowKeyDownListener((key, _) {
+      if (key == 'Escape') {
+        widget.vm.closeAdPublisherModal();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    removeWindowKeyDownListener(_keySub);
+    _keySub = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final vm = widget.vm;
 
     return FDContainer(
+      onClick: () => vm.closeAdPublisherModal(),
       decoration: const BoxDecoration(
         color: FlartColor('rgba(0, 0, 0, 0.85)'),
       ),
+      cssStyle: const {
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'right': '0',
+        'bottom': '0',
+        'z-index': '1000',
+        'overflow-y': 'auto',
+      },
       child: FDCenter(
-        child: FDContainer(
-          margin: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.primaryBlue, width: 1.5),
-            boxShadow: const [
-              BoxShadow(
-                color: FlartColor('rgba(0, 0, 0, 0.6)'),
-                blurRadius: 32,
-                offset: Offset(0, 12),
+        cssStyle: const {
+          'height': 'auto',
+          'min-height': '100%',
+          'align-items': 'safe center',
+        },
+        child: FDElement(
+          tag: 'div',
+          id: 'ad-publisher-modal-dialog',
+          attributes: const {
+            'role': 'dialog',
+            'aria-modal': 'true',
+            'aria-label': 'Launch Sponsored Campaign',
+          },
+          styles: {
+            'box-sizing': 'border-box',
+            'width': widget.isMobile ? 'calc(100% - 16px)' : 'min(620px, calc(100% - 40px))',
+            'max-width': 'calc(100vw - 16px)',
+            'min-width': '0',
+            'margin': widget.isMobile ? '8px auto' : '20px auto',
+            'cursor': 'default',
+          },
+          events: {
+            'click': (dynamic e) => stopEventPropagation(e),
+          },
+          children: [
+            FDContainer(
+              decoration: BoxDecoration(
+                color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.primaryBlue, width: 1.5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: FlartColor('rgba(0, 0, 0, 0.6)'),
+                    blurRadius: 32,
+                    offset: Offset(0, 12),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: FDConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 620),
-            child: FDContainer(
-              padding: const EdgeInsets.all(28),
-              child: FDSingleChildScrollView(
-                child: FDColumn(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header Bar
-                    FDRow(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
+              child: FDConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 620),
+                cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0'},
+                child: FDSingleChildScrollView(
+                  cssStyle: {
+                    'max-height': widget.isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 48px)',
+                  },
+                  child: FDContainer(
+                    padding: EdgeInsets.all(widget.isMobile ? 16 : 28),
+                    cssStyle: const {
+                      'width': '100%',
+                      'max-width': '100%',
+                      'min-width': '0',
+                      'box-sizing': 'border-box',
+                      'overflow-wrap': 'break-word',
+                    },
+                    child: FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                       children: [
+                        // Header Bar
                         FDRow(
-                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            FDContainer(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryBlue,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const FDText(
-                                'ADS PUBLISHER',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  color: FlartColors.white,
-                                  letterSpacing: 0.1,
-                                ),
+                            Expanded(
+                              child: FDWrap(
+                                spacing: 10,
+                                runSpacing: 6,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  FDContainer(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryBlue,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const FDText(
+                                      'ADS PUBLISHER',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        color: FlartColors.white,
+                                        letterSpacing: 0.1,
+                                      ),
+                                    ),
+                                  ),
+                                  FDText(
+                                    'Launch Sponsored Campaign',
+                                    style: TextStyle(
+                                      fontSize: widget.isMobile ? 16 : 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const FDSizedBox(width: 10),
-                            FDText(
-                              'Launch Sponsored Campaign',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                            const FDSizedBox(width: 8),
+                            FDGestureDetector(
+                              key: const ValueKey('ad-publisher-close-btn'),
+                              onTap: () => vm.closeAdPublisherModal(),
+                              child: const FDIcon(
+                                icon: FDIcons.close,
+                                size: 20,
+                                color: FlartColors.grey,
+                                semanticLabel: 'Close ad publisher',
                               ),
                             ),
                           ],
                         ),
-                        FDGestureDetector(
-                          onTap: () => vm.closeAdPublisherModal(),
-                          child: const FDIcon(icon: FDIcons.close, size: 20, color: FlartColors.grey),
-                        ),
-                      ],
-                    ),
                     const FDSizedBox(height: 8),
 
                     const FDText(
@@ -120,27 +197,53 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
                     ),
                     const FDSizedBox(height: 8),
-                    FDRow(
-                      children: [
-                        _buildPlacementOption(
-                          AdPlacement.inFeedNative,
-                          'In-Feed Native',
-                          '📰 Seamless article card',
-                        ),
-                        const FDSizedBox(width: 8),
-                        _buildPlacementOption(
-                          AdPlacement.leaderboardBanner,
-                          'Google Banner',
-                          '🏷️ 728x90 Leaderboard',
-                        ),
-                        const FDSizedBox(width: 8),
-                        _buildPlacementOption(
-                          AdPlacement.sidebarRectangle,
-                          'Sidebar Box',
-                          '📐 300x250 Rectangle',
-                        ),
-                      ],
-                    ),
+                    if (widget.isMobile)
+                      FDColumn(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
+                        children: [
+                          _buildPlacementOption(
+                            AdPlacement.inFeedNative,
+                            'In-Feed Native',
+                            '📰 Seamless article card',
+                            expand: false,
+                          ),
+                          _buildPlacementOption(
+                            AdPlacement.leaderboardBanner,
+                            'Google Banner',
+                            '🏷️ 728x90 Leaderboard',
+                            expand: false,
+                          ),
+                          _buildPlacementOption(
+                            AdPlacement.sidebarRectangle,
+                            'Sidebar Box',
+                            '📐 300x250 Rectangle',
+                            expand: false,
+                          ),
+                        ],
+                      )
+                    else
+                      FDRow(
+                        children: [
+                          _buildPlacementOption(
+                            AdPlacement.inFeedNative,
+                            'In-Feed Native',
+                            '📰 Seamless article card',
+                          ),
+                          const FDSizedBox(width: 8),
+                          _buildPlacementOption(
+                            AdPlacement.leaderboardBanner,
+                            'Google Banner',
+                            '🏷️ 728x90 Leaderboard',
+                          ),
+                          const FDSizedBox(width: 8),
+                          _buildPlacementOption(
+                            AdPlacement.sidebarRectangle,
+                            'Sidebar Box',
+                            '📐 300x250 Rectangle',
+                          ),
+                        ],
+                      ),
                     const FDSizedBox(height: 16),
 
                     // Campaign Headline
@@ -177,12 +280,13 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                     ),
                     const FDSizedBox(height: 14),
 
-                    // Sponsor Name & CTA in a Row
-                    FDRow(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: FDColumn(
+                    // Sponsor Name & CTA
+                    if (widget.isMobile)
+                      FDColumn(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 12,
+                        children: [
+                          FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FDText(
@@ -201,11 +305,7 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                               ),
                             ],
                           ),
-                        ),
-                        const FDSizedBox(width: 12),
-                        Expanded(
-                          flex: 4,
-                          child: FDColumn(
+                          FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FDText(
@@ -224,17 +324,67 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      )
+                    else
+                      FDRow(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: FDColumn(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const FDText(
+                                  'Sponsor / Brand Name',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                                ),
+                                const FDSizedBox(height: 6),
+                                AppTextField(
+                                  key: const ValueKey('ad-sponsor-input'),
+                                  value: _sponsorName,
+                                  placeholder: 'e.g. Datadog / Acme Corp',
+                                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                                  borderColor: AppColors.borderRegular,
+                                  borderRadius: 10,
+                                  onChanged: (val) => _sponsorName = val,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const FDSizedBox(width: 12),
+                          Expanded(
+                            flex: 4,
+                            child: FDColumn(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const FDText(
+                                  'Button CTA',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                                ),
+                                const FDSizedBox(height: 6),
+                                AppTextField(
+                                  key: const ValueKey('ad-cta-input'),
+                                  value: _callToAction,
+                                  placeholder: 'e.g. Learn More',
+                                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                                  borderColor: AppColors.borderRegular,
+                                  borderRadius: 10,
+                                  onChanged: (val) => _callToAction = val,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     const FDSizedBox(height: 14),
 
                     // Target URL & Target Category
-                    FDRow(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: FDColumn(
+                    if (widget.isMobile)
+                      FDColumn(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 12,
+                        children: [
+                          FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FDText(
@@ -254,11 +404,7 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                               ),
                             ],
                           ),
-                        ),
-                        const FDSizedBox(width: 12),
-                        Expanded(
-                          flex: 4,
-                          child: FDColumn(
+                          FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const FDText(
@@ -277,9 +423,59 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      )
+                    else
+                      FDRow(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: FDColumn(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const FDText(
+                                  'Destination URL',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                                ),
+                                const FDSizedBox(height: 6),
+                                AppTextField(
+                                  key: const ValueKey('ad-url-input'),
+                                  value: _targetUrl,
+                                  placeholder: 'https://...',
+                                  keyboardType: TextInputType.url,
+                                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                                  borderColor: AppColors.borderRegular,
+                                  borderRadius: 10,
+                                  onChanged: (val) => _targetUrl = val,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const FDSizedBox(width: 12),
+                          Expanded(
+                            flex: 4,
+                            child: FDColumn(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const FDText(
+                                  'Target Category',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+                                ),
+                                const FDSizedBox(height: 6),
+                                AppTextField(
+                                  key: const ValueKey('ad-category-input'),
+                                  value: _targetCategory,
+                                  placeholder: 'all / tech / business',
+                                  backgroundColor: vm.isDarkMode ? AppColors.darkInput : AppColors.lightInput,
+                                  borderColor: AppColors.borderRegular,
+                                  borderRadius: 10,
+                                  onChanged: (val) => _targetCategory = val,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     const FDSizedBox(height: 18),
 
                     // Budget & Reach Calculator
@@ -290,8 +486,12 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppColors.borderRegular),
                       ),
-                      child: FDRow(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: FDWrap(
+                        alignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
+                        cssStyle: const {'width': '100%', 'max-width': '100%'},
                         children: [
                           FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,52 +589,52 @@ class _AdPublisherModalState extends State<AdPublisherModal> {
             ),
           ),
         ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPlacementOption(AdPlacement placement, String title, String subtitle) {
+  Widget _buildPlacementOption(AdPlacement placement, String title, String subtitle, {bool expand = true}) {
     final isSelected = _placement == placement;
-
-    return Expanded(
-      child: FDGestureDetector(
-        onTap: () => setState(() => _placement = placement),
-        child: FDContainer(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primaryBlueSubtle
-                : (widget.vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
-              width: 1.5,
+    final card = FDGestureDetector(
+      onTap: () => setState(() => _placement = placement),
+      child: FDContainer(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryBlueSubtle
+              : (widget.vm.isDarkMode ? AppColors.darkSurface : AppColors.lightSurface),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryBlue : AppColors.borderRegular,
+            width: 1.5,
+          ),
+        ),
+        child: FDColumn(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FDText(
+              title,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: isSelected
+                    ? AppColors.primaryBlueLight
+                    : (widget.vm.isDarkMode ? FlartColors.white : FlartColors.black),
+              ),
             ),
-          ),
-          child: FDColumn(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FDText(
-                title,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected
-                      ? AppColors.primaryBlueLight
-                      : (widget.vm.isDarkMode ? FlartColors.white : FlartColors.black),
-                ),
-              ),
-              const FDSizedBox(height: 2),
-              FDText(
-                subtitle,
-                style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+            const FDSizedBox(height: 2),
+            FDText(
+              subtitle,
+              style: const TextStyle(fontSize: 9, color: AppColors.textMuted),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
+    return expand ? Expanded(child: card) : card;
   }
 }

@@ -50,12 +50,17 @@ class GoogleAdBanner extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Ad Header Label & Google AdChoices Badge
-          FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
-              FDRow(
-                mainAxisSize: MainAxisSize.min,
+              FDWrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   FDContainer(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -78,7 +83,6 @@ class GoogleAdBanner extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const FDSizedBox(width: 8),
                   FDText(
                     ad.sponsorName.toUpperCase(),
                     style: const TextStyle(
@@ -121,6 +125,7 @@ class GoogleAdBanner extends StatelessWidget {
           // Banner Content: Headline + Description + Call to Action
           FDRow(
             crossAxisAlignment: CrossAxisAlignment.center,
+            cssStyle: isMobile ? const {'flex-wrap': 'wrap', 'gap': '10px'} : null,
             children: [
               if (ad.sponsorLogoUrl != null && !isMobile) ...[
                 FDContainer(

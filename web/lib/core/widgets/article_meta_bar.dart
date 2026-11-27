@@ -27,9 +27,11 @@ class ArticleMetaBar extends StatelessWidget {
     final iconSize = isCompact ? 14.0 : 16.0;
     final fontSize = isCompact ? 11.0 : 12.0;
 
-    return FDRow(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return FDWrap(
+      spacing: 6,
+      runSpacing: 4,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      cssStyle: const {'max-width': '100%'},
       children: [
         // Source Favicon
         FDImage.network(
@@ -39,7 +41,6 @@ class ArticleMetaBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(3),
           fit: BoxFit.cover,
         ),
-        const FDSizedBox(width: 6),
 
         // Source Name
         FDText(
@@ -50,7 +51,6 @@ class ArticleMetaBar extends StatelessWidget {
             color: AppColors.primaryBlue,
           ),
         ),
-        const FDSizedBox(width: 6),
 
         // Relative Timestamp
         FDText(
@@ -62,8 +62,7 @@ class ArticleMetaBar extends StatelessWidget {
         ),
 
         // Optional Read Time
-        if (readTimeMinutes != null) ...[
-          const FDSizedBox(width: 6),
+        if (readTimeMinutes != null)
           FDText(
             '• ${readTimeMinutes}m read',
             style: TextStyle(
@@ -71,11 +70,9 @@ class ArticleMetaBar extends StatelessWidget {
               color: AppColors.textMuted,
             ),
           ),
-        ],
 
         // Optional Category Badge
-        if (category != null) ...[
-          const FDSizedBox(width: 8),
+        if (category != null)
           FDContainer(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
             decoration: BoxDecoration(
@@ -91,7 +88,6 @@ class ArticleMetaBar extends StatelessWidget {
               ),
             ),
           ),
-        ],
       ],
     );
   }

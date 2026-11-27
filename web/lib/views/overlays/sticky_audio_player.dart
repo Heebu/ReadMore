@@ -16,66 +16,87 @@ class StickyAudioPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FDPositioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: FDContainer(
-        id: 'sticky-audio-player',
-        decoration: BoxDecoration(
-          color: vm.isDarkMode ? AppColors.darkRibbon : AppColors.lightCard,
-          border: const Border(top: BorderSide(color: AppColors.primaryBlueLight, width: 1.5)),
-          boxShadow: const [
-            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.5)'), blurRadius: 20, offset: Offset(0, -4)),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: FDRow(
+    return FDContainer(
+      id: 'sticky-audio-player',
+      cssStyle: const {
+        'position': 'fixed',
+        'bottom': '0',
+        'left': '0',
+        'right': '0',
+        'width': '100%',
+        'max-width': '100%',
+        'box-sizing': 'border-box',
+        'z-index': '900',
+      },
+      decoration: BoxDecoration(
+        color: vm.isDarkMode ? AppColors.darkRibbon : AppColors.lightCard,
+        border: const Border(top: BorderSide(color: AppColors.primaryBlueLight, width: 1.5)),
+        boxShadow: const [
+          BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.5)'), blurRadius: 20, offset: Offset(0, -4)),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 24, vertical: isMobile ? 10 : 12),
+      child: FDRow(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            FDRow(
-              children: [
-                FDGestureDetector(
-                  key: const ValueKey('sticky-briefing-toggle'),
-                  onTap: () => vm.toggleBriefingPlaying(),
-                  child: FDContainer(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBlue,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: FDCenter(
-                      child: FDIcon(
-                        icon: vm.isBriefingPlaying ? FDIcons.pause : FDIcons.play_arrow,
-                        size: 20,
-                        color: FlartColors.white,
-                        semanticLabel: vm.isBriefingPlaying ? 'Pause morning briefing' : 'Play morning briefing',
+            Expanded(
+              child: FDRow(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  FDGestureDetector(
+                    key: const ValueKey('sticky-briefing-toggle'),
+                    onTap: () => vm.toggleBriefingPlaying(),
+                    child: FDContainer(
+                      width: isMobile ? 36 : 40,
+                      height: isMobile ? 36 : 40,
+                      cssStyle: const {'flex-shrink': '0'},
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryBlue,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: FDCenter(
+                        child: FDIcon(
+                          icon: vm.isBriefingPlaying ? FDIcons.pause : FDIcons.play_arrow,
+                          size: isMobile ? 18 : 20,
+                          color: FlartColors.white,
+                          semanticLabel: vm.isBriefingPlaying ? 'Pause morning briefing' : 'Play morning briefing',
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const FDSizedBox(width: 14),
-                FDColumn(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FDText(
-                      'ReadMore Morning Intelligence Briefing',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                      ),
+                  FDSizedBox(width: isMobile ? 10 : 14),
+                  Expanded(
+                    child: FDColumn(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FDText(
+                          'ReadMore Morning Intelligence Briefing',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: isMobile ? 12 : 13,
+                            fontWeight: FontWeight.bold,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
+                        ),
+                        FDText(
+                          isMobile
+                              ? 'Ep #142 • 5m • ${vm.briefingElapsedFormatted}'
+                              : 'Episode #142 • 5 mins • AI Voice Synthesized',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11, color: FlartColors.grey),
+                        ),
+                      ],
                     ),
-                    const FDText(
-                      'Episode #142 • 5 mins • AI Voice Synthesized',
-                      style: TextStyle(fontSize: 11, color: FlartColors.grey),
-                    ),
+                  ),
+                  if (!isMobile) ...[
+                    const FDSizedBox(width: 14),
+                    AudioWaveformVisualizer(isPlaying: vm.isBriefingPlaying),
                   ],
-                ),
-                const FDSizedBox(width: 14),
-                AudioWaveformVisualizer(isPlaying: vm.isBriefingPlaying),
-              ],
+                ],
+              ),
             ),
             if (!isMobile)
               FDRow(
@@ -111,8 +132,11 @@ class StickyAudioPlayer extends StatelessWidget {
                     vm.briefingTotalFormatted,
                     style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                   ),
+                  const FDSizedBox(width: 14),
                 ],
-              ),
+              )
+            else
+              const FDSizedBox(width: 8),
             FDGestureDetector(
               key: const ValueKey('sticky-briefing-close'),
               onTap: () => vm.closeBottomBriefing(),
@@ -124,7 +148,6 @@ class StickyAudioPlayer extends StatelessWidget {
               ),
             ),
           ],
-        ),
       ),
     );
   }

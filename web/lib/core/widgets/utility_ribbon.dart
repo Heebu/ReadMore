@@ -34,32 +34,44 @@ class UtilityRibbon extends StatelessWidget {
       ),
       child: CenteredShell(
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 28, vertical: 6),
-        child: FDRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: FDWrap(
+          alignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 6,
+          cssStyle: const {
+            'width': '100%',
+            'max-width': '100%',
+            'box-sizing': 'border-box',
+          },
           children: [
             // Left: Broadsheet Vol/No & Weather Dateline
             FDContainer(
-              cssStyle: const {'flex-shrink': '0'},
+              cssStyle: const {
+                'min-width': '0',
+                'max-width': '100%',
+                'box-sizing': 'border-box',
+              },
               child: FDGestureDetector(
                 onTap: () => vm.setActiveScreen('local'),
-                child: FDRow(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: FDWrap(
+                  spacing: isMobile ? 6 : 10,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  cssStyle: const {'max-width': '100%'},
                   children: [
                     FDText(
                       'VOL. CXLII No. 59,820  ✦  ${vm.selectedCity.toUpperCase()}, ${formatMastheadDate(DateTime.now())}',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: isMobile ? 9 : 10,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Space Grotesk',
-                        letterSpacing: 0.08,
+                        letterSpacing: isMobile ? 0.04 : 0.08,
                         color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#4A4842'),
                       ),
                     ),
-                    const FDSizedBox(width: 10),
-                    const FDText('·', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
-                    const FDSizedBox(width: 10),
+                    if (!isMobile)
+                      const FDText('·', style: TextStyle(fontSize: 12, color: AppColors.borderRegular)),
                     FDContainer(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -76,7 +88,7 @@ class UtilityRibbon extends StatelessWidget {
                           FDText(
                             '${vm.selectedCity.toUpperCase()}: ${weather.temperatureC.toInt()}°C',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: isMobile ? 9 : 10,
                               fontWeight: FontWeight.w800,
                               fontFamily: 'Space Grotesk',
                               letterSpacing: 0.06,
@@ -92,18 +104,22 @@ class UtilityRibbon extends StatelessWidget {
             ),
 
             // Right: Real-time Mini Stock Ticker & Edition Badge
-            if (!isMobile)
-              FDContainer(
-                cssStyle: const {'flex-shrink': '0'},
-                child: FDRow(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                  if (!isTablet)
+            FDContainer(
+              cssStyle: const {
+                'min-width': '0',
+                'max-width': '100%',
+                'box-sizing': 'border-box',
+              },
+              child: FDWrap(
+                spacing: 10,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (!isMobile && !isTablet)
                     FDGestureDetector(
                       onTap: () => vm.setActiveScreen('markets'),
                       child: FDContainer(
-                        margin: const EdgeInsets.only(right: 14),
+                        margin: const EdgeInsets.only(right: 4),
                         child: FDRow(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -144,7 +160,7 @@ class UtilityRibbon extends StatelessWidget {
                   FDGestureDetector(
                     onTap: () => vm.openEditionModal(),
                     child: FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 2 : 3),
                       decoration: BoxDecoration(
                         color: vm.isDarkMode ? const FlartColor('#1A1B22') : const FlartColor('#FAF9F5'),
                         borderRadius: BorderRadius.circular(2),
@@ -159,10 +175,10 @@ class UtilityRibbon extends StatelessWidget {
                           FDText(
                             '[ ${vm.selectedEdition.toUpperCase()} EDITION · FIVE CENTS ]',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: isMobile ? 9 : 10,
                               fontWeight: FontWeight.w800,
                               fontFamily: 'Space Grotesk',
-                              letterSpacing: 0.08,
+                              letterSpacing: isMobile ? 0.04 : 0.08,
                               color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
                           ),

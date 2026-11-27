@@ -80,10 +80,33 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
       onSwipeLeft: () => vm.nextArticle(),
       onSwipeRight: () => vm.prevArticle(),
       child: FDContainer(
+        onClick: () => vm.closeReaderModal(),
         decoration: const BoxDecoration(color: FlartColor('rgba(0, 0, 0, 0.85)')),
+        cssStyle: const {
+          'position': 'fixed',
+          'top': '0',
+          'left': '0',
+          'right': '0',
+          'bottom': '0',
+          'z-index': '1000',
+          'overflow-y': 'auto',
+        },
         child: FDStack(
+          clipBehavior: Clip.none,
+          cssStyle: const {
+            'width': '100%',
+            'height': 'auto',
+            'min-height': '100%',
+          },
           children: [
             FDCenter(
+              cssStyle: const {
+                'height': 'auto',
+                'min-height': '100%',
+                'align-items': 'safe center',
+                'padding': '0',
+                'box-sizing': 'border-box',
+              },
               child: FDElement(
                 tag: 'div',
                 id: 'reader-modal-dialog',
@@ -93,10 +116,20 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                   'aria-label': article.title,
                   'tabindex': '-1',
                 },
-                styles: const {'outline': 'none', 'max-width': '100%'},
+                styles: {
+                  'outline': 'none',
+                  'box-sizing': 'border-box',
+                  'width': isMobile ? 'calc(100% - 16px)' : 'min(860px, calc(100% - 48px))',
+                  'max-width': 'calc(100vw - 16px)',
+                  'min-width': '0',
+                  'margin': isMobile ? '8px auto' : '24px auto',
+                  'cursor': 'default',
+                },
+                events: {
+                  'click': (dynamic e) => stopEventPropagation(e),
+                },
                 children: [
                   FDContainer(
-                    margin: EdgeInsets.all(isMobile ? 8 : 24),
                     decoration: BoxDecoration(
                       color: vm.isDarkMode ? const FlartColor('#111217') : const FlartColor('#F7F5F0'),
                       borderRadius: BorderRadius.circular(4),
@@ -108,13 +141,35 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                         BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.6)'), blurRadius: 40, offset: Offset(0, 16)),
                       ],
                     ),
+                    cssStyle: const {
+                      'width': '100%',
+                      'max-width': '100%',
+                      'min-width': '0',
+                      'box-sizing': 'border-box',
+                    },
                     child: FDConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 860, maxHeight: 880),
+                      cssStyle: const {
+                        'width': '100%',
+                        'max-width': '100%',
+                        'min-width': '0',
+                      },
                       child: FDSingleChildScrollView(
+                        cssStyle: {
+                          'max-height': isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 56px)',
+                        },
                         child: FDContainer(
-                          padding: EdgeInsets.all(isMobile ? 18 : 36),
+                          padding: EdgeInsets.all(isMobile ? 16 : 36),
+                          cssStyle: const {
+                            'width': '100%',
+                            'max-width': '100%',
+                            'min-width': '0',
+                            'box-sizing': 'border-box',
+                            'overflow-wrap': 'break-word',
+                          },
                           child: FDColumn(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
+                            cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                             children: [
                               // Top Monochrome Reading Progress Bar
                               FDContainer(
@@ -145,9 +200,16 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                               // Top Modal Toolbar: Category, Article Flip Counter, Font Size, Close
                               FDRow(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0'},
                                 children: [
-                                  FDRow(
-                                    children: [
+                                  Expanded(
+                                    child: FDWrap(
+                                      spacing: 6,
+                                      runSpacing: 6,
+                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                      cssStyle: const {'min-width': '0', 'max-width': '100%'},
+                                      children: [
                                       FDContainer(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                         decoration: BoxDecoration(
@@ -169,7 +231,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                           ),
                                         ),
                                       ),
-                                      const FDSizedBox(width: 8),
                                       // Article Index Counter with quick arrow flips
                                       if (vm.activeArticleIndex >= 0 && vm.totalArticlesCount > 0)
                                         FDContainer(
@@ -216,7 +277,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                             ],
                                           ),
                                         ),
-                                      const FDSizedBox(width: 8),
                                       FDText(
                                         '✦ ${article.readTimeMinutes}m read',
                                         style: TextStyle(
@@ -226,8 +286,13 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                         ),
                                       ),
                                     ],
+                                    ),
                                   ),
+                                  const FDSizedBox(width: 8),
                                   FDRow(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    cssStyle: const {'flex-shrink': '0'},
                                     children: [
                                       // Font Size Controls (A- / A+)
                                       FDGestureDetector(
@@ -267,7 +332,7 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                           ),
                                         ),
                                       ),
-                                      const FDSizedBox(width: 14),
+                                      const FDSizedBox(width: 12),
                                       FDGestureDetector(
                                         key: const ValueKey('reader-close-btn'),
                                         onTap: () => vm.closeReaderModal(),
@@ -299,7 +364,11 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                               const FDSizedBox(height: 14),
 
                               // Source & Accurate Relative Timestamp
-                              FDRow(
+                              FDWrap(
+                                spacing: 8,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                cssStyle: const {'width': '100%', 'max-width': '100%'},
                                 children: [
                                   FDImage.network(
                                     article.source.iconUrl,
@@ -308,7 +377,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                     borderRadius: BorderRadius.circular(2),
                                     fit: BoxFit.cover,
                                   ),
-                                  const FDSizedBox(width: 8),
                                   FDText(
                                     article.source.name,
                                     style: TextStyle(
@@ -318,7 +386,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                       color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                                     ),
                                   ),
-                                  const FDSizedBox(width: 8),
                                   FDText(
                                     '• ${formatRelativeTime(article.publishedAt)} • Syndicated Press Desk',
                                     style: TextStyle(
@@ -345,11 +412,11 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                   ),
                                   child: FDImage.network(
                                     article.imageUrl!,
-                                    height: 380,
+                                    height: isMobile ? 210 : 380,
                                     fit: BoxFit.cover,
-                                    cssStyle: const {
+                                    cssStyle: {
                                       'width': '100%',
-                                      'height': '380px',
+                                      'height': '${isMobile ? 210 : 380}px',
                                       'object-fit': 'cover',
                                       'display': 'block',
                                     },
@@ -358,7 +425,7 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
 
                               // TTS Audio Player Bar in Broadsheet Dispatch Styling
                               FDContainer(
-                                padding: const EdgeInsets.all(14),
+                                padding: EdgeInsets.all(isMobile ? 12 : 14),
                                 decoration: BoxDecoration(
                                   color: vm.isDarkMode ? const FlartColor('#191A22') : const FlartColor('#EFECE4'),
                                   borderRadius: BorderRadius.circular(3),
@@ -369,62 +436,72 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                 ),
                                 child: FDRow(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    FDRow(
-                                      children: [
-                                        FDGestureDetector(
-                                          onTap: () => vm.toggleAudioPlaying(),
-                                          child: FDContainer(
-                                            width: 32,
-                                            height: 32,
-                                            decoration: BoxDecoration(
-                                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                                              borderRadius: BorderRadius.circular(2),
-                                            ),
-                                            child: FDCenter(
-                                              child: FDIcon(
-                                                icon: vm.isAudioPlaying ? FDIcons.pause : FDIcons.play_arrow,
-                                                size: 16,
-                                                color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
-                                                semanticLabel: vm.isAudioPlaying ? 'Pause narration' : 'Play narration',
+                                    Expanded(
+                                      child: FDRow(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          FDGestureDetector(
+                                            onTap: () => vm.toggleAudioPlaying(),
+                                            child: FDContainer(
+                                              width: 32,
+                                              height: 32,
+                                              cssStyle: const {'flex-shrink': '0'},
+                                              decoration: BoxDecoration(
+                                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                                borderRadius: BorderRadius.circular(2),
+                                              ),
+                                              child: FDCenter(
+                                                child: FDIcon(
+                                                  icon: vm.isAudioPlaying ? FDIcons.pause : FDIcons.play_arrow,
+                                                  size: 16,
+                                                  color: vm.isDarkMode ? FlartColors.black : FlartColors.white,
+                                                  semanticLabel: vm.isAudioPlaying ? 'Pause narration' : 'Play narration',
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        const FDSizedBox(width: 12),
-                                        FDColumn(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            FDText(
-                                              vm.isAudioPlaying
-                                                  ? 'PLAYING SPOKEN DISPATCH...'
-                                                  : 'LISTEN TO SPOKEN DISPATCH (${article.readTimeMinutes}M)',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w900,
-                                                fontFamily: 'Space Grotesk',
-                                                letterSpacing: 0.08,
-                                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                                              ),
+                                          const FDSizedBox(width: 10),
+                                          Expanded(
+                                            child: FDColumn(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                FDText(
+                                                  vm.isAudioPlaying
+                                                      ? 'PLAYING SPOKEN DISPATCH...'
+                                                      : 'LISTEN TO SPOKEN DISPATCH (${article.readTimeMinutes}M)',
+                                                  style: TextStyle(
+                                                    fontSize: isMobile ? 10 : 11,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontFamily: 'Space Grotesk',
+                                                    letterSpacing: 0.06,
+                                                    color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                                                  ),
+                                                ),
+                                                FDText(
+                                                  'Synthesized Press Narration • ${(vm.audioProgress * 100).toInt()}% Read',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontFamily: 'Newsreader',
+                                                    fontStyle: FontStyle.italic,
+                                                    color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            FDText(
-                                              'Synthesized Press Narration • ${(vm.audioProgress * 100).toInt()}% Read',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontFamily: 'Newsreader',
-                                                fontStyle: FontStyle.italic,
-                                                color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
-                                              ),
+                                          ),
+                                          if (!isMobile) ...[
+                                            const FDSizedBox(width: 14),
+                                            AudioWaveformVisualizer(
+                                              isPlaying: vm.isAudioPlaying,
+                                              color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                                             ),
                                           ],
-                                        ),
-                                        const FDSizedBox(width: 14),
-                                        AudioWaveformVisualizer(
-                                          isPlaying: vm.isAudioPlaying,
-                                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
+                                    const FDSizedBox(width: 8),
                                     FDGestureDetector(
                                       onTap: () => vm.cycleAudioSpeed(),
                                       child: FDContainer(
@@ -525,11 +602,15 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                       width: 1,
                                     ),
                                   ),
-                                  child: FDRow(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                  child: FDWrap(
+                                    alignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    spacing: 12,
+                                    runSpacing: 12,
+                                    cssStyle: const {'width': '100%', 'max-width': '100%'},
                                     children: [
-                                      Expanded(
+                                      FDContainer(
+                                        cssStyle: const {'min-width': '0', 'max-width': '100%', 'flex': '1 1 220px'},
                                         child: FDColumn(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
@@ -555,7 +636,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                           ],
                                         ),
                                       ),
-                                      const FDSizedBox(width: 14),
                                       FDContainer(
                                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                         decoration: BoxDecoration(
@@ -581,11 +661,16 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                               const FDSizedBox(height: 24),
 
                               // Action Buttons Bar
-                              FDRow(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                              FDWrap(
+                                alignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 10,
+                                runSpacing: 10,
+                                cssStyle: const {'width': '100%', 'max-width': '100%'},
                                 children: [
-                                  FDRow(
+                                  FDWrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
                                     children: [
                                       InteractionPill(
                                         icon: FDIcons.favorite,
@@ -594,7 +679,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                         onTap: () => vm.toggleBookmark(article.id),
                                         isDarkMode: vm.isDarkMode,
                                       ),
-                                      const FDSizedBox(width: 8),
                                       InteractionPill(
                                         icon: FDIcons.hourglass,
                                         label: isReadLater ? 'In Queue' : 'Read Later',
@@ -602,7 +686,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                         onTap: () => vm.toggleReadLater(article.id),
                                         isDarkMode: vm.isDarkMode,
                                       ),
-                                      const FDSizedBox(width: 8),
                                       InteractionPill(
                                         icon: FDIcons.star,
                                         label: '$totalLikes ${totalLikes == 1 ? 'Like' : 'Likes'}',
@@ -679,97 +762,117 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
 
             // Floating Previous Article Side Pill (Desktop only)
             if (!isMobile)
-              FDPositioned(
-                left: 20,
-                top: 0,
-                bottom: 0,
-                child: FDCenter(
-                  child: FDGestureDetector(
-                    onTap: () => vm.prevArticle(),
-                    child: FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
-                        borderRadius: BorderRadius.circular(3),
-                        border: Border.all(
-                          color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
-                          width: 1,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
-                        ],
-                      ),
-                      child: FDRow(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FDIcon(
-                            icon: FDIcons.arrow_back,
-                            size: 14,
-                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+              FDContainer(
+                cssStyle: const {
+                  'position': 'fixed',
+                  'left': '20px',
+                  'top': '50%',
+                  'transform': 'translateY(-50%)',
+                  'z-index': '1001',
+                },
+                child: FDElement(
+                  tag: 'div',
+                  events: {
+                    'click': (dynamic e) => stopEventPropagation(e),
+                  },
+                  children: [
+                    FDGestureDetector(
+                      onTap: () => vm.prevArticle(),
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(
+                            color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
+                            width: 1,
                           ),
-                          const FDSizedBox(width: 6),
-                          FDText(
-                            'PREV',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Space Grotesk',
-                              letterSpacing: 0.08,
+                          boxShadow: const [
+                            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
+                          ],
+                        ),
+                        child: FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FDIcon(
+                              icon: FDIcons.arrow_back,
+                              size: 14,
                               color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
-                          ),
-                        ],
+                            const FDSizedBox(width: 6),
+                            FDText(
+                              'PREV',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Space Grotesk',
+                                letterSpacing: 0.08,
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
 
             // Floating Next Article Side Pill (Desktop only)
             if (!isMobile)
-              FDPositioned(
-                right: 20,
-                top: 0,
-                bottom: 0,
-                child: FDCenter(
-                  child: FDGestureDetector(
-                    onTap: () => vm.nextArticle(),
-                    child: FDContainer(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
-                        borderRadius: BorderRadius.circular(3),
-                        border: Border.all(
-                          color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
-                          width: 1,
+              FDContainer(
+                cssStyle: const {
+                  'position': 'fixed',
+                  'right': '20px',
+                  'top': '50%',
+                  'transform': 'translateY(-50%)',
+                  'z-index': '1001',
+                },
+                child: FDElement(
+                  tag: 'div',
+                  events: {
+                    'click': (dynamic e) => stopEventPropagation(e),
+                  },
+                  children: [
+                    FDGestureDetector(
+                      onTap: () => vm.nextArticle(),
+                      child: FDContainer(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(
+                            color: vm.isDarkMode ? const FlartColor('#33353F') : const FlartColor('#C8C4B7'),
+                            width: 1,
+                          ),
+                          boxShadow: const [
+                            BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
+                          ],
                         ),
-                        boxShadow: const [
-                          BoxShadow(color: FlartColor('rgba(0, 0, 0, 0.4)'), blurRadius: 16, offset: Offset(0, 4)),
-                        ],
-                      ),
-                      child: FDRow(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FDText(
-                            'NEXT',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Space Grotesk',
-                              letterSpacing: 0.08,
+                        child: FDRow(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FDText(
+                              'NEXT',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Space Grotesk',
+                                letterSpacing: 0.08,
+                                color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                              ),
+                            ),
+                            const FDSizedBox(width: 6),
+                            FDIcon(
+                              icon: FDIcons.arrow_forward,
+                              size: 14,
                               color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                             ),
-                          ),
-                          const FDSizedBox(width: 6),
-                          FDIcon(
-                            icon: FDIcons.arrow_forward,
-                            size: 14,
-                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
           ],
@@ -796,8 +899,10 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
         ),
         if (!vm.isAuthenticated) ...[
           const FDSizedBox(height: 6),
-          FDRow(
-            mainAxisSize: MainAxisSize.min,
+          FDWrap(
+            spacing: 4,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               const FDText(
                 'Posting as Guest Reader • ',
@@ -820,11 +925,22 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
               ),
             ],
           ),
+        ] else ...[
+          const FDSizedBox(height: 6),
+          FDText(
+            'Posting as ${vm.currentUser.displayName} • Subscriber Desk',
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textMuted,
+            ),
+          ),
         ],
         const FDSizedBox(height: 14),
 
         // Add Comment Input (DOM-preserving AppTextField)
         FDRow(
+          cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0'},
           children: [
             Expanded(
               child: AppTextField(
@@ -888,10 +1004,17 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                 child: FDColumn(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FDRow(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    FDWrap(
+                      alignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 6,
+                      cssStyle: const {'width': '100%', 'max-width': '100%'},
                       children: [
-                        FDRow(
+                        FDWrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             FDImage.network(
                               c.avatarUrl,
@@ -900,7 +1023,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                               borderRadius: BorderRadius.circular(2),
                               fit: BoxFit.cover,
                             ),
-                            const FDSizedBox(width: 8),
                             FDText(
                               c.author,
                               style: TextStyle(
@@ -910,7 +1032,6 @@ class _ReaderViewModalState extends State<ReaderViewModal> {
                                 color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
                               ),
                             ),
-                            const FDSizedBox(width: 8),
                             FDText(
                               c.timeAgo,
                               style: TextStyle(

@@ -46,6 +46,11 @@ class ArticleCard extends StatelessWidget {
           ],
         ),
         cssStyle: const {
+          'width': '100%',
+          'max-width': '100%',
+          'min-width': '0',
+          'box-sizing': 'border-box',
+          'overflow-wrap': 'break-word',
           'transition': 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease',
           'cursor': 'pointer',
         },
@@ -171,12 +176,16 @@ class ArticleCard extends StatelessWidget {
                   ],
 
                   // Action Pills & Like Count
-                  FDRow(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  FDWrap(
+                    alignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 8,
+                    cssStyle: const {'width': '100%', 'max-width': '100%'},
                     children: [
-                      FDRow(
-                        mainAxisSize: MainAxisSize.min,
+                      FDWrap(
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
                           InteractionPill(
                             icon: FDIcons.favorite,
@@ -185,7 +194,6 @@ class ArticleCard extends StatelessWidget {
                             onTap: () => vm.toggleBookmark(article.id),
                             isDarkMode: vm.isDarkMode,
                           ),
-                          const FDSizedBox(width: 8),
                           InteractionPill(
                             icon: FDIcons.hourglass,
                             label: isReadLater ? 'Queued' : 'Later',

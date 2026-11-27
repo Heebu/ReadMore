@@ -78,15 +78,16 @@ class BreakingTicker extends StatelessWidget {
                 onClick: () => vm.openArticleReader(breakingArticle),
                 cssStyle: const {
                   'width': '100%',
+                  'max-width': '100%',
                   'min-width': '0',
                   'overflow': 'hidden',
-                  'white-space': 'nowrap',
-                  'text-overflow': 'ellipsis',
                   'display': 'block',
                   'cursor': 'pointer',
                 },
                 child: FDText(
                   breakingArticle.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
                     fontStyle: FontStyle.italic,

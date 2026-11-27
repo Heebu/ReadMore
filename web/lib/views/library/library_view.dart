@@ -35,12 +35,16 @@ class LibraryView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Sub-tabs Header
-        FDRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        FDWrap(
+          alignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          cssStyle: const {'width': '100%', 'max-width': '100%'},
           children: [
-            FDRow(
-              mainAxisSize: MainAxisSize.min,
+            FDWrap(
+              spacing: 4,
+              runSpacing: 8,
               children: tabs.map((t) {
                 return FilterChipPill(
                   label: t['name'] as String,

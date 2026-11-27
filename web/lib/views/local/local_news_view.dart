@@ -49,7 +49,7 @@ class LocalNewsView extends StatelessWidget {
 
         // Local Weather Hero Spotlight Card in Broadsheet Dispatch Styling
         FDContainer(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isMobile ? 16 : 24),
           decoration: BoxDecoration(
             color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#FFFFFF'),
             borderRadius: BorderRadius.circular(3),
@@ -58,75 +58,85 @@ class LocalNewsView extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: FDRow(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
+          child: FDWrap(
+            alignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 12,
+            cssStyle: const {'width': '100%', 'max-width': '100%'},
             children: [
-              FDColumn(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FDRow(
-                    children: [
-                      const FDText('📍 ', style: TextStyle(fontSize: 16)),
-                      FDText(
-                        '${vm.selectedCity.toUpperCase()}, ${weather.country.toUpperCase()}',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Playfair Display',
-                          letterSpacing: 0.02,
-                          color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+              FDContainer(
+                cssStyle: const {'min-width': '0', 'max-width': '100%'},
+                child: FDColumn(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FDWrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const FDText('📍', style: TextStyle(fontSize: 16)),
+                        FDText(
+                          '${vm.selectedCity.toUpperCase()}, ${weather.country.toUpperCase()}',
+                          style: TextStyle(
+                            fontSize: isMobile ? 18 : 22,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Playfair Display',
+                            letterSpacing: 0.02,
+                            color: vm.isDarkMode ? FlartColors.white : FlartColors.black,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const FDSizedBox(height: 6),
-                  FDText(
-                    weather.condition,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontFamily: 'Newsreader',
-                      fontStyle: FontStyle.italic,
-                      color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
+                      ],
                     ),
-                  ),
-                  const FDSizedBox(height: 12),
-                  FDRow(
-                    children: [
-                      FDText(
-                        'Humidity: ${weather.humidity}%',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontFamily: 'Space Grotesk',
-                          color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
-                        ),
+                    const FDSizedBox(height: 6),
+                    FDText(
+                      weather.condition,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontFamily: 'Newsreader',
+                        fontStyle: FontStyle.italic,
+                        color: vm.isDarkMode ? const FlartColor('#A2A096') : const FlartColor('#555555'),
                       ),
-                      const FDSizedBox(width: 16),
-                      FDText(
-                        'Wind: ${weather.windSpeedKmh} km/h',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontFamily: 'Space Grotesk',
-                          color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                    ),
+                    const FDSizedBox(height: 12),
+                    FDWrap(
+                      spacing: 14,
+                      runSpacing: 6,
+                      children: [
+                        FDText(
+                          'Humidity: ${weather.humidity}%',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: 'Space Grotesk',
+                            color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                          ),
                         ),
-                      ),
-                      const FDSizedBox(width: 16),
-                      FDText(
-                        'Air Quality: 32 (Good)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontFamily: 'Space Grotesk',
-                          color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                        FDText(
+                          'Wind: ${weather.windSpeedKmh} km/h',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: 'Space Grotesk',
+                            color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        FDText(
+                          'Air Quality: 32 (Good)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: 'Space Grotesk',
+                            color: vm.isDarkMode ? const FlartColor('#8E8C85') : const FlartColor('#666666'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               FDText(
                 '${weather.temperatureC.toInt()}°C',
                 style: TextStyle(
-                  fontSize: 44,
+                  fontSize: isMobile ? 34 : 44,
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Playfair Display',
                   color: vm.isDarkMode ? const FlartColor('#F4F3EE') : const FlartColor('#111111'),

@@ -47,8 +47,23 @@ class _FullCoverageModalState extends State<FullCoverageModal> {
     final cluster = vm.fullCoverageCluster;
 
     return FDContainer(
+      onClick: () => vm.closeFullCoverageModal(),
       decoration: const BoxDecoration(color: FlartColor('rgba(0, 0, 0, 0.85)')),
+      cssStyle: const {
+        'position': 'fixed',
+        'top': '0',
+        'left': '0',
+        'right': '0',
+        'bottom': '0',
+        'z-index': '1000',
+        'overflow-y': 'auto',
+      },
       child: FDCenter(
+        cssStyle: const {
+          'height': 'auto',
+          'min-height': '100%',
+          'align-items': 'safe center',
+        },
         child: FDElement(
           tag: 'div',
           id: 'full-coverage-modal-dialog',
@@ -57,31 +72,67 @@ class _FullCoverageModalState extends State<FullCoverageModal> {
             'aria-modal': 'true',
             'aria-label': cluster.topicHeadline,
           },
-          styles: const {'max-width': '100%'},
+          styles: {
+            'box-sizing': 'border-box',
+            'width': isMobile ? 'calc(100% - 16px)' : 'min(820px, calc(100% - 48px))',
+            'max-width': 'calc(100vw - 16px)',
+            'min-width': '0',
+            'margin': isMobile ? '8px auto' : '24px auto',
+            'cursor': 'default',
+          },
+          events: {
+            'click': (dynamic e) => stopEventPropagation(e),
+          },
           children: [
             FDContainer(
-              margin: EdgeInsets.all(isMobile ? 12 : 32),
               decoration: BoxDecoration(
                 color: vm.isDarkMode ? AppColors.darkCard : AppColors.lightCard,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: AppColors.primaryBlueLight, width: 1.5),
               ),
+              cssStyle: const {
+                'width': '100%',
+                'max-width': '100%',
+                'min-width': '0',
+                'box-sizing': 'border-box',
+              },
               child: FDConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 820, maxHeight: 820),
+                cssStyle: const {
+                  'width': '100%',
+                  'max-width': '100%',
+                  'min-width': '0',
+                },
                 child: FDSingleChildScrollView(
+                  cssStyle: {
+                    'max-height': isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 72px)',
+                  },
                   child: FDContainer(
-                    padding: const EdgeInsets.all(28),
+                    padding: EdgeInsets.all(isMobile ? 16 : 28),
+                    cssStyle: const {
+                      'width': '100%',
+                      'max-width': '100%',
+                      'min-width': '0',
+                      'box-sizing': 'border-box',
+                      'overflow-wrap': 'break-word',
+                    },
                     child: FDColumn(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
+                      cssStyle: const {'width': '100%', 'min-width': '0', 'max-width': '100%'},
                       children: [
                         FDRow(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const FDText(
-                              'Full Coverage Deep Dive',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primaryBlueLight),
+                            const Expanded(
+                              child: FDText(
+                                'Full Coverage Deep Dive',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primaryBlueLight),
+                              ),
                             ),
+                            const FDSizedBox(width: 8),
                             FDGestureDetector(
+                              key: const ValueKey('full-coverage-close-btn'),
                               onTap: () => vm.closeFullCoverageModal(),
                               child: const FDIcon(
                                 icon: FDIcons.close,
@@ -95,7 +146,7 @@ class _FullCoverageModalState extends State<FullCoverageModal> {
                         const FDSizedBox(height: 12),
                         FDText(
                           cluster.topicHeadline,
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                          style: TextStyle(fontSize: isMobile ? 18 : 22, fontWeight: FontWeight.w800),
                         ),
                         const FDSizedBox(height: 18),
 
@@ -119,11 +170,15 @@ class _FullCoverageModalState extends State<FullCoverageModal> {
                                 borderRadius: BorderRadius.circular(10),
                                 border: const Border(left: BorderSide(color: AppColors.primaryBlue, width: 3)),
                               ),
+                              cssStyle: const {'width': '100%', 'max-width': '100%', 'box-sizing': 'border-box'},
                               child: FDColumn(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  FDRow(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  FDWrap(
+                                    alignment: MainAxisAlignment.spaceBetween,
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    cssStyle: const {'width': '100%', 'max-width': '100%'},
                                     children: [
                                       FDText(ev.time, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryBlueLight)),
                                       FDText(ev.sourceName, style: const TextStyle(fontSize: 11, color: FlartColors.grey)),

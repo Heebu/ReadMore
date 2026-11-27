@@ -27,7 +27,7 @@ class ForYouView extends StatelessWidget {
       children: [
         // Personalized Header Banner in Broadsheet Dispatch Styling
         FDContainer(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(isMobile ? 16 : 24),
           decoration: BoxDecoration(
             color: vm.isDarkMode ? const FlartColor('#15161C') : const FlartColor('#111111'),
             borderRadius: BorderRadius.circular(3),
@@ -36,22 +36,26 @@ class ForYouView extends StatelessWidget {
               width: 1,
             ),
           ),
+          cssStyle: const {'width': '100%', 'max-width': '100%', 'min-width': '0', 'box-sizing': 'border-box'},
           child: FDColumn(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FDRow(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              FDWrap(
+                alignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 10,
+                cssStyle: const {'width': '100%', 'max-width': '100%'},
                 children: [
-                  FDRow(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  FDWrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: const [
                       FDText(
                         '✦',
                         style: TextStyle(fontSize: 16, color: FlartColors.white),
                       ),
-                      FDSizedBox(width: 8),
                       FDText(
                         'YOUR PERSONALIZED INTELLIGENCE FEED',
                         style: TextStyle(

@@ -79,16 +79,20 @@ class ExploreView extends StatelessWidget {
         const FDSizedBox(height: 20),
 
         // Sort By & Results Count Bar
-        FDRow(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        FDWrap(
+          alignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          cssStyle: const {'width': '100%', 'max-width': '100%'},
           children: [
             FDText(
               '${results.length} ${results.length == 1 ? 'story' : 'stories'} found',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: FlartColors.grey),
             ),
-            FDRow(
-              mainAxisSize: MainAxisSize.min,
+            FDWrap(
+              spacing: 6,
+              runSpacing: 6,
               children: [
                 FilterChipPill(
                   label: 'Latest',

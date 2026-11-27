@@ -44,6 +44,11 @@ class CompactArticleTile extends StatelessWidget {
           ],
         ),
         cssStyle: const {
+          'width': '100%',
+          'max-width': '100%',
+          'min-width': '0',
+          'box-sizing': 'border-box',
+          'overflow-wrap': 'break-word',
           'transition': 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease',
           'cursor': 'pointer',
         },
